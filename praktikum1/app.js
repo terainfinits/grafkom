@@ -119,6 +119,11 @@ let colorIndex = 0;
 // Menyimpan status jeda animasi
 let isPaused = false;
 
+// Fitur Tambahan: Movement Mode Toggle
+// Mode gerak player: "state" (mulus, selama tombol ditahan)
+// atau "event" (kaku, sekali loncat tiap tombol ditekan)
+let movementMode = "state";
+
 // Fitur Tambahan: Reset
 // Menyimpan kondisi awal semua objek supaya bisa dikembalikan lagi
 const initialState = {
@@ -451,38 +456,42 @@ function updateMovingBall() {
 }
 
 function updatePlayer() {
-    if (keys["ArrowLeft"]) {
-        player.x -= player.speed;
-    }
+    // Fitur Tambahan: Movement Mode Toggle
+    // Gerakan halus per-frame ini hanya berlaku di mode state-based
+    if (movementMode === "state") {
+        if (keys["ArrowLeft"]) {
+            player.x -= player.speed;
+        }
 
-    if (keys["ArrowRight"]) {
-        player.x += player.speed;
-    }
+        if (keys["ArrowRight"]) {
+            player.x += player.speed;
+        }
 
-    if (keys["ArrowUp"]) {
-        player.y -= player.speed;
-    }
+        if (keys["ArrowUp"]) {
+            player.y -= player.speed;
+        }
 
-    if (keys["ArrowDown"]) {
-        player.y += player.speed;
-    }
+        if (keys["ArrowDown"]) {
+            player.y += player.speed;
+        }
 
-    // Fitur Tambahan: WASD Movement
-    // Kontrol player alternatif selain arrow keys
-    if (keys["a"] || keys["A"]) {
-        player.x -= player.speed;
-    }
+        // Fitur Tambahan: WASD Movement
+        // Kontrol player alternatif selain arrow keys
+        if (keys["a"] || keys["A"]) {
+            player.x -= player.speed;
+        }
 
-    if (keys["d"] || keys["D"]) {
-        player.x += player.speed;
-    }
+        if (keys["d"] || keys["D"]) {
+            player.x += player.speed;
+        }
 
-    if (keys["w"] || keys["W"]) {
-        player.y -= player.speed;
-    }
+        if (keys["w"] || keys["W"]) {
+            player.y -= player.speed;
+        }
 
-    if (keys["s"] || keys["S"]) {
-        player.y += player.speed;
+        if (keys["s"] || keys["S"]) {
+            player.y += player.speed;
+        }
     }
 
     player.x = Math.max(
@@ -548,6 +557,19 @@ pauseButton.addEventListener("click", function() {
     pauseButton.textContent = isPaused ? "Resume" : "Pause";
 });
 
+// Fitur Tambahan: Movement Mode Toggle
+// Logika tombol untuk berpindah antara mode state-based dan event-based
+const movementModeButton = document.getElementById("movementModeButton");
+
+movementModeButton.addEventListener("click", function() {
+    movementMode = movementMode === "state" ? "event" : "state";
+
+    movementModeButton.textContent =
+        movementMode === "state"
+            ? "Movement: State-based"
+            : "Movement: Event-based";
+});
+
 // Fitur Tambahan: Reset
 // Logika tombol untuk mengembalikan semua objek ke kondisi awal
 const resetButton = document.getElementById("resetButton");
@@ -573,6 +595,9 @@ resetButton.addEventListener("click", function() {
 
     isPaused = false;
     pauseButton.textContent = "Pause";
+
+    movementMode = "state";
+    movementModeButton.textContent = "Movement: State-based";
 
     eventCount = 0;
 
@@ -666,6 +691,26 @@ window.addEventListener("keydown", function(event) {
     // State-based:
     // simpan status tombol untuk translasi kontinu.
     keys[event.key] = true;
+
+    // Fitur Tambahan: Movement Mode Toggle
+    // Event-based: player loncat sekali tiap tombol ditekan (bukan ditahan)
+    if (movementMode === "event" && !event.repeat) {
+        if (event.key === "ArrowLeft" || event.key === "a" || event.key === "A") {
+            player.x -= player.speed;
+        }
+
+        if (event.key === "ArrowRight" || event.key === "d" || event.key === "D") {
+            player.x += player.speed;
+        }
+
+        if (event.key === "ArrowUp" || event.key === "w" || event.key === "W") {
+            player.y -= player.speed;
+        }
+
+        if (event.key === "ArrowDown" || event.key === "s" || event.key === "S") {
+            player.y += player.speed;
+        }
+    }
 
     // Event-based:
     // contoh aksi diskrit sekali tekan.
