@@ -43,6 +43,35 @@ const movingBall = {
     color: "#9b59b6"
 };
 
+// Challenge Tambahan 34.3: Multiple Moving Objects
+// Menambahkan data objek yang bergerak
+const movingObjects = [
+    {
+        x: 350,
+        y: 150,
+        radius: 20,
+        speedX: 2,
+        speedY: 1.5,
+        color: "#9b59b6"
+    },
+    {
+        x: 500,
+        y: 250,
+        radius: 30,
+        speedX: -1.5,
+        speedY: 2,
+        color: "#e67e22"
+    },
+    {
+        x: 650,
+        y: 150,
+        radius: 15,
+        speedX: 1,
+        speedY: -2,
+        color: "#2ecc71"
+    }
+];
+
 const player = {
     x: 600,
     y: 350,
@@ -245,6 +274,24 @@ function drawCreatedCircles() {
     }
 }
 
+// Challenge Tambahan 34.3: Multiple Moving Objects
+// Menambahkan fungsi menggambar
+function drawMovingObjects() {
+    for (const object of movingObjects) {
+        ctx.beginPath();
+        ctx.arc(
+            object.x,
+            object.y,
+            object.radius,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = object.color;
+        ctx.fill();
+    }
+}
+
 // --------------------------------------------------
 // UPDATE
 // --------------------------------------------------
@@ -294,6 +341,31 @@ function updatePlayer() {
         0,
         Math.min(canvas.height - player.height, player.y)
     );
+}
+
+// Challenge Tambahan 34.3: Multiple Moving Objects
+// Menambahkan fungsi update
+function updateMovingObjects() {
+    for (const object of movingObjects) {
+        object.x += object.speedX;
+        object.y += object.speedY;
+
+        // Pantulan kiri dan kanan
+        if (
+            object.x + object.radius >= canvas.width ||
+            object.x - object.radius <= 0
+        ) {
+            object.speedX *= -1;
+        }
+
+        // Pantulan atas dan bawah
+        if (
+            object.y + object.radius >= canvas.height ||
+            object.y - object.radius <= 0
+        ) {
+            object.speedY *= -1;
+        }
+    }
 }
 
 // --------------------------------------------------
@@ -392,6 +464,10 @@ function animate() {
     updateMovingBall();
     updatePlayer();
 
+    // Challenge Tambahan 34.3: Multiple Moving Objects
+    // Memanggil fungsi
+    updateMovingObjects();
+
     drawRectangle();
     drawLine();
     drawCircle();
@@ -402,6 +478,10 @@ function animate() {
     // Challenge B: Follow Mouse
     // Memanggil fungsi gambar
     drawMouseCircle();
+
+    // Challenge Tambahan 34.3: Multiple Moving Objects
+    // Memanggil fungsi gambar
+    drawMovingObjects();
 
     // Challenge Tambahan 34.1: Click to Create Circle
     // Memanggil fungsi 
