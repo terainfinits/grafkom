@@ -70,6 +70,10 @@ const mouseCircle = {
 // Menambahkan array circles
 const circles = [];
 
+// Challenge Tambahan 34.2: Trail Mode
+// Menambahkan variabel trailMode
+let trailMode = false;
+
 const keys = {};
 
 const colors = [
@@ -88,6 +92,18 @@ let colorIndex = 0;
 
 function clearCanvas() {
     ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+}
+
+// Challenge Tambahan 34.2: Trail Mode
+// Membuat fungsi menggambar jejak
+function drawTrail() {
+    ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+    ctx.fillRect(
         0,
         0,
         canvas.width,
@@ -282,6 +298,19 @@ function updatePlayer() {
 // INPUT
 // --------------------------------------------------
 
+// Challenge Tambahan 34.2: Trail Mode 
+// Logika tombol aktivasi Trail Mode
+const trailButton = document.getElementById("trailButton");
+
+trailButton.addEventListener("click", function() {
+    trailMode = !trailMode;
+
+    trailButton.textContent =
+        trailMode
+            ? "Trail Mode: ON"
+            : "Trail Mode: OFF";
+});
+
 canvas.addEventListener("mousemove", function(event) {
     const rect = canvas.getBoundingClientRect();
 
@@ -349,7 +378,14 @@ window.addEventListener("keyup", function(event) {
 // --------------------------------------------------
 
 function animate() {
-    clearCanvas();
+    // Challenge Tambahan 34.2: Trail Mode
+    // Mengganti kapan fungsi clearCanvas() dipanggil
+    if(trailMode){
+        drawTrail();
+    }
+    else{
+        clearCanvas();
+    }
 
     updateMovingBall();
     updatePlayer();
