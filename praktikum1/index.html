@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang='id'>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,17 +8,136 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="stage">
 
-    <!-- Challenge Tambahan 34.2: Trail Mode -->
-    <!-- Menambahkan tombol aktivasi Trail Mode -->
-    <div class="controls">
-        <button id="trailButton">Trail Mode: OFF</button>
+        <header class="stage-header">
+            <p class="kicker mono">praktikum grafika komputer &middot; pertemuan 1</p>
+            <h1>Graphics Playground</h1>
+
+            <!-- Challenge Tambahan 34.2: Trail Mode -->
+            <!-- Menambahkan tombol aktivasi Trail Mode -->
+            <div class="controls">
+                <button id="trailButton">Trail Mode: OFF</button>
+            </div>
+        </header>
+
+        <div class="layout">
+
+            <div class="canvas-wrap">
+                <canvas id="graphicsCanvas"
+                        width="800"
+                        height="500">
+                </canvas>
+            </div>
+
+            <aside class="panels">
+
+                <section class="panel legend-panel" aria-label="Legend">
+                    <h2 class="panel-title">Legend <span class="mono panel-sub">primitives</span></h2>
+
+                    <ul class="legend-list">
+                        <li class="legend-item" data-key="rectangle" style="--swatch:#3498db;">
+                            <span class="swatch swatch-rect"></span>
+                            <span class="legend-text">
+                                <strong>Rectangle</strong>
+                                <em class="mono">static &middot; #3498db</em>
+                            </span>
+                        </li>
+
+                        <li class="legend-item" data-key="line" style="--swatch:#e74c3c;">
+                            <span class="swatch swatch-line"></span>
+                            <span class="legend-text">
+                                <strong>Line</strong>
+                                <em class="mono">static &middot; #e74c3c</em>
+                            </span>
+                        </li>
+
+                        <li class="legend-item" data-key="circle" style="--swatch:#2ecc71;">
+                            <span class="swatch swatch-circle"></span>
+                            <span class="legend-text">
+                                <strong>Circle</strong>
+                                <em class="mono">static &middot; #2ecc71</em>
+                            </span>
+                        </li>
+
+                        <li class="legend-item" data-key="triangle" style="--swatch:#f39c12;">
+                            <span class="swatch swatch-triangle"></span>
+                            <span class="legend-text">
+                                <strong>Triangle</strong>
+                                <em class="mono">static &middot; #f39c12</em>
+                            </span>
+                        </li>
+
+                        <li class="legend-item" data-key="movingBall" style="--swatch:#9b59b6;">
+                            <span class="swatch swatch-circle"></span>
+                            <span class="legend-text">
+                                <strong>Bouncing ball</strong>
+                                <em class="mono">animated &middot; bounces off walls</em>
+                            </span>
+                        </li>
+
+                        <li class="legend-item" data-key="movingObjects" style="--swatch:#e67e22;">
+                            <span class="swatch swatch-circle"></span>
+                            <span class="legend-text">
+                                <strong>Moving objects &times;3</strong>
+                                <em class="mono">animated &middot; independent paths</em>
+                            </span>
+                        </li>
+
+                        <li class="legend-item" data-key="player" style="--swatch:#e67e22;">
+                            <span class="swatch swatch-rect"></span>
+                            <span class="legend-text">
+                                <strong>Player</strong>
+                                <em class="mono">arrow keys &middot; R resets</em>
+                            </span>
+                        </li>
+
+                        <li class="legend-item" data-key="mouseCircle" style="--swatch:#e74c3c;">
+                            <span class="swatch swatch-circle"></span>
+                            <span class="legend-text">
+                                <strong>Cursor circle</strong>
+                                <em class="mono">follows the pointer</em>
+                            </span>
+                        </li>
+
+                        <li class="legend-item" data-key="createdCircles" style="--swatch:#f1c40f;">
+                            <span class="swatch swatch-circle"></span>
+                            <span class="legend-text">
+                                <strong>Click circles</strong>
+                                <em class="mono">spawned on click</em>
+                            </span>
+                        </li>
+                    </ul>
+
+                    <p class="hint mono">hover an entry to spotlight it on the canvas</p>
+                </section>
+
+                <section class="panel state-panel" aria-label="Live state">
+                    <h2 class="panel-title">State <span class="mono panel-sub">live</span></h2>
+
+                    <dl class="state-list">
+                        <div class="state-row">
+                            <dt>Mouse</dt>
+                            <dd id="stat-mouse" class="mono">(0, 0)</dd>
+                        </div>
+                        <div class="state-row">
+                            <dt>Keyboard</dt>
+                            <dd id="stat-keys" class="mono">&mdash;</dd>
+                        </div>
+                        <div class="state-row">
+                            <dt>Player</dt>
+                            <dd id="stat-player" class="mono">(600, 350)</dd>
+                        </div>
+                        <div class="state-row">
+                            <dt>Events</dt>
+                            <dd id="stat-events" class="mono">0</dd>
+                        </div>
+                    </dl>
+                </section>
+
+            </aside>
+        </div>
     </div>
-
-    <canvas id="graphicsCanvas"
-            width="800"
-            height="500">
-    </canvas>
 
     <script src="app.js"></script>
 </body>
