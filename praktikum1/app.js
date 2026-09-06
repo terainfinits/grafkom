@@ -197,6 +197,8 @@ function drawPlayer() {
 }
 
 function drawMouseCoordinate() {
+    ctx.clearRect(10, 15, 250, 25);
+    
     ctx.fillStyle = "#222";
     ctx.font = "16px Arial";
 
