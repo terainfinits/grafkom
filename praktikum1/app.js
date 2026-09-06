@@ -331,7 +331,6 @@ function drawPlayer() {
 }
 
 function drawMouseCoordinate() {
-    // Jangan lupa tambahkan ini
     ctx.clearRect(10, 15, 250, 25);
 
     ctx.fillStyle = "#222";
