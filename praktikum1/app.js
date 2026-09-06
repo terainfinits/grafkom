@@ -57,6 +57,15 @@ const mouse = {
     y: 0
 };
 
+// Challenge B: Follow Mouse
+// Menambahkan data lingkaran di sekitar mouse
+const mouseCircle = {
+    x: 0,
+    y: 0,
+    radius: 15,
+    color: "#e74c3c"
+}
+
 const keys = {};
 
 const colors = [
@@ -178,6 +187,23 @@ function drawMouseCoordinate() {
     );
 }
 
+// Challenge B: Follow Mouse
+// Membuat fungsi untuk menggambar lingkaran
+function drawMouseCircle() {
+    ctx.beginPath();
+
+    ctx.arc(
+        mouseCircle.x,
+        mouseCircle.y,
+        mouseCircle.radius,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle = mouseCircle.color;
+    ctx.fill();
+}
+
 // --------------------------------------------------
 // UPDATE
 // --------------------------------------------------
@@ -243,6 +269,11 @@ canvas.addEventListener("mousemove", function(event) {
     mouse.y =
         (event.clientY - rect.top) *
         (canvas.height / rect.height);
+
+    // Challenge B: Follow Mouse
+    // Update posisi lingkaran saat mouse bergerak
+    mouseCircle.x = mouse.x;
+    mouseCircle.y = mouse.y;
 });
 
 canvas.addEventListener("click", function() {
@@ -297,6 +328,11 @@ function animate() {
     drawTriangle();
     drawMovingBall();
     drawPlayer();
+
+    // Challenge B: Follow Mouse
+    // Memanggil fungsi gambar
+    drawMouseCircle();
+    
     drawMouseCoordinate();
 
     requestAnimationFrame(animate);
