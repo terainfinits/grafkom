@@ -115,6 +115,21 @@ const colors = [
 
 let colorIndex = 0;
 
+// Fitur Tambahan: Pause
+// Menyimpan status jeda animasi
+let isPaused = false;
+
+// Fitur Tambahan: Reset
+// Menyimpan kondisi awal semua objek supaya bisa dikembalikan lagi
+const initialState = {
+    player: { ...player },
+    movingBall: { ...movingBall },
+    movingObjects: movingObjects.map((object) => ({ ...object })),
+    mouse: { ...mouse },
+    mouseCircle: { ...mouseCircle },
+    colorIndex: colorIndex
+};
+
 // Live state panel (sidebar)
 const statMouse = document.getElementById("stat-mouse");
 const statKeys = document.getElementById("stat-keys");
@@ -316,6 +331,7 @@ function drawPlayer() {
 }
 
 function drawMouseCoordinate() {
+    // Jangan lupa tambahkan ini
     ctx.clearRect(10, 15, 250, 25);
 
     ctx.fillStyle = "#222";
@@ -452,6 +468,24 @@ function updatePlayer() {
         player.y += player.speed;
     }
 
+    // Fitur Tambahan: WASD Movement
+    // Kontrol player alternatif selain arrow keys
+    if (keys["a"] || keys["A"]) {
+        player.x -= player.speed;
+    }
+
+    if (keys["d"] || keys["D"]) {
+        player.x += player.speed;
+    }
+
+    if (keys["w"] || keys["W"]) {
+        player.y -= player.speed;
+    }
+
+    if (keys["s"] || keys["S"]) {
+        player.y += player.speed;
+    }
+
     player.x = Math.max(
         0,
         Math.min(canvas.width - player.width, player.x)
@@ -503,6 +537,70 @@ trailButton.addEventListener("click", function() {
         trailMode
             ? "Trail Mode: ON"
             : "Trail Mode: OFF";
+});
+
+// Fitur Tambahan: Pause
+// Logika tombol untuk menghentikan/melanjutkan animasi
+const pauseButton = document.getElementById("pauseButton");
+
+pauseButton.addEventListener("click", function() {
+    isPaused = !isPaused;
+
+    pauseButton.textContent = isPaused ? "Resume" : "Pause";
+});
+
+// Fitur Tambahan: Reset
+// Logika tombol untuk mengembalikan semua objek ke kondisi awal
+const resetButton = document.getElementById("resetButton");
+
+resetButton.addEventListener("click", function() {
+    Object.assign(player, initialState.player);
+    Object.assign(movingBall, initialState.movingBall);
+
+    movingObjects.forEach(function(object, index) {
+        Object.assign(object, initialState.movingObjects[index]);
+    });
+
+    Object.assign(mouse, initialState.mouse);
+    Object.assign(mouseCircle, initialState.mouseCircle);
+
+    circles.length = 0;
+
+    colorIndex = initialState.colorIndex;
+    movingBall.color = colors[colorIndex];
+
+    trailMode = false;
+    trailButton.textContent = "Trail Mode: OFF";
+
+    isPaused = false;
+    pauseButton.textContent = "Pause";
+
+    eventCount = 0;
+
+    for (const key in keys) {
+        keys[key] = false;
+    }
+
+    speedRange.value = initialState.player.speed;
+    speedValue.textContent = initialState.player.speed;
+});
+
+// Fitur Tambahan: Clear Circles
+// Logika tombol untuk menghapus semua lingkaran hasil klik
+const clearCirclesButton = document.getElementById("clearCirclesButton");
+
+clearCirclesButton.addEventListener("click", function() {
+    circles.length = 0;
+});
+
+// Fitur Tambahan: Player Speed
+// Logika slider untuk mengubah kecepatan player secara bebas
+const speedRange = document.getElementById("speedRange");
+const speedValue = document.getElementById("speedValue");
+
+speedRange.addEventListener("input", function() {
+    player.speed = Number(speedRange.value);
+    speedValue.textContent = speedRange.value;
 });
 
 const legendItems = document.querySelectorAll(".legend-item");
@@ -599,12 +697,16 @@ function animate() {
         clearCanvas();
     }
 
-    updateMovingBall();
-    updatePlayer();
+    // Fitur Tambahan: Pause
+    // Hanya update posisi objek kalau animasi tidak sedang dijeda
+    if (!isPaused) {
+        updateMovingBall();
+        updatePlayer();
 
-    // Challenge Tambahan 34.3: Multiple Moving Objects
-    // Memanggil fungsi
-    updateMovingObjects();
+        // Challenge Tambahan 34.3: Multiple Moving Objects
+        // Memanggil fungsi
+        updateMovingObjects();
+    }
 
     drawRectangle();
     drawLine();
