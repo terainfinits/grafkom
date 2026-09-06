@@ -115,6 +115,25 @@ const colors = [
 
 let colorIndex = 0;
 
+const statMouse = document.getElementById("stat-mouse");
+const statKeys = document.getElementById("stat-keys");
+const statPlayer = document.getElementById("stat-player");
+const statEvents = document.getElementById("stat-events");
+let eventCount = 0;
+
+function updateStatePanel() {
+    statMouse.textContent =
+        `(${Math.round(mouse.x)}, ${Math.round(mouse.y)})`;
+
+    const pressedKeys = Object.keys(keys).filter((k) => keys[k]);
+    statKeys.textContent = pressedKeys.length ? pressedKeys.join(", ") : "—";
+
+    statPlayer.textContent =
+        `(${Math.round(player.x)}, ${Math.round(player.y)})`;
+
+    statEvents.textContent = eventCount;
+}
+
 // --------------------------------------------------
 // CANVAS
 // --------------------------------------------------
@@ -386,6 +405,7 @@ trailButton.addEventListener("click", function() {
 });
 
 canvas.addEventListener("mousemove", function(event) {
+    eventCount++;
     const rect = canvas.getBoundingClientRect();
 
     mouse.x =
@@ -403,6 +423,7 @@ canvas.addEventListener("mousemove", function(event) {
 });
 
 canvas.addEventListener("click", function() {
+    eventCount++;
     colorIndex = (colorIndex + 1) % colors.length;
     movingBall.color = colors[colorIndex];
 
@@ -417,6 +438,7 @@ canvas.addEventListener("click", function() {
 });
 
 window.addEventListener("keydown", function(event) {
+    eventCount++;
     const controlledKeys = [
         "ArrowLeft",
         "ArrowRight",
@@ -488,6 +510,8 @@ function animate() {
     drawCreatedCircles();
     
     drawMouseCoordinate();
+
+    updateStatePanel();
 
     requestAnimationFrame(animate);
 }
