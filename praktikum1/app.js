@@ -1,3 +1,24 @@
+/*
+Praktikum Grafika Komputer - Pertemuan 1
+Graphics Playground
+
+Nama 1 : Willy Dava Nugraha
+NRP 1 : 5025241090
+Nama 2 : Nyoman Surya Hutama Andyartha
+NRP 2 : 5025241093
+Kelas: B
+
+Challenge:
+- Challenge B: Follow Mouse
+- Challenge Tambahan 34.1: Click to Create Circle
+- Challenge Tambahan 34.2: Trail Mode
+- Challenge Tambahan 34.3: Multiple Moving Objects
+
+Catatan:
+Challenge A, C, D, dan E sebenarnya sudah otomatis diterapkan 
+    ketika mengikuti alur panduan praktikum di materi
+*/
+
 const canvas = document.getElementById("graphicsCanvas");
 const ctx = canvas.getContext("2d");
 
