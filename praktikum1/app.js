@@ -66,6 +66,10 @@ const mouseCircle = {
     color: "#e74c3c"
 }
 
+// Challenge Tambahan 34.1: Click to Create Circle
+// Menambahkan array circles
+const circles = [];
+
 const keys = {};
 
 const colors = [
@@ -204,6 +208,25 @@ function drawMouseCircle() {
     ctx.fill();
 }
 
+// Challenge Tambahan 34.1: Click to Create Circle
+// Membuat fungsi untuk menggambar circle ketika ada click
+function drawCreatedCircles() {
+    for (const circle of circles) {
+        ctx.beginPath();
+
+        ctx.arc(
+            circle.x,
+            circle.y,
+            circle.radius,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle = circle.color;
+        ctx.fill();
+    }
+}
+
 // --------------------------------------------------
 // UPDATE
 // --------------------------------------------------
@@ -279,6 +302,15 @@ canvas.addEventListener("mousemove", function(event) {
 canvas.addEventListener("click", function() {
     colorIndex = (colorIndex + 1) % colors.length;
     movingBall.color = colors[colorIndex];
+
+    // Challenge Tambahan 34.1: Click to Create Circle
+    // Tambahkan event buat circle ketika click terjadi
+    circles.push({
+        x: mouse.x,
+        y: mouse.y,
+        radius: 15,
+        color: colors[colorIndex]
+    });
 });
 
 window.addEventListener("keydown", function(event) {
@@ -332,6 +364,10 @@ function animate() {
     // Challenge B: Follow Mouse
     // Memanggil fungsi gambar
     drawMouseCircle();
+
+    // Challenge Tambahan 34.1: Click to Create Circle
+    // Memanggil fungsi 
+    drawCreatedCircles();
     
     drawMouseCoordinate();
 
