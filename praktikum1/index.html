@@ -14,10 +14,18 @@
             <p class="kicker mono">praktikum grafika komputer &middot; pertemuan 1</p>
             <h1>Graphics Playground</h1>
 
-            <!-- Challenge Tambahan 34.2: Trail Mode -->
-            <!-- Menambahkan tombol aktivasi Trail Mode -->
             <div class="controls">
+                <!-- Challenge Tambahan 34.2: Trail Mode -->
+                <!-- Menambahkan tombol aktivasi Trail Mode -->
                 <button id="trailButton">Trail Mode: OFF</button>
+                <button id="pauseButton">Pause</button>
+                <button id="resetButton">Reset</button>
+                <button id="clearCirclesButton">Clear Circles</button>
+
+                <label class="speed-control mono" for="speedRange">
+                    Player Speed: <span id="speedValue">5</span>
+                    <input type="range" id="speedRange" min="1" max="15" step="1" value="5">
+                </label>
             </div>
         </header>
 
