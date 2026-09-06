@@ -115,6 +115,7 @@ const colors = [
 
 let colorIndex = 0;
 
+// Live state panel (sidebar)
 const statMouse = document.getElementById("stat-mouse");
 const statKeys = document.getElementById("stat-keys");
 const statPlayer = document.getElementById("stat-player");
@@ -132,6 +133,18 @@ function updateStatePanel() {
         `(${Math.round(player.x)}, ${Math.round(player.y)})`;
 
     statEvents.textContent = eventCount;
+}
+
+// Legend hover -> spotlight objek terkait di canvas
+let spotlightKey = null;
+
+function beginSpotlight(key) {
+    if (!spotlightKey) return;
+    ctx.globalAlpha = spotlightKey === key ? 1 : 0.15;
+}
+
+function endSpotlight() {
+    ctx.globalAlpha = 1;
 }
 
 // --------------------------------------------------
@@ -164,6 +177,8 @@ function drawTrail() {
 // --------------------------------------------------
 
 function drawRectangle() {
+    beginSpotlight("rectangle");
+
     ctx.fillStyle = rectangle.color;
 
     ctx.fillRect(
@@ -172,21 +187,40 @@ function drawRectangle() {
         rectangle.width,
         rectangle.height
     );
+
+    if (spotlightKey === "rectangle") {
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(
+            rectangle.x,
+            rectangle.y,
+            rectangle.width,
+            rectangle.height
+        );
+    }
+
+    endSpotlight();
 }
 
 function drawLine() {
+    beginSpotlight("line");
+
     ctx.beginPath();
 
     ctx.moveTo(300, 80);
     ctx.lineTo(500, 180);
 
     ctx.strokeStyle = "#e74c3c";
-    ctx.lineWidth = 5;
+    ctx.lineWidth = spotlightKey === "line" ? 8 : 5;
 
     ctx.stroke();
+
+    endSpotlight();
 }
 
 function drawCircle() {
+    beginSpotlight("circle");
+
     ctx.beginPath();
 
     ctx.arc(
@@ -199,9 +233,19 @@ function drawCircle() {
 
     ctx.fillStyle = "#2ecc71";
     ctx.fill();
+
+    if (spotlightKey === "circle") {
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+
+    endSpotlight();
 }
 
 function drawTriangle() {
+    beginSpotlight("triangle");
+
     ctx.beginPath();
 
     ctx.moveTo(150, 300);
@@ -213,12 +257,16 @@ function drawTriangle() {
     ctx.fillStyle = "#f39c12";
     ctx.fill();
 
-    ctx.strokeStyle = "#8a5705";
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = spotlightKey === "triangle" ? "#ffffff" : "#8a5705";
+    ctx.lineWidth = spotlightKey === "triangle" ? 5 : 3;
     ctx.stroke();
+
+    endSpotlight();
 }
 
 function drawMovingBall() {
+    beginSpotlight("movingBall");
+
     ctx.beginPath();
 
     ctx.arc(
@@ -231,9 +279,19 @@ function drawMovingBall() {
 
     ctx.fillStyle = movingBall.color;
     ctx.fill();
+
+    if (spotlightKey === "movingBall") {
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+
+    endSpotlight();
 }
 
 function drawPlayer() {
+    beginSpotlight("player");
+
     ctx.fillStyle = player.color;
 
     ctx.fillRect(
@@ -242,11 +300,24 @@ function drawPlayer() {
         player.width,
         player.height
     );
+
+    if (spotlightKey === "player") {
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(
+            player.x,
+            player.y,
+            player.width,
+            player.height
+        );
+    }
+
+    endSpotlight();
 }
 
 function drawMouseCoordinate() {
     ctx.clearRect(10, 15, 250, 25);
-    
+
     ctx.fillStyle = "#222";
     ctx.font = "16px Arial";
 
@@ -260,6 +331,8 @@ function drawMouseCoordinate() {
 // Challenge B: Follow Mouse
 // Membuat fungsi untuk menggambar lingkaran
 function drawMouseCircle() {
+    beginSpotlight("mouseCircle");
+
     ctx.beginPath();
 
     ctx.arc(
@@ -272,11 +345,21 @@ function drawMouseCircle() {
 
     ctx.fillStyle = mouseCircle.color;
     ctx.fill();
+
+    if (spotlightKey === "mouseCircle") {
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+    }
+
+    endSpotlight();
 }
 
 // Challenge Tambahan 34.1: Click to Create Circle
 // Membuat fungsi untuk menggambar circle ketika ada click
 function drawCreatedCircles() {
+    beginSpotlight("createdCircles");
+
     for (const circle of circles) {
         ctx.beginPath();
 
@@ -290,12 +373,22 @@ function drawCreatedCircles() {
 
         ctx.fillStyle = circle.color;
         ctx.fill();
+
+        if (spotlightKey === "createdCircles") {
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
     }
+
+    endSpotlight();
 }
 
 // Challenge Tambahan 34.3: Multiple Moving Objects
 // Menambahkan fungsi menggambar
 function drawMovingObjects() {
+    beginSpotlight("movingObjects");
+
     for (const object of movingObjects) {
         ctx.beginPath();
         ctx.arc(
@@ -308,7 +401,15 @@ function drawMovingObjects() {
 
         ctx.fillStyle = object.color;
         ctx.fill();
+
+        if (spotlightKey === "movingObjects") {
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
     }
+
+    endSpotlight();
 }
 
 // --------------------------------------------------
@@ -404,8 +505,21 @@ trailButton.addEventListener("click", function() {
             : "Trail Mode: OFF";
 });
 
+const legendItems = document.querySelectorAll(".legend-item");
+
+legendItems.forEach(function(item) {
+    item.addEventListener("mouseenter", function() {
+        spotlightKey = item.dataset.key;
+    });
+
+    item.addEventListener("mouseleave", function() {
+        spotlightKey = null;
+    });
+});
+
 canvas.addEventListener("mousemove", function(event) {
     eventCount++;
+
     const rect = canvas.getBoundingClientRect();
 
     mouse.x =
@@ -424,6 +538,7 @@ canvas.addEventListener("mousemove", function(event) {
 
 canvas.addEventListener("click", function() {
     eventCount++;
+
     colorIndex = (colorIndex + 1) % colors.length;
     movingBall.color = colors[colorIndex];
 
@@ -439,6 +554,7 @@ canvas.addEventListener("click", function() {
 
 window.addEventListener("keydown", function(event) {
     eventCount++;
+
     const controlledKeys = [
         "ArrowLeft",
         "ArrowRight",
@@ -496,7 +612,7 @@ function animate() {
     drawTriangle();
     drawMovingBall();
     drawPlayer();
-
+    
     // Challenge B: Follow Mouse
     // Memanggil fungsi gambar
     drawMouseCircle();
@@ -508,7 +624,7 @@ function animate() {
     // Challenge Tambahan 34.1: Click to Create Circle
     // Memanggil fungsi 
     drawCreatedCircles();
-    
+
     drawMouseCoordinate();
 
     updateStatePanel();
