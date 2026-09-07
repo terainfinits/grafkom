@@ -124,6 +124,11 @@ let isPaused = false;
 // atau "event" (kaku, sekali loncat tiap tombol ditekan)
 let movementMode = "state";
 
+// Fitur Tambahan: Style Mode
+// Toggle tampilan objek: "primitive" (bentuk dasar apa adanya)
+// atau "game" (versi bergaya game, murni visual, tanpa logika tambahan)
+let visualMode = "primitive";
+
 // Fitur Tambahan: Reset
 // Menyimpan kondisi awal semua objek supaya bisa dikembalikan lagi
 const initialState = {
@@ -178,6 +183,88 @@ function clearCanvas() {
         canvas.width,
         canvas.height
     );
+
+    // Fitur Tambahan: Style Mode
+    // Kalau lagi di mode game, gambar dulu suasana latar (langit + tanah)
+    // sebelum objek-objek lain digambar di atasnya. Ini murni visual,
+    // tidak menyentuh data/posisi objek manapun.
+    if (visualMode === "game") {
+        drawGameBackground();
+    }
+}
+
+// Fitur Tambahan: Style Mode
+// Latar bergaya game: langit gradasi, matahari, awan, bukit jauh, dan rumput.
+function drawGameBackground() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const groundY = h - 60;
+
+    // Langit gradasi
+    const sky = ctx.createLinearGradient(0, 0, 0, groundY);
+    sky.addColorStop(0, "#4aa3d9");
+    sky.addColorStop(1, "#bfe8f5");
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, w, groundY);
+
+    // Matahari
+    ctx.beginPath();
+    ctx.arc(60, 55, 32, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffe066";
+    ctx.fill();
+    ctx.strokeStyle = "#f5c518";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Awan
+    function drawCloud(cx, cy, scale) {
+        ctx.fillStyle = "rgba(255,255,255,0.9)";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 16 * scale, 0, Math.PI * 2);
+        ctx.arc(cx + 18 * scale, cy - 8 * scale, 20 * scale, 0, Math.PI * 2);
+        ctx.arc(cx + 38 * scale, cy, 16 * scale, 0, Math.PI * 2);
+        ctx.arc(cx + 18 * scale, cy + 6 * scale, 18 * scale, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    drawCloud(430, 60, 1);
+    drawCloud(230, 40, 0.7);
+    drawCloud(600, 200, 0.8);
+
+    // Bukit jauh
+    ctx.fillStyle = "#8fd19e";
+    ctx.beginPath();
+    ctx.moveTo(0, groundY);
+    ctx.quadraticCurveTo(120, groundY - 70, 260, groundY);
+    ctx.quadraticCurveTo(400, groundY - 90, 560, groundY);
+    ctx.quadraticCurveTo(700, groundY - 60, w, groundY);
+    ctx.lineTo(w, groundY);
+    ctx.lineTo(0, groundY);
+    ctx.closePath();
+    ctx.fill();
+
+    // Tanah / rumput
+    ctx.fillStyle = "#5cb85c";
+    ctx.fillRect(0, groundY, w, h - groundY);
+    ctx.strokeStyle = "#4a934a";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, groundY);
+    ctx.lineTo(w, groundY);
+    ctx.stroke();
+
+    // Rumput kecil-kecil biar hidup
+    ctx.strokeStyle = "#3f7d3f";
+    ctx.lineWidth = 2;
+    for (let gx = 5; gx < w; gx += 14) {
+        const gy = groundY + 4 + ((gx * 7) % 6);
+        ctx.beginPath();
+        ctx.moveTo(gx, gy);
+        ctx.lineTo(gx - 3, gy - 8);
+        ctx.moveTo(gx, gy);
+        ctx.lineTo(gx + 3, gy - 8);
+        ctx.stroke();
+    }
 }
 
 // Challenge Tambahan 34.2: Trail Mode
@@ -193,20 +280,321 @@ function drawTrail() {
 }
 
 // --------------------------------------------------
+// STYLE MODE: GAME-LOOK HELPERS
+// --------------------------------------------------
+// Fitur Tambahan: Style Mode
+// Fungsi-fungsi di bawah cuma versi "kulit" visual dari objek yang sama.
+// Tidak ada logika baru (posisi, gerak, tabrakan tetap sama persis),
+// cuma cara gambarnya diganti supaya terkesan seperti aset game.
+
+// Rectangle -> Rumah
+function drawHouseSkin(x, y, w, h) {
+    // Dinding
+    ctx.fillStyle = "#e8c088";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = "#8a5a2b";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
+
+    // Atap (segitiga di atas dinding)
+    const roofOverhang = 14;
+    const roofHeight = h * 0.55;
+
+    ctx.beginPath();
+    ctx.moveTo(x - roofOverhang, y);
+    ctx.lineTo(x + w / 2, y - roofHeight);
+    ctx.lineTo(x + w + roofOverhang, y);
+    ctx.closePath();
+    ctx.fillStyle = "#b3492f";
+    ctx.fill();
+    ctx.strokeStyle = "#7a2f1c";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Cerobong asap
+    const chimneyW = w * 0.12;
+    const chimneyH = h * 0.35;
+    const chimneyX = x + w * 0.68;
+    const chimneyY = y - roofHeight * 0.55 - chimneyH * 0.3;
+
+    ctx.fillStyle = "#8a5a2b";
+    ctx.fillRect(chimneyX, chimneyY, chimneyW, chimneyH);
+    ctx.strokeStyle = "#5c3a1a";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(chimneyX, chimneyY, chimneyW, chimneyH);
+
+    // Sedikit asap
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.beginPath();
+    ctx.arc(chimneyX + chimneyW / 2, chimneyY - 8, 5, 0, Math.PI * 2);
+    ctx.arc(chimneyX + chimneyW / 2 + 6, chimneyY - 18, 6, 0, Math.PI * 2);
+    ctx.arc(chimneyX + chimneyW / 2 + 2, chimneyY - 30, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pintu
+    const doorW = w * 0.22;
+    const doorH = h * 0.55;
+    const doorX = x + w / 2 - doorW / 2;
+    const doorY = y + h - doorH;
+
+    ctx.fillStyle = "#6e451f";
+    ctx.fillRect(doorX, doorY, doorW, doorH);
+    ctx.strokeStyle = "#4a2c12";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(doorX, doorY, doorW, doorH);
+
+    ctx.fillStyle = "#f1c40f";
+    ctx.beginPath();
+    ctx.arc(doorX + doorW - 6, doorY + doorH / 2, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Jendela kiri & kanan
+    const winSize = w * 0.16;
+    const winY = y + h * 0.2;
+
+    for (const winX of [x + w * 0.14, x + w * 0.7]) {
+        ctx.fillStyle = "#bdeaff";
+        ctx.fillRect(winX, winY, winSize, winSize);
+        ctx.strokeStyle = "#8a5a2b";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(winX, winY, winSize, winSize);
+
+        ctx.beginPath();
+        ctx.moveTo(winX + winSize / 2, winY);
+        ctx.lineTo(winX + winSize / 2, winY + winSize);
+        ctx.moveTo(winX, winY + winSize / 2);
+        ctx.lineTo(winX + winSize, winY + winSize / 2);
+        ctx.stroke();
+    }
+}
+
+// Line -> Garis bahaya / laser (hazard strip)
+function drawHazardSkin(x1, y1, x2, y2) {
+    ctx.strokeStyle = "#f1c40f";
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    ctx.strokeStyle = "#e74c3c";
+    ctx.lineWidth = 6;
+    ctx.setLineDash([10, 10]);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
+
+// Circle -> Balon udara
+function drawBalloonSkin(x, y, r) {
+    // Badan balon (sedikit lebih tinggi dari lebar, biar terasa "balon")
+    const balloonRy = r * 1.15;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, balloonRy, 0, 0, Math.PI * 2);
+    ctx.clip();
+
+    // Stripes vertikal berselang-seling
+    const stripeColors = ["#e74c3c", "#f1c40f", "#e74c3c", "#f1c40f", "#e74c3c"];
+    const stripeWidth = (r * 2) / stripeColors.length;
+
+    stripeColors.forEach(function(color, i) {
+        ctx.fillStyle = color;
+        ctx.fillRect(
+            x - r + i * stripeWidth,
+            y - balloonRy,
+            stripeWidth,
+            balloonRy * 2
+        );
+    });
+    ctx.restore();
+
+    ctx.strokeStyle = "#a5300f";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, balloonRy, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Kerutan bawah balon (leher menuju keranjang)
+    const neckY = y + balloonRy;
+    ctx.beginPath();
+    ctx.moveTo(x - r * 0.35, neckY - 6);
+    ctx.lineTo(x - r * 0.18, neckY + 6);
+    ctx.lineTo(x + r * 0.18, neckY + 6);
+    ctx.lineTo(x + r * 0.35, neckY - 6);
+    ctx.closePath();
+    ctx.fillStyle = "#a5300f";
+    ctx.fill();
+
+    // Keranjang
+    const basketW = r * 0.75;
+    const basketH = r * 0.5;
+    const basketX = x - basketW / 2;
+    const basketY = neckY + 16;
+
+    // Tali penghubung
+    ctx.strokeStyle = "#6b4423";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x - r * 0.3, neckY);
+    ctx.lineTo(basketX, basketY);
+    ctx.moveTo(x + r * 0.3, neckY);
+    ctx.lineTo(basketX + basketW, basketY);
+    ctx.stroke();
+
+    ctx.fillStyle = "#8a5a2b";
+    ctx.fillRect(basketX, basketY, basketW, basketH);
+    ctx.strokeStyle = "#5c3a1a";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(basketX, basketY, basketW, basketH);
+
+    // Anyaman keranjang
+    ctx.beginPath();
+    for (let i = 1; i < 3; i++) {
+        const lx = basketX + (basketW / 3) * i;
+        ctx.moveTo(lx, basketY);
+        ctx.lineTo(lx, basketY + basketH);
+    }
+    ctx.strokeStyle = "#5c3a1a";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+}
+
+// Triangle -> Pohon cemara
+// Menggunakan bounding box segitiga asli (apex + base) supaya posisi/ukuran
+// tetap mengikuti data yang sama, cuma cara gambarnya jadi pohon berlapis.
+function drawTreeSkin(x1, y1, x2, y2, x3, y3) {
+    const apexX = x1;
+    const apexY = y1;
+    const baseY = Math.max(y2, y3);
+    const baseLeftX = Math.min(x2, x3);
+    const baseRightX = Math.max(x2, x3);
+    const halfWidth = (baseRightX - baseLeftX) / 2;
+
+    // Batang pohon
+    const trunkW = halfWidth * 0.28;
+    const trunkH = (baseY - apexY) * 0.18;
+
+    ctx.fillStyle = "#6b4423";
+    ctx.fillRect(apexX - trunkW / 2, baseY, trunkW, trunkH);
+    ctx.strokeStyle = "#4a2e18";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(apexX - trunkW / 2, baseY, trunkW, trunkH);
+
+    // Daun 3 lapis (dari bawah ke atas, makin kecil & makin terang)
+    const layers = [
+        { widthScale: 1.0, topScale: 0.55, color: "#1b5e3a" },
+        { widthScale: 0.72, topScale: 0.55, color: "#2d7a4b" },
+        { widthScale: 0.46, topScale: 0.6, color: "#3d9660" }
+    ];
+
+    const totalHeight = baseY - apexY;
+    const layerStep = totalHeight * 0.32;
+
+    layers.forEach(function(layer, index) {
+        const layerBaseY = baseY - index * layerStep * 0.62;
+        const layerApexY = layerBaseY - totalHeight * layer.topScale;
+        const layerHalfWidth = halfWidth * layer.widthScale;
+
+        ctx.beginPath();
+        ctx.moveTo(apexX, layerApexY);
+        ctx.lineTo(apexX - layerHalfWidth, layerBaseY);
+        ctx.lineTo(apexX + layerHalfWidth, layerBaseY);
+        ctx.closePath();
+
+        ctx.fillStyle = layer.color;
+        ctx.fill();
+        ctx.strokeStyle = "#123d26";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    });
+}
+
+// Bola / objek bergerak -> Musuh (blob dengan mata)
+function drawEnemySkin(x, y, r, color) {
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    const eyeOffsetX = r * 0.4;
+    const eyeOffsetY = -r * 0.15;
+    const eyeR = Math.max(2, r * 0.22);
+
+    for (const sign of [-1, 1]) {
+        ctx.beginPath();
+        ctx.arc(x + sign * eyeOffsetX, y + eyeOffsetY, eyeR, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(x + sign * eyeOffsetX, y + eyeOffsetY, eyeR * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = "#222222";
+        ctx.fill();
+    }
+}
+
+// Player -> Karakter kecil bergaya game
+function drawCharacterSkin(x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y + h * 0.25, w, h * 0.75);
+
+    ctx.beginPath();
+    ctx.arc(x + w / 2, y + h * 0.25, w * 0.42, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    const eyeR = w * 0.08;
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(x + w * 0.35, y + h * 0.22, eyeR, 0, Math.PI * 2);
+    ctx.arc(x + w * 0.65, y + h * 0.22, eyeR, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#222222";
+    ctx.beginPath();
+    ctx.arc(x + w * 0.35, y + h * 0.22, eyeR * 0.5, 0, Math.PI * 2);
+    ctx.arc(x + w * 0.65, y + h * 0.22, eyeR * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// Circle kecil (mouseCircle / created circles) -> Permata
+function drawGemSkin(x, y, r, color) {
+    ctx.beginPath();
+    ctx.moveTo(x, y - r);
+    ctx.lineTo(x + r, y);
+    ctx.lineTo(x, y + r);
+    ctx.lineTo(x - r, y);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+}
+
+// --------------------------------------------------
 // DRAW
 // --------------------------------------------------
 
 function drawRectangle() {
     beginSpotlight("rectangle");
 
-    ctx.fillStyle = rectangle.color;
+    if (visualMode === "game") {
+        drawHouseSkin(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+    } else {
+        ctx.fillStyle = rectangle.color;
 
-    ctx.fillRect(
-        rectangle.x,
-        rectangle.y,
-        rectangle.width,
-        rectangle.height
-    );
+        ctx.fillRect(
+            rectangle.x,
+            rectangle.y,
+            rectangle.width,
+            rectangle.height
+        );
+    }
 
     if (spotlightKey === "rectangle") {
         ctx.strokeStyle = "#ffffff";
@@ -225,15 +613,19 @@ function drawRectangle() {
 function drawLine() {
     beginSpotlight("line");
 
-    ctx.beginPath();
+    if (visualMode === "game") {
+        drawHazardSkin(300, 80, 500, 180);
+    } else {
+        ctx.beginPath();
 
-    ctx.moveTo(300, 80);
-    ctx.lineTo(500, 180);
+        ctx.moveTo(300, 80);
+        ctx.lineTo(500, 180);
 
-    ctx.strokeStyle = "#e74c3c";
-    ctx.lineWidth = spotlightKey === "line" ? 8 : 5;
+        ctx.strokeStyle = "#e74c3c";
+        ctx.lineWidth = spotlightKey === "line" ? 8 : 5;
 
-    ctx.stroke();
+        ctx.stroke();
+    }
 
     endSpotlight();
 }
@@ -241,18 +633,22 @@ function drawLine() {
 function drawCircle() {
     beginSpotlight("circle");
 
-    ctx.beginPath();
+    if (visualMode === "game") {
+        drawBalloonSkin(650, 120, 60);
+    } else {
+        ctx.beginPath();
 
-    ctx.arc(
-        650,
-        120,
-        60,
-        0,
-        Math.PI * 2
-    );
+        ctx.arc(
+            650,
+            120,
+            60,
+            0,
+            Math.PI * 2
+        );
 
-    ctx.fillStyle = "#2ecc71";
-    ctx.fill();
+        ctx.fillStyle = "#2ecc71";
+        ctx.fill();
+    }
 
     if (spotlightKey === "circle") {
         ctx.strokeStyle = "#ffffff";
@@ -266,20 +662,24 @@ function drawCircle() {
 function drawTriangle() {
     beginSpotlight("triangle");
 
-    ctx.beginPath();
+    if (visualMode === "game") {
+        drawTreeSkin(150, 300, 80, 430, 220, 430);
+    } else {
+        ctx.beginPath();
 
-    ctx.moveTo(150, 300);
-    ctx.lineTo(80, 430);
-    ctx.lineTo(220, 430);
+        ctx.moveTo(150, 300);
+        ctx.lineTo(80, 430);
+        ctx.lineTo(220, 430);
 
-    ctx.closePath();
+        ctx.closePath();
 
-    ctx.fillStyle = "#f39c12";
-    ctx.fill();
+        ctx.fillStyle = "#f39c12";
+        ctx.fill();
 
-    ctx.strokeStyle = spotlightKey === "triangle" ? "#ffffff" : "#8a5705";
-    ctx.lineWidth = spotlightKey === "triangle" ? 5 : 3;
-    ctx.stroke();
+        ctx.strokeStyle = spotlightKey === "triangle" ? "#ffffff" : "#8a5705";
+        ctx.lineWidth = spotlightKey === "triangle" ? 5 : 3;
+        ctx.stroke();
+    }
 
     endSpotlight();
 }
@@ -287,18 +687,22 @@ function drawTriangle() {
 function drawMovingBall() {
     beginSpotlight("movingBall");
 
-    ctx.beginPath();
+    if (visualMode === "game") {
+        drawEnemySkin(movingBall.x, movingBall.y, movingBall.radius, movingBall.color);
+    } else {
+        ctx.beginPath();
 
-    ctx.arc(
-        movingBall.x,
-        movingBall.y,
-        movingBall.radius,
-        0,
-        Math.PI * 2
-    );
+        ctx.arc(
+            movingBall.x,
+            movingBall.y,
+            movingBall.radius,
+            0,
+            Math.PI * 2
+        );
 
-    ctx.fillStyle = movingBall.color;
-    ctx.fill();
+        ctx.fillStyle = movingBall.color;
+        ctx.fill();
+    }
 
     if (spotlightKey === "movingBall") {
         ctx.strokeStyle = "#ffffff";
@@ -312,14 +716,18 @@ function drawMovingBall() {
 function drawPlayer() {
     beginSpotlight("player");
 
-    ctx.fillStyle = player.color;
+    if (visualMode === "game") {
+        drawCharacterSkin(player.x, player.y, player.width, player.height, player.color);
+    } else {
+        ctx.fillStyle = player.color;
 
-    ctx.fillRect(
-        player.x,
-        player.y,
-        player.width,
-        player.height
-    );
+        ctx.fillRect(
+            player.x,
+            player.y,
+            player.width,
+            player.height
+        );
+    }
 
     if (spotlightKey === "player") {
         ctx.strokeStyle = "#ffffff";
@@ -353,18 +761,22 @@ function drawMouseCoordinate() {
 function drawMouseCircle() {
     beginSpotlight("mouseCircle");
 
-    ctx.beginPath();
+    if (visualMode === "game") {
+        drawGemSkin(mouseCircle.x, mouseCircle.y, mouseCircle.radius, mouseCircle.color);
+    } else {
+        ctx.beginPath();
 
-    ctx.arc(
-        mouseCircle.x,
-        mouseCircle.y,
-        mouseCircle.radius,
-        0,
-        Math.PI * 2
-    );
+        ctx.arc(
+            mouseCircle.x,
+            mouseCircle.y,
+            mouseCircle.radius,
+            0,
+            Math.PI * 2
+        );
 
-    ctx.fillStyle = mouseCircle.color;
-    ctx.fill();
+        ctx.fillStyle = mouseCircle.color;
+        ctx.fill();
+    }
 
     if (spotlightKey === "mouseCircle") {
         ctx.strokeStyle = "#ffffff";
@@ -381,18 +793,22 @@ function drawCreatedCircles() {
     beginSpotlight("createdCircles");
 
     for (const circle of circles) {
-        ctx.beginPath();
+        if (visualMode === "game") {
+            drawGemSkin(circle.x, circle.y, circle.radius, circle.color);
+        } else {
+            ctx.beginPath();
 
-        ctx.arc(
-            circle.x,
-            circle.y,
-            circle.radius,
-            0,
-            Math.PI * 2
-        );
+            ctx.arc(
+                circle.x,
+                circle.y,
+                circle.radius,
+                0,
+                Math.PI * 2
+            );
 
-        ctx.fillStyle = circle.color;
-        ctx.fill();
+            ctx.fillStyle = circle.color;
+            ctx.fill();
+        }
 
         if (spotlightKey === "createdCircles") {
             ctx.strokeStyle = "#ffffff";
@@ -410,17 +826,21 @@ function drawMovingObjects() {
     beginSpotlight("movingObjects");
 
     for (const object of movingObjects) {
-        ctx.beginPath();
-        ctx.arc(
-            object.x,
-            object.y,
-            object.radius,
-            0,
-            Math.PI * 2
-        );
+        if (visualMode === "game") {
+            drawEnemySkin(object.x, object.y, object.radius, object.color);
+        } else {
+            ctx.beginPath();
+            ctx.arc(
+                object.x,
+                object.y,
+                object.radius,
+                0,
+                Math.PI * 2
+            );
 
-        ctx.fillStyle = object.color;
-        ctx.fill();
+            ctx.fillStyle = object.color;
+            ctx.fill();
+        }
 
         if (spotlightKey === "movingObjects") {
             ctx.strokeStyle = "#ffffff";
@@ -599,6 +1019,9 @@ resetButton.addEventListener("click", function() {
     movementMode = "state";
     movementModeButton.textContent = "Movement: State-based";
 
+    visualMode = "primitive";
+    styleModeButton.textContent = "Style: Primitive";
+
     eventCount = 0;
 
     for (const key in keys) {
@@ -625,6 +1048,20 @@ const speedValue = document.getElementById("speedValue");
 speedRange.addEventListener("input", function() {
     player.speed = Number(speedRange.value);
     speedValue.textContent = speedRange.value;
+});
+
+// Fitur Tambahan: Style Mode
+// Logika tombol untuk berpindah tampilan primitive <-> game
+// Murni ganti cara gambar (skin), tidak mengubah data/posisi/logika apa pun
+const styleModeButton = document.getElementById("styleModeButton");
+
+styleModeButton.addEventListener("click", function() {
+    visualMode = visualMode === "primitive" ? "game" : "primitive";
+
+    styleModeButton.textContent =
+        visualMode === "primitive"
+            ? "Style: Primitive"
+            : "Style: Game";
 });
 
 const legendItems = document.querySelectorAll(".legend-item");
