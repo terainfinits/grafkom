@@ -99,14 +99,6 @@ body {
   background: rgba(179, 73, 47, 0.12);
 }
 
-.speed-control {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-on-ink);
-}
-
 .back-button {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 13px;
@@ -129,6 +121,14 @@ body {
   color: var(--ink);
   background: var(--brass);
   outline: none;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-on-ink);
 }
 
 /* ---------- layout ---------- */
