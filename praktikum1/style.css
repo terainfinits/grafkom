@@ -107,6 +107,30 @@ body {
   color: var(--text-on-ink);
 }
 
+.back-button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--text-on-ink);
+  background: transparent;
+  border: 1px solid var(--brass);
+  border-radius: var(--radius-card);
+  padding: 9px 16px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.back-button:hover,
+.back-button:focus-visible {
+  border-color: var(--brass);
+  color: var(--ink);
+  background: var(--brass);
+  outline: none;
+}
+
 /* ---------- layout ---------- */
 
 .layout {
