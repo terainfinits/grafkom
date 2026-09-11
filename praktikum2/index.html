@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebGL Primitive Playground — Praktikum 2</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="page-header">
+        <div class="title-block">
+          <p class="eyebrow">PRAKTIKUM 2 — Fundamental WebGL</p>
+          <h1>WebGL Primitive<br />Playground</h1>
+        </div>
+        <div class="header-meta">
+          <p class="lede">
+            Eksplorasi buffer, shader, attribute, draw mode, vertex color, dan
+            interaksi.
+          </p>
+          <span class="status-badge" id="statusBadge">RUNNING · WEBGL2</span>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <aside class="control-panel">
+          <p class="panel-index">01</p>
+          <h2 class="panel-title">KONTROL PARAMETER</h2>
+
+          <div class="field">
+            <label for="primitiveSelect">Pilihan Primitive</label>
+            <select id="primitiveSelect">
+              <option value="triangle">Segitiga</option>
+              <option value="rectangle">Segiempat</option>
+              <option value="line">Bergaris</option>
+              <option value="points">Poin Prosedural</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="drawModeSelect">Mode Gambar</label>
+            <select id="drawModeSelect">
+              <option value="triangles">Segitiga</option>
+              <option value="line">Garis</option>
+              <option value="points">Point</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label class="range-row" for="speedControl"
+              ><span>Kecepatan Gerak: </span
+              ><output id="speedValue">0.35</output></label
+            >
+            <input
+              id="speedControl"
+              type="range"
+              min="0.05"
+              max="1.2"
+              step="0.05"
+              value="0.35"
+            />
+          </div>
+
+          <div class="field">
+            <p class="field-label-plain">Pengaturan Warna</p>
+            <div class="color-grid">
+              <button class="color-button" data-pattern="solid" data-color="red">
+                <i class="swatch swatch-solid"></i>Merah
+              </button>
+              <button class="color-button" data-pattern="stripe" data-color="green">
+                <i class="swatch swatch-stripe"></i>Hijau
+              </button>
+              <button class="color-button" data-pattern="dot" data-color="blue">
+                <i class="swatch swatch-dot"></i>Biru
+              </button>
+              <button class="color-button" data-pattern="check" data-color="cyan">
+                <i class="swatch swatch-check"></i>Cyan
+              </button>
+              <button class="color-button wide" data-pattern="noise" data-color="random">
+                <i class="swatch swatch-noise"></i>Acak
+              </button>
+            </div>
+          </div>
+
+          <label class="check-row"
+            ><input id="patternToggle" type="checkbox" checked /><span
+              >Pola Grid Prosedural</span
+            ></label
+          >
+
+          <div class="button-grid">
+            <button class="primary-button" id="pauseButton">Pause (P)</button>
+            <button id="resetButton">Reset (R)</button>
+          </div>
+          <button class="wide-button" id="clearSpawnedButton">
+            Bersihkan Primitives yang Dipanggil
+          </button>
+
+          <dl class="keyboard-help">
+            <dt>Gerakan</dt>
+            <dd>Arrow / WASD — state-based</dd>
+            <dt>Shortcuts</dt>
+            <dd>R (reset) · P (pause) · C (change color)</dd>
+            <dt>Pointer</dt>
+            <dd>Klik canvas -> panggil primitive di posisi mouse</dd>
+          </dl>
+        </aside>
+
+        <section class="canvas-panel">
+          <p class="panel-index">02</p>
+          <div class="canvas-frame">
+            <canvas id="webglCanvas" width="960" height="600"></canvas>
+          </div>
+          <dl class="hud-strip">
+            <div class="hud-cell">
+              <dt>Frame Per Second (FPS)</dt>
+              <dd id="fpsValue">0</dd>
+            </div>
+            <div class="hud-cell">
+              <dt>Jumlah Primitive</dt>
+              <dd id="primitiveCount">0</dd>
+            </div>
+            <div class="hud-cell">
+              <dt>Mode Gambar</dt>
+              <dd id="drawModeValue">Segitiga</dd>
+            </div>
+            <div class="hud-cell">
+              <dt>Posisi Mouse</dt>
+              <dd id="mouseValue">(0.00, 0.00)</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
