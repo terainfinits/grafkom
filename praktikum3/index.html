@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Transformation Playground — Praktikum 03</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="shell">
+      <a class="wordmark" href="#top"><strong>PRAKTIKUM 03</strong> · transform lab</a>
+      <nav class="site-nav">
+        <a href="#stage">Panggung</a>
+        <a href="#kontrol">Kontrol</a>
+        <a href="#tentang">Tentang</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="shell">
+        <p class="kicker">WebGL2 · Model Matrix 3×3 · mat3</p>
+        <h1>Interactive Transformation Playground</h1>
+        <p>
+          Sebuah segitiga yang sama dipakai ulang untuk beberapa objek —
+          hanya matriks model 3×3 yang dikirim ke vertex shader yang
+          berubah. Gerakkan Object A dengan keyboard, bandingkan dua
+          urutan komposisi transformasi, dan amati bagaimana rotasi,
+          translasi, dan skala saling memengaruhi bila urutannya ditukar.
+        </p>
+      </div>
+    </section>
+
+    <section class="stage-section" id="stage">
+      <div class="shell stage-grid">
+
+        <div class="stage-wrap">
+          <div class="stage-topbar mono">
+            <span id="status">RUNNING · WebGL2</span>
+            <span>dt: <span id="dtInfo">0.000 s</span></span>
+          </div>
+          <div class="stage">
+            <canvas id="glCanvas" width="720" height="560"></canvas>
+          </div>
+          <p class="stage-caption mono">
+            Klik di dalam kanvas untuk memindahkan Object A ke titik itu.
+          </p>
+        </div>
+
+        <aside class="side-panel">
+
+          <div class="index-card">
+            <div class="index-card-top">
+              <span>SPECIMEN A</span>
+              <span class="status-dot">live</span>
+            </div>
+            <dl>
+              <dt>Posisi</dt>
+              <dd id="positionInfo">(0.00, 0.00)</dd>
+              <dt>Rotasi</dt>
+              <dd id="rotationInfo">0.0°</dd>
+              <dt>Skala</dt>
+              <dd id="scaleInfo">(1.00, 1.00)</dd>
+              <dt>Urutan transformasi</dt>
+              <dd id="orderInfo">T × R × S (pivot di objek)</dd>
+              <dt>Matriks model</dt>
+              <dd id="matrixText" class="matrix-text">[1.00 0.00 0.00]  [0.00 1.00 0.00]  [0.00 0.00 1.00]</dd>
+            </dl>
+          </div>
+
+          <div class="index-card" id="kontrol">
+            <div class="index-card-top">
+              <span>KONTROL</span>
+            </div>
+
+            <div class="btn-row">
+              <button id="pauseBtn" class="btn">Jeda (P)</button>
+              <button id="resetBtn" class="btn">Reset (R)</button>
+            </div>
+            <div class="btn-row">
+              <button id="orderBtn" class="btn">Tukar urutan (T)</button>
+              <button id="orbitBtn" class="btn">Orbit (O)</button>
+            </div>
+
+            <label class="slider-row">
+              <span>Kecepatan gerak <span id="moveValue">1</span></span>
+              <input type="range" id="moveSpeed" min="0.1" max="3" step="0.1" value="1" />
+            </label>
+            <label class="slider-row">
+              <span>Kecepatan rotasi <span id="rotationValue">90°/s</span></span>
+              <input type="range" id="rotationSpeed" min="10" max="270" step="10" value="90" />
+            </label>
+            <label class="slider-row">
+              <span>Kecepatan skala <span id="scaleValue">1.00</span></span>
+              <input type="range" id="scaleSpeed" min="0.1" max="3" step="0.1" value="1" />
+            </label>
+
+            <div class="check-row">
+              <label><input type="checkbox" id="showAxes" checked /> Sumbu X / Y</label>
+              <label><input type="checkbox" id="showPivot" /> Pivot origin</label>
+              <label><input type="checkbox" id="showChild" /> Child object</label>
+              <label><input type="checkbox" id="autoB" checked /> Object B (auto)</label>
+            </div>
+          </div>
+
+          <div class="index-card" id="tentang">
+            <div class="index-card-top">
+              <span>KEYMAP</span>
+            </div>
+            <ul class="keymap mono">
+              <li><span>↑ ↓ ← → / WASD</span> translasi Object A</li>
+              <li><span>Q / E</span> rotasi</li>
+              <li><span>+ / −</span> skala uniform</li>
+              <li><span>Z / X</span> skala X</li>
+              <li><span>C / V</span> skala Y</li>
+              <li><span>1 2 3</span> preset transform</li>
+              <li><span>T</span> tukar urutan transformasi</li>
+              <li><span>O</span> toggle orbit</li>
+              <li><span>P</span> jeda / lanjutkan</li>
+              <li><span>R</span> reset</li>
+            </ul>
+          </div>
+
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell">
+      <span class="mono">Praktikum 03 — Transformation &amp; Coordinate System</span>
+      <nav>
+        <a href="matrix3.js">matrix3.js</a>
+        <a href="main.js">main.js</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="matrix3.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
