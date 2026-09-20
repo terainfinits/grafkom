@@ -197,16 +197,7 @@ python -m http.server 8000
 
 ---
 
-## 7. Hal yang Bisa Dikembangkan
-
-- **Koreksi aspek rasio**: kanvas 720×560 tidak persegi, sehingga segitiga sedikit gepeng dan konversi klik mouse belum memperhitungkan rasio. Bisa diperbaiki dengan matriks proyeksi tambahan.
-- Hierarki parent-child lebih dalam (cucu, cicit).
-- Skala terhadap pivot khusus: `translate(pivot) × scale(s) × translate(−pivot)`.
-- Warna per-vertex agar arah rotasi lebih mudah diamati.
-
----
-
-## 8. Kesimpulan
+## 7. Kesimpulan
 
 Praktikum ini menunjukkan tiga hal utama:
 
