@@ -204,3 +204,6 @@ Praktikum ini menunjukkan tiga hal utama:
 1. Semua transformasi 2D dapat dinyatakan sebagai satu **matriks 3×3** berkat koordinat homogen.
 2. Transformasi digabungkan dengan **perkalian matriks**, dan karena perkalian matriks tidak komutatif, **urutannya mengubah hasil** (`T×R×S` vs `R×T×S`).
 3. Geometri objek cukup disimpan sekali di local space; **matriks model** yang menentukan di mana dan bagaimana objek itu tampil, termasuk untuk hubungan parent-child dan gerak orbit.
+
+# 8. Screenshot
+![prak3](../assets/ss_prak3.jpg)
