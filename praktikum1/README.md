@@ -739,3 +739,6 @@ Program memperlihatkan bagaimana bentuk-bentuk dasar seperti **rectangle, line, 
 Selain memahami primitif grafika, praktikum ini juga menerapkan konsep **animasi, koordinat 2D, event handling, keyboard input, mouse input, state management, dan rendering menggunakan `requestAnimationFrame()`**.
 
 Dengan adanya **Style Mode**, bentuk primitif juga dapat dikembangkan menjadi tampilan yang lebih kompleks tanpa mengubah data dan logika dasar objek.
+
+# Screenshot
+![prak1](../assets/ss_prak1.jpg)
