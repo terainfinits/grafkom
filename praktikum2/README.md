@@ -930,3 +930,6 @@ Melalui project ini dapat dipelajari beberapa konsep penting dalam WebGL2, yaitu
 * Cara membuat aplikasi WebGL2 yang interaktif tanpa library eksternal.
 
 Project ini dapat digunakan sebagai dasar untuk mempelajari materi WebGL2 berikutnya seperti transformation matrix, texture, camera, 3D object, lighting, dan projection.
+
+# Screenshot
+![prak2](../assets/ss_prak2.jpg)
