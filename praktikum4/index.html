@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotating Cube Camera Rig — The Archive</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="shell">
+    <span class="wordmark"><strong>THE ARCHIVE</strong> · rig no. 07</span>
+    <span id="statusBadge" class="mono status-badge">DEPTH ON · WEBGL2</span>
+  </div>
+</header>
+
+<main class="shell">
+  <section class="hero-mini">
+    <p class="kicker mono">Camera, Projection &amp; 3D — WebGL2</p>
+    <h1>Rotating Cube Camera Rig</h1>
+    <p class="dek mono">Arrow = kamera X/Y &nbsp;·&nbsp; W/S = kamera Z &nbsp;·&nbsp; P = ganti proyeksi &nbsp;·&nbsp; [ / ] = FOV &nbsp;·&nbsp; N = preset near/far &nbsp;·&nbsp; D = depth test &nbsp;·&nbsp; R = reset</p>
+  </section>
+
+  <div class="stage">
+    <canvas id="webglCanvas"></canvas>
+    <div class="hud mono">
+      <dl>
+        <div><dt>Proyeksi</dt><dd id="projectionInfo">perspective</dd></div>
+        <div><dt>Kamera</dt><dd id="cameraInfo">(0, 1.20, 5)</dd></div>
+        <div><dt>FOV</dt><dd id="fovInfo">60°</dd></div>
+        <div><dt>Near / Far</dt><dd id="clipInfo">0.10 / 30.00</dd></div>
+        <div><dt>Depth</dt><dd id="depthInfo">Enabled</dd></div>
+        <div><dt>Mode</dt><dd id="cameraModeInfo">Manual</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="control-row">
+      <button id="projectionButton" class="btn">Ganti Proyeksi (P)</button>
+      <button id="orbitButton" class="btn">Orbit Camera (B)</button>
+      <button id="splitButton" class="btn">Split View (X)</button>
+      <button id="depthButton" class="btn">Depth Test (D)</button>
+      <button id="clipButton" class="btn">Preset Near/Far (N)</button>
+      <button id="fovPresetButton" class="btn">Preset FOV</button>
+      <button id="resetButton" class="btn ghost">Reset (R)</button>
+    </div>
+    <div class="control-row sliders">
+      <label class="slider mono">FOV <span id="fovValue">60°</span>
+        <input id="fovControl" type="range" min="20" max="120" step="1" value="60">
+      </label>
+      <label class="slider mono">Tinggi kamera <span id="heightValue">1.20</span>
+        <input id="heightControl" type="range" min="-4" max="4" step="0.05" value="1.2">
+      </label>
+      <label class="slider mono">Target X <span id="targetXValue">0.00</span>
+        <input id="targetXControl" type="range" min="-3" max="3" step="0.05" value="0">
+      </label>
+      <label class="slider mono">Target Y <span id="targetYValue">0.00</span>
+        <input id="targetYControl" type="range" min="-3" max="3" step="0.05" value="0">
+      </label>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="shell">Challenge: Orbit camera · Split view dua proyeksi · Preset FOV 35°/60°/90° · Tiga cube pada depth berbeda</div>
+</footer>
+
+<script src="math3d.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
