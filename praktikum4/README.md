@@ -1,5 +1,14 @@
 # Praktikum 04 — Rotating Cube Camera Rig (WebGL2)
 
+## Identitas
+
+| Nama | NRP |
+| --- | --- |
+| Nyoman Surya Hutama Andyartha | 5025241093 |
+| Willy Dava Nugraha | 5025241090 |
+
+## Deskripsi
+
 Playground interaktif untuk mempelajari **kamera, proyeksi, dan transformasi 3D**
 menggunakan WebGL2 murni (tanpa library eksternal). Tiga kubus digambar pada
 kedalaman berbeda, dengan kamera yang bisa dikendalikan secara manual (drag mouse,
