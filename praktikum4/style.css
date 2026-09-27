@@ -1,8 +1,3 @@
-/* ================================================
-   Rotating Cube Camera Rig — stylesheet
-   Theme: The Archive (ink / paper / brass)
-   ================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
 :root {
@@ -53,7 +48,9 @@ body {
 #webglCanvas {
   width: 100%; aspect-ratio: 16 / 9; display: block;
   background: #0a1420; border: 1px solid var(--ink-line);
+  cursor: grab;
 }
+#webglCanvas:active { cursor: grabbing; }
 .hud {
   position: absolute; top: 12px; right: 12px;
   background: rgba(27, 31, 42, 0.82); border: 1px solid var(--brass);
@@ -64,6 +61,21 @@ body {
 .hud dl > div { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
 .hud dt { color: var(--brass); }
 .hud dd { margin: 0; color: var(--text-on-ink); text-align: right; }
+
+/* debug matrix panel (feature: shows live view/projection matrices) */
+.debug-panel {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  background: rgba(10, 20, 32, 0.85);
+  border: 1px solid var(--ink-line);
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: pre;
+  overflow-x: auto;
+  max-width: 220px;
+  color: var(--text-on-ink);
+}
+.debug-panel[hidden] { display: none; }
 
 /* controls */
 .controls {
@@ -96,6 +108,7 @@ body {
 
 @media (max-width: 640px) {
   .hud { position: static; margin-top: 10px; max-width: none; }
+  .debug-panel { max-width: none; }
   .stage { display: flex; flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) {

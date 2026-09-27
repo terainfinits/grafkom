@@ -18,6 +18,7 @@
   <section class="hero-mini">
     <p class="kicker mono">Camera, Projection &amp; 3D — WebGL2</p>
     <h1>Rotating Cube Camera Rig</h1>
+    <p class="dek">Drag pada canvas untuk orbit manual, atau pakai kontrol di bawah.</p>
   </section>
 
   <div class="stage">
@@ -30,7 +31,9 @@
         <div><dt>Near / Far</dt><dd id="clipInfo">0.10 / 30.00</dd></div>
         <div><dt>Depth</dt><dd id="depthInfo">Enabled</dd></div>
         <div><dt>Mode</dt><dd id="cameraModeInfo">Manual</dd></div>
+        <div><dt>Animasi</dt><dd id="animInfo">Running</dd></div>
       </dl>
+      <pre id="debugPanel" class="mono debug-panel" hidden></pre>
     </div>
   </div>
 
@@ -40,6 +43,8 @@
       <button id="orbitButton" class="btn">Orbit Camera (B)</button>
       <button id="splitButton" class="btn">Split View (X)</button>
       <button id="depthButton" class="btn">Depth Test (D)</button>
+      <button id="gridButton" class="btn">Grid Lantai (G)</button>
+      <button id="debugButton" class="btn">Debug Matrix (M)</button>
       <button id="clipButton" class="btn">Preset Near/Far (N)</button>
       <button id="fovPresetButton" class="btn">Preset FOV</button>
       <button id="resetButton" class="btn ghost">Reset (R)</button>
@@ -62,7 +67,7 @@
 </main>
 
 <footer class="site-footer">
-  <div class="shell">Challenge: Orbit camera · Split view dua proyeksi · Preset FOV 35°/60°/90° · Tiga cube pada depth berbeda</div>
+  <div class="shell">Challenge: Orbit camera · Split view dua proyeksi · Preset FOV 35°/60°/90° · Tiga cube pada depth berbeda · Drag mouse untuk orbit manual · Grid lantai · Panel debug matrix (Space untuk pause)</div>
 </footer>
 
 <script src="math3d.js"></script>

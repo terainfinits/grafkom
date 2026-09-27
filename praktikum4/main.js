@@ -1,8 +1,3 @@
-/* ================================================
-   main.js — WebGL2 cube camera playground
-   Requires math3d.js to be loaded first.
-   ================================================ */
-
 const canvas = document.querySelector("#webglCanvas");
 const gl = canvas.getContext("webgl2");
 
@@ -93,6 +88,26 @@ const positionBuffer = createBuffer(cubePositions);
 const colorBuffer = createBuffer(cubeColors);
 const vertexCount = cubePositions.length / 3;
 
+/* ---------- floor grid geometry (feature: spatial reference plane) ---------- */
+
+function createGridLines(size = 6, step = 1, y = -0.62) {
+  const positions = [];
+  const colors = [];
+  const lineColor = [0.32, 0.4, 0.5];
+  for (let i = -size; i <= size; i += step) {
+    positions.push(-size, y, i, size, y, i);
+    colors.push(...lineColor, ...lineColor);
+    positions.push(i, y, -size, i, y, size);
+    colors.push(...lineColor, ...lineColor);
+  }
+  return { positions, colors };
+}
+
+const gridData = createGridLines();
+const gridPositionBuffer = createBuffer(gridData.positions);
+const gridColorBuffer = createBuffer(gridData.colors);
+const gridVertexCount = gridData.positions.length / 3;
+
 /* ---------- app state ---------- */
 
 const state = {
@@ -104,6 +119,9 @@ const state = {
   depth: true,
   orbit: false,
   split: false,
+  paused: false,
+  showGrid: true,
+  showDebug: false,
   keys: {},
   time: 0,
   clipIndex: 0,
@@ -124,11 +142,22 @@ function modelMatrix(position, rotation) {
   );
 }
 
-function bindAttributes() {
+/* separate bind functions per buffer set, since grid and cube geometry
+   now share the same attribute locations but live in different buffers */
+function bindCubeAttributes() {
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   gl.enableVertexAttribArray(positionLocation);
   gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
   gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  gl.enableVertexAttribArray(colorLocation);
+  gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
+}
+
+function bindGridAttributes() {
+  gl.bindBuffer(gl.ARRAY_BUFFER, gridPositionBuffer);
+  gl.enableVertexAttribArray(positionLocation);
+  gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gridColorBuffer);
   gl.enableVertexAttribArray(colorLocation);
   gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
 }
@@ -140,10 +169,24 @@ function drawCube(model, view, projection) {
   gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
 }
 
+function drawGrid(view, projection) {
+  gl.uniformMatrix4fv(modelLocation, false, identity());
+  gl.uniformMatrix4fv(viewLocation, false, view);
+  gl.uniformMatrix4fv(projectionLocation, false, projection);
+  gl.drawArrays(gl.LINES, 0, gridVertexCount);
+}
+
 /* three cubes at different depths (challenge) */
 function drawPass(x, width, projection) {
   gl.viewport(x, 0, width, canvas.height);
   const view = lookAt(state.camera.position, state.camera.target, state.camera.up);
+
+  if (state.showGrid) {
+    bindGridAttributes();
+    drawGrid(view, projection);
+  }
+
+  bindCubeAttributes();
   drawCube(modelMatrix([0, 0, 0], [state.time * 34, state.time * 52]), view, projection);
   drawCube(modelMatrix([-1.45, 0.15, -1.6], [state.time * 20, state.time * 30]), view, projection);
   drawCube(modelMatrix([1.35, -0.2, -3.4], [state.time * 48, state.time * 18]), view, projection);
@@ -167,11 +210,24 @@ function resizeCanvasToDisplaySize() {
   }
 }
 
+/* FIX: lookAt() can degenerate when the camera sits exactly on top of (or
+   at) its target. Clamp the distance before it ever reaches lookAt, instead
+   of trying to patch the symptom inside the math helper. */
+function enforceMinCameraDistance() {
+  const MIN_DISTANCE = 0.3;
+  const offset = subtract(state.camera.position, state.camera.target);
+  const distance = Math.hypot(...offset);
+  if (distance < MIN_DISTANCE) {
+    const direction = distance > 1e-6 ? offset.map((value) => value / distance) : [0, 0, 1];
+    state.camera.position = state.camera.target.map((value, index) => value + direction[index] * MIN_DISTANCE);
+  }
+}
+
 function renderScene() {
   resizeCanvasToDisplaySize();
+  enforceMinCameraDistance();
   gl.enable(gl.SCISSOR_TEST);
   gl.useProgram(program);
-  bindAttributes();
 
   if (state.depth) gl.enable(gl.DEPTH_TEST);
   else gl.disable(gl.DEPTH_TEST);
@@ -199,21 +255,35 @@ function renderScene() {
   updateHud();
 }
 
+/* FIX: automatic orbit mode wrote state.camera.position[0]/[2] every frame,
+   silently overriding the ArrowLeft/Right and W/S handling just above it.
+   The keys looked unresponsive. Manual X/Z input is now skipped entirely
+   while orbit is active, and Y (height) stays controllable either way. */
 function updateCamera(deltaTime) {
   const speed = 2.0 * deltaTime;
-  if (state.keys.ArrowLeft) state.camera.position[0] -= speed;
-  if (state.keys.ArrowRight) state.camera.position[0] += speed;
+  if (!state.orbit) {
+    if (state.keys.ArrowLeft) state.camera.position[0] -= speed;
+    if (state.keys.ArrowRight) state.camera.position[0] += speed;
+    if (state.keys.w) state.camera.position[2] -= speed;
+    if (state.keys.s) state.camera.position[2] += speed;
+  }
   if (state.keys.ArrowUp) state.camera.position[1] += speed;
   if (state.keys.ArrowDown) state.camera.position[1] -= speed;
-  if (state.keys.w) state.camera.position[2] -= speed;
-  if (state.keys.s) state.camera.position[2] += speed;
 
-  /* orbit camera (challenge) */
   if (state.orbit) {
     const radius = 5;
     state.camera.position[0] = Math.sin(state.time * 0.45) * radius;
     state.camera.position[2] = Math.cos(state.time * 0.45) * radius;
   }
+}
+
+function formatMatrix(m) {
+  let out = "";
+  for (let r = 0; r < 4; r++) {
+    const row = [m[r], m[4 + r], m[8 + r], m[12 + r]].map((v) => v.toFixed(2).padStart(7));
+    out += row.join(" ") + "\n";
+  }
+  return out;
 }
 
 function updateHud() {
@@ -223,11 +293,26 @@ function updateHud() {
   document.querySelector("#fovInfo").textContent = `${state.fov.toFixed(0)}°`;
   document.querySelector("#clipInfo").textContent = `${state.near.toFixed(2)} / ${state.far.toFixed(2)}`;
   document.querySelector("#depthInfo").textContent = state.depth ? "Enabled" : "Disabled";
-  document.querySelector("#cameraModeInfo").textContent = state.orbit ? "Orbit" : "Manual";
-  document.querySelector("#statusBadge").textContent = `${state.depth ? "DEPTH ON" : "DEPTH OFF"} · WEBGL2`;
+  document.querySelector("#cameraModeInfo").textContent = state.orbit ? "Orbit (X/Z terkunci)" : "Manual";
+  document.querySelector("#animInfo").textContent = state.paused ? "Paused" : "Running";
+  document.querySelector("#statusBadge").textContent =
+    `${state.paused ? "PAUSED · " : ""}${state.depth ? "DEPTH ON" : "DEPTH OFF"} · WEBGL2`;
   document.querySelector("#orbitButton").setAttribute("aria-pressed", String(state.orbit));
   document.querySelector("#splitButton").setAttribute("aria-pressed", String(state.split));
   document.querySelector("#depthButton").setAttribute("aria-pressed", String(state.depth));
+  document.querySelector("#gridButton").setAttribute("aria-pressed", String(state.showGrid));
+  document.querySelector("#debugButton").setAttribute("aria-pressed", String(state.showDebug));
+
+  const debugPanel = document.querySelector("#debugPanel");
+  if (state.showDebug) {
+    const aspect = canvas.width / canvas.height;
+    const view = lookAt(state.camera.position, state.camera.target, state.camera.up);
+    const projection = projectionMatrix(aspect, state.projection);
+    debugPanel.hidden = false;
+    debugPanel.textContent = `VIEW\n${formatMatrix(view)}\nPROJECTION\n${formatMatrix(projection)}`;
+  } else {
+    debugPanel.hidden = true;
+  }
 }
 
 function resetScene() {
@@ -240,6 +325,7 @@ function resetScene() {
   state.depth = true;
   state.orbit = false;
   state.split = false;
+  state.paused = false;
   state.clipIndex = 0;
   state.fovIndex = 1;
 
@@ -285,6 +371,12 @@ function bindControls() {
   document.querySelector("#depthButton").addEventListener("click", () => {
     state.depth = !state.depth;
   });
+  document.querySelector("#gridButton").addEventListener("click", () => {
+    state.showGrid = !state.showGrid;
+  });
+  document.querySelector("#debugButton").addEventListener("click", () => {
+    state.showDebug = !state.showDebug;
+  });
   document.querySelector("#clipButton").addEventListener("click", nextClipPreset);
   document.querySelector("#fovPresetButton").addEventListener("click", nextFovPreset);
   document.querySelector("#resetButton").addEventListener("click", resetScene);
@@ -307,9 +399,69 @@ function bindControls() {
   });
 }
 
-/* ---------- keyboard: Arrow=X/Y, W/S=Z, P=proyeksi, [ ]=FOV, N=near/far, D=depth, R=reset ---------- */
+/* ---------- feature: mouse/touch drag to orbit the camera manually ---------- */
 
+function computeSpherical(position, target) {
+  const offset = subtract(position, target);
+  const radius = Math.hypot(...offset) || 1;
+  const pitch = Math.asin(Math.max(-1, Math.min(1, offset[1] / radius)));
+  const yaw = Math.atan2(offset[0], offset[2]);
+  return { radius, yaw, pitch };
+}
+
+function bindPointerOrbit() {
+  const drag = { active: false, lastX: 0, lastY: 0, yaw: 0, pitch: 0, radius: 5 };
+  const SENSITIVITY = 0.008;
+  const MAX_PITCH = 1.3; // ~75°, avoids flipping over the poles
+
+  function startDrag(event) {
+    drag.active = true;
+    state.orbit = false; // manual drag takes priority over the automatic orbit toggle
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
+    const spherical = computeSpherical(state.camera.position, state.camera.target);
+    drag.radius = spherical.radius;
+    drag.yaw = spherical.yaw;
+    drag.pitch = spherical.pitch;
+    canvas.setPointerCapture(event.pointerId);
+  }
+
+  function moveDrag(event) {
+    if (!drag.active) return;
+    const dx = event.clientX - drag.lastX;
+    const dy = event.clientY - drag.lastY;
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
+    drag.yaw -= dx * SENSITIVITY;
+    drag.pitch = Math.max(-MAX_PITCH, Math.min(MAX_PITCH, drag.pitch - dy * SENSITIVITY));
+    state.camera.position = [
+      state.camera.target[0] + drag.radius * Math.cos(drag.pitch) * Math.sin(drag.yaw),
+      state.camera.target[1] + drag.radius * Math.sin(drag.pitch),
+      state.camera.target[2] + drag.radius * Math.cos(drag.pitch) * Math.cos(drag.yaw),
+    ];
+  }
+
+  function endDrag(event) {
+    drag.active = false;
+    if (canvas.hasPointerCapture?.(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+  }
+
+  canvas.addEventListener("pointerdown", startDrag);
+  canvas.addEventListener("pointermove", moveDrag);
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+}
+
+/* ---------- keyboard: Arrow=X/Y, W/S=Z, P=proyeksi, [ ]=FOV, N=near/far,
+   D=depth, G=grid, M=debug matrix, Space=pause, R=reset ---------- */
+
+/* FIX: arrow keys were captured globally even while a slider had focus,
+   so native range-input keyboard behavior (which also uses arrow keys) was
+   silently overridden. Any key event that originates from a form control
+   now falls through to the browser's default handling instead. */
 window.addEventListener("keydown", (event) => {
+  if (event.target instanceof HTMLInputElement) return;
+
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(event.key)) {
     event.preventDefault();
@@ -323,13 +475,17 @@ window.addEventListener("keydown", (event) => {
   if (key === "b") state.orbit = !state.orbit;
   if (key === "x") state.split = !state.split;
   if (key === "d") state.depth = !state.depth;
+  if (key === "g") state.showGrid = !state.showGrid;
+  if (key === "m") state.showDebug = !state.showDebug;
   if (key === "n") nextClipPreset();
   if (key === "[") setFov(-5);
   if (key === "]") setFov(5);
   if (key === "r") resetScene();
+  if (key === " ") state.paused = !state.paused; // was dead code before: preventDefault fired but nothing read " "
 });
 
 window.addEventListener("keyup", (event) => {
+  if (event.target instanceof HTMLInputElement) return;
   const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
   state.keys[key] = false;
 });
@@ -342,7 +498,7 @@ let lastTime = 0;
 function render(time) {
   const deltaTime = Math.min((time - lastTime) * 0.001, 0.05);
   lastTime = time;
-  state.time += deltaTime;
+  if (!state.paused) state.time += deltaTime;
   updateCamera(deltaTime);
   renderScene();
   requestAnimationFrame(render);
@@ -351,6 +507,7 @@ function render(time) {
 gl.enable(gl.DEPTH_TEST);
 gl.depthFunc(gl.LESS);
 bindControls();
+bindPointerOrbit();
 resizeCanvasToDisplaySize();
 renderScene();
 requestAnimationFrame(render);

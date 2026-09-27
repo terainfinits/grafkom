@@ -1,9 +1,3 @@
-/* ================================================
-   math3d.js — 4x4 matrix & vector helpers (column-major)
-   Loaded before main.js as a plain script (no modules,
-   so it also works when opened directly via file://).
-   ================================================ */
-
 function multiply(a, b) {
   const result = new Float32Array(16);
   for (let c = 0; c < 4; c++) {
@@ -16,6 +10,10 @@ function multiply(a, b) {
     }
   }
   return result;
+}
+
+function identity() {
+  return new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 }
 
 function translation(x, y, z) {
@@ -47,8 +45,8 @@ function perspective(fovDegrees, aspect, near, far) {
 
 function orthographic(size, aspect, near, far) {
   const halfWidth = size * aspect;
-  const rangeX = 1 / (halfWidth * 2);
-  const rangeY = 1 / (size * 2);
+  const rangeX = 1 / halfWidth;
+  const rangeY = 1 / size;
   const rangeZ = 1 / (near - far);
   return new Float32Array([
     rangeX, 0, 0, 0,
@@ -79,9 +77,23 @@ function normalize(vector) {
   return vector.map((value) => value / length);
 }
 
+/* FIX: lookAt could produce a degenerate basis in two cases:
+   1) eye and target sit on the same vertical line as `up` (cross(up, backward)
+      collapses to the zero vector) — reachable via ArrowUp/Down + W/S.
+   2) eye === target (backward collapses to the zero vector) — reachable by
+      driving the camera through the origin with W/S.
+   Both used to silently produce a broken view matrix (cube vanishes with no
+   error). We now fall back to an alternate up vector for case 1, and the
+   caller (enforceMinCameraDistance in main.js) prevents case 2 by clamping
+   the camera-to-target distance before lookAt is ever called. */
 function lookAt(eye, target, up) {
   const backward = normalize(subtract(eye, target));
-  const right = normalize(cross(up, backward));
+  let right = cross(up, backward);
+  if (Math.hypot(...right) < 1e-6) {
+    const fallbackUp = Math.abs(backward[1]) < 0.99 ? [0, 1, 0] : [1, 0, 0];
+    right = cross(fallbackUp, backward);
+  }
+  right = normalize(right);
   const correctedUp = cross(backward, right);
   return new Float32Array([
     right[0], correctedUp[0], backward[0], 0,
