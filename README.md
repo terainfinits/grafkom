@@ -22,3 +22,9 @@ Folder Praktikum 3: [klik disini](https://github.com/terainfinits/grafkom/tree/m
 Link Deploy Praktikum 3: [klik disini](https://terainfinits.github.io/grafkom/praktikum3/index.html) \
 Screenshot Praktikum 3:
 ![prak3](./assets/ss_prak3.jpg)
+
+# Praktikum 4
+Folder Praktikum 4: [klik disini](https://github.com/terainfinits/grafkom/tree/main/praktikum4) \
+Link Deploy Praktikum 4: [klik disini](https://terainfinits.github.io/grafkom/praktikum4/index.html) \
+Screenshot Praktikum 4:
+![prak4](./assets/ss_prak4.png)
