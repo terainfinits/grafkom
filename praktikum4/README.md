@@ -100,3 +100,5 @@ otomatis.
 7. **Responsive canvas** — sinkronisasi resolusi drawing buffer dengan ukuran
    CSS (device pixel ratio aware) agar aspect ratio tetap benar.
 
+# Screenshot
+![prak4](../assets/ss_prak4.png)
