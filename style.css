@@ -150,7 +150,10 @@ img {
 
 .card {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+
   background: var(--paper);
   color: var(--text-ink-body);
   text-decoration: none;
@@ -161,6 +164,20 @@ img {
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
+
+/* .card {
+  position: relative;
+  display: block;
+  background: var(--paper);
+  color: var(--text-ink-body);
+  text-decoration: none;
+  padding: 26px 26px 22px;
+  border-radius: var(--radius-card);
+  border: 1px solid transparent;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+} */
 
 .catalog-grid .card:nth-child(4n+1) { --tilt: -0.6deg; }
 .catalog-grid .card:nth-child(4n+2) { --tilt: 0.5deg; }
@@ -206,7 +223,18 @@ img {
   color: #4a4436;
   margin: 0 0 20px;
   max-width: 42ch;
+
+  min-height: 41.6px;
 }
+
+/* .card p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #4a4436;
+  margin: 0 0 20px;
+  max-width: 42ch;
+} */
 
 .card-tags {
   display: flex;
@@ -214,6 +242,13 @@ img {
   gap: 8px;
   margin-bottom: 18px;
 }
+
+/* .card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+} */
 
 .card-tags span {
   font-family: 'IBM Plex Mono', monospace;
@@ -225,6 +260,8 @@ img {
 }
 
 .card-open {
+  margin-top: auto;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -232,6 +269,15 @@ img {
   font-size: 12px;
   color: #574f3f;
 }
+
+/* .card-open {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: #574f3f;
+} */
 
 .card-open .arrow {
   transition: transform 0.15s ease;
