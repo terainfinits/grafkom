@@ -1,49 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Textured and Lit Cube Playground</title>
-  <link rel="stylesheet" href="./style.css" />
-</head>
-<body>
-  <main class="app">
-    <header>
-      <h1>Textured and Lit Cube Playground</h1>
-      <p>WebGL2 — Lighting, Shading &amp; Texture</p>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Textured and Lit Object Playground — Praktikum 5</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="page-header">
+        <div>
+          <span class="eyebrow">PRAKTIKUM 05 · LIGHTING, SHADING & TEXTURE</span>
+          <h1>Textured and Lit Object Playground</h1>
+          <p>Amati hubungan normal, texture, point light, camera, dan fragment shading.</p>
+        </div>
+        <span class="status-badge" id="statusBadge">RUNNING · LIGHTING ON</span>
+      </header>
+      <div class="workspace">
+        <section class="canvas-panel">
+          <div class="canvas-frame">
+            <canvas id="webglCanvas" width="960" height="600"></canvas>
+          </div>
+          <div class="hud-grid">
+            <div class="hud-card"><span>Shading</span><b id="shadingInfo">FLAT</b></div>
+            <div class="hud-card"><span>Light</span><b id="lightInfo">(2.00, 2.00, 3.00)</b></div>
+            <div class="hud-card"><span>Texture</span><b id="textureInfo">CHECKER</b></div>
+            <div class="hud-card"><span>Filtering</span><b id="filterInfo">LINEAR</b></div>
+            <div class="hud-card"><span>Wrapping</span><b id="wrapInfo">REPEAT</b></div>
+            <div class="hud-card"><span>Camera</span><b id="cameraInfo">ORBIT OFF</b></div>
+            <div class="hud-card"><span>UV Scale</span><b id="uvInfo">1.00</b></div>
+            <div class="hud-card"><span>Shininess</span><b id="shininessInfo">32.0</b></div>
+            <div class="hud-card"><span>Ambient</span><b id="ambientInfo">0.18</b></div>
+            <div class="hud-card"><span>Komponen</span><b id="componentInfo">A D S</b></div>
+            <div class="hud-card"><span>Scale</span><b id="scaleInfo">UNIFORM</b></div>
+            <div class="hud-card"><span>Depth Test</span><b id="depthInfo">ON</b></div>
+          </div>
+        </section>
+        <aside class="control-panel">
+          <span class="eyebrow">PARAMETER CONTROL</span>
+          <label class="select-row">Bentuk objek
+            <select id="shapeSelect">
+              <option value="cube">Kubus</option>
+              <option value="torus">Torus</option>
+              <option value="torusKnot">Torus Knot</option>
+              <option value="sphere">Bola</option>
+            </select>
+          </label>
 
-    <canvas id="glCanvas" width="960" height="600"></canvas>
+          <label class="range-row"><span>Ambient strength (A / Z)</span><output id="ambientValue">0.18</output></label>
+          <input id="ambientControl" type="range" min="0" max="1" step="0.01" value="0.18" />
 
-    <section id="hud">
-      <div>Shading: <span id="shadingInfo"></span></div>
-      <div>Filtering: <span id="filterInfo"></span></div>
-      <div>Wrapping: <span id="wrapInfo"></span></div>
-      <div>UV Scale: <span id="uvInfo"></span></div>
-      <div>Shininess: <span id="shininessInfo"></span></div>
-      <div>Ambient: <span id="ambientInfo"></span></div>
-      <div>Komponen: <span id="componentInfo"></span></div>
-      <div>Scale: <span id="scaleInfo"></span></div>
-      <div>Light: <span id="lightInfo"></span></div>
-    </section>
+          <label class="range-row"><span>Shininess (- / +)</span><output id="shininessValue">32</output></label>
+          <input id="shininessControl" type="range" min="2" max="128" value="32" />
 
-    <section class="controls">
-      <strong>Kontrol:</strong>
-      <span>Arrow = Light X/Y</span>
-      <span>W/S = Light Z</span>
-      <span>F = Flat/Smooth</span>
-      <span>T = Filtering</span>
-      <span>G = Wrapping</span>
-      <span>[ / ] = UV Scale</span>
-      <span>- / + = Shininess</span>
-      <span>A / Z = Ambient</span>
-      <span>1/2/3 = Ambient/Diffuse/Specular ON/OFF</span>
-      <span>N = Uniform/Non-Uniform Scale</span>
-      <span>O = Light Orbit</span>
-      <span>R = Reset</span>
-    </section>
-  </main>
+          <label class="range-row"><span>UV Scale ([ / ])</span><output id="uvValue">1.00</output></label>
+          <input id="uvScaleControl" type="range" min="0.25" max="5" step="0.05" value="1" />
 
-  <script type="module" src="./main.js"></script>
-</body>
+          <div class="subheading">Light position</div>
+          <div class="triple-range">
+            <label>X<input id="lightXControl" type="range" min="-4" max="4" step="0.1" value="2" /></label>
+            <label>Y<input id="lightYControl" type="range" min="-4" max="5" step="0.1" value="2" /></label>
+            <label>Z<input id="lightZControl" type="range" min="-5" max="5" step="0.1" value="3" /></label>
+          </div>
+
+          <div class="button-grid">
+            <button id="flatButton">Flat / Smooth (F)</button>
+            <button id="textureButton">Texture (T)</button>
+            <button id="lightOrbitButton">Light Orbit (L)</button>
+            <button id="cameraOrbitButton">Camera Orbit</button>
+            <button id="nonUniformButton">Non-Uniform (N)</button>
+            <button id="filterButton">Filtering (H)</button>
+            <button id="wrapButton">Wrapping (G)</button>
+            <button id="depthButton">Depth Test (D)</button>
+          </div>
+          <button class="wide-button" id="cubeRotationButton">Stop Object Rotation (P)</button>
+
+          <label class="select-row">Texture source
+            <select id="textureSource">
+              <option value="checker">Checkerboard</option>
+              <option value="image">Image texture</option>
+            </select>
+          </label>
+          <label class="select-row">Filtering
+            <select id="filterSelect">
+              <option value="linear">LINEAR</option>
+              <option value="nearest">NEAREST</option>
+              <option value="mipmap">LINEAR_MIPMAP_LINEAR</option>
+              <option value="nearestMipmap">NEAREST_MIPMAP_NEAREST</option>
+            </select>
+          </label>
+          <label class="select-row">Wrapping
+            <select id="wrapSelect">
+              <option value="repeat">REPEAT</option>
+              <option value="clamp">CLAMP_TO_EDGE</option>
+              <option value="mirror">MIRRORED_REPEAT</option>
+            </select>
+          </label>
+
+          <div class="subheading">Lighting components (1 / 2 / 3)</div>
+          <div class="check-grid">
+            <label><input id="ambientToggle" type="checkbox" checked /> Ambient</label>
+            <label><input id="diffuseToggle" type="checkbox" checked /> Diffuse</label>
+            <label><input id="specularToggle" type="checkbox" checked /> Specular</label>
+          </div>
+
+          <div class="subheading">Non-uniform scale</div>
+          <div class="triple-range">
+            <label>X<input id="scaleXControl" type="range" min="0.5" max="2" step="0.05" value="1" /></label>
+            <label>Y<input id="scaleYControl" type="range" min="0.5" max="2" step="0.05" value="1" /></label>
+            <label>Z<input id="scaleZControl" type="range" min="0.5" max="2" step="0.05" value="1" /></label>
+          </div>
+
+          <button class="wide-button" id="resetButton">Reset Scene (R)</button>
+          <div class="keyboard-help">
+            <b>Keyboard</b>
+            <span>Arrow: light X/Y · W/S: light Z</span>
+            <span>Q/E: camera X · A/Z: ambient</span>
+            <span>-/+: shininess · [ / ]: UV scale</span>
+            <span>F: flat/smooth · T: texture on/off</span>
+            <span>H: filtering · G: wrapping</span>
+            <span>1/2/3: ambient/diffuse/specular</span>
+            <span>N: uniform/non-uniform · D: depth test</span>
+            <span>L: light orbit · P: stop rotation · R: reset</span>
+          </div>
+        </aside>
+      </div>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
 </html>
