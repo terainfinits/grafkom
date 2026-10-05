@@ -47,6 +47,10 @@ uniform bool u_useTexture;
 uniform bool u_useAmbient;
 uniform bool u_useDiffuse;
 uniform bool u_useSpecular;
+uniform bool u_blinn;
+uniform bool u_atten;
+uniform bool u_gamma;
+uniform bool u_unlit;
 out vec4 outColor;
 
 void main() {
@@ -58,14 +62,25 @@ void main() {
   float diff = max(dot(N, L), 0.0);
   float spec = 0.0;
   if (diff > 0.0) {
-    spec = pow(max(dot(R, V), 0.0), u_shininess);
+    // Blinn-Phong memakai half vector H; Phong memakai vektor pantul R.
+    // Shininess Blinn ~4x lebih besar agar highlight sebanding dengan Phong.
+    vec3 H = normalize(L + V);
+    spec = u_blinn ? pow(max(dot(N, H), 0.0), u_shininess * 4.0)
+                   : pow(max(dot(R, V), 0.0), u_shininess);
   }
+  // Redaman cahaya titik: 1 / (kc + kl*d + kq*d^2)
+  float d = length(u_lightPosition - v_worldPosition);
+  float att = u_atten ? 1.0 / (1.0 + 0.09 * d + 0.032 * d * d) * 2.2 : 1.0;
 
+  if (u_unlit) { outColor = vec4(u_lightColor, 1.0); return; }
   vec3 baseColor = u_useTexture ? texture(u_texture, v_uv).rgb : vec3(0.35, 0.78, 1.0);
+  if (u_gamma) baseColor = pow(baseColor, vec3(2.2)); // sRGB -> linear
   vec3 ambient  = u_useAmbient  ? u_ambientStrength * u_lightColor * baseColor : vec3(0.0);
-  vec3 diffuse  = u_useDiffuse  ? diff * u_lightColor * baseColor : vec3(0.0);
-  vec3 specular = u_useSpecular ? spec * u_lightColor : vec3(0.0);
-  outColor = vec4(ambient + diffuse + specular, 1.0);
+  vec3 diffuse  = u_useDiffuse  ? diff * att * u_lightColor * baseColor : vec3(0.0);
+  vec3 specular = u_useSpecular ? spec * att * u_lightColor : vec3(0.0);
+  vec3 color = ambient + diffuse + specular;
+  if (u_gamma) color = pow(color, vec3(1.0 / 2.2)); // linear -> sRGB
+  outColor = vec4(color, 1.0);
 }`;
 
 function compileShader(type, source) {
@@ -107,6 +122,10 @@ const uniformNames = {
   useAmbient: "u_useAmbient",
   useDiffuse: "u_useDiffuse",
   useSpecular: "u_useSpecular",
+  blinn: "u_blinn",
+  atten: "u_atten",
+  gamma: "u_gamma",
+  unlit: "u_unlit",
 };
 const locations = {};
 for (const [key, name] of Object.entries(uniformNames))
@@ -368,6 +387,9 @@ const state = {
   time: 0,
   cubeRotation: true,
   cubeTime: 0,
+  blinn: false,
+  atten: false,
+  gamma: false,
 };
 
 const FILTERS = ["linear", "nearest", "mipmap", "nearestMipmap"];
@@ -420,7 +442,8 @@ const image = new Image();
 image.onload = () => {
   gl.bindTexture(gl.TEXTURE_2D, imageTexture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+  try { gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image); }
+  catch (e) { console.warn("Texture SVG gagal dimuat (jalankan lewat local server):", e); }
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
   gl.generateMipmap(gl.TEXTURE_2D);
   updateTextureState();
@@ -469,7 +492,7 @@ function modelMatrix() {
 
 function draw() {
   gl.viewport(0, 0, canvas.width, canvas.height);
-  gl.clearColor(0.015, 0.045, 0.09, 1);
+  gl.clearColor(0.106, 0.122, 0.165, 1);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.useProgram(program);
 
@@ -500,6 +523,10 @@ function draw() {
   gl.uniform1i(locations.useAmbient, state.components.ambient);
   gl.uniform1i(locations.useDiffuse, state.components.diffuse);
   gl.uniform1i(locations.useSpecular, state.components.specular);
+  gl.uniform1i(locations.blinn, state.blinn);
+  gl.uniform1i(locations.atten, state.atten);
+  gl.uniform1i(locations.gamma, state.gamma);
+  gl.uniform1i(locations.unlit, false);
 
   gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(
@@ -509,6 +536,16 @@ function draw() {
   gl.uniform1i(locations.texture, 0);
 
   gl.drawArrays(gl.TRIANGLES, 0, mesh.count);
+
+  // Penanda posisi lampu: bola kecil tanpa lighting (unlit)
+  const sphere = getMesh("sphere");
+  bindAttribute(positionLocation, sphere.position, 3);
+  bindAttribute(normalLocation, sphere.smooth, 3);
+  bindAttribute(uvLocation, sphere.uv, 2);
+  const lm = multiply(translation(...state.light), scale(0.08, 0.08, 0.08));
+  gl.uniformMatrix4fv(locations.model, false, lm);
+  gl.uniform1i(locations.unlit, true);
+  gl.drawArrays(gl.TRIANGLES, 0, sphere.count);
   syncControls();
 }
 
@@ -625,6 +662,13 @@ function syncControls() {
   );
   setText("scaleInfo", isNonUniform() ? "NON-UNIFORM" : "UNIFORM");
   setText("depthInfo", state.depth ? "ON" : "OFF");
+  setText("modelInfo", state.blinn ? "BLINN-PHONG" : "PHONG");
+  setText("attenInfo", state.atten ? "ON" : "OFF");
+  setText("gammaInfo", state.gamma ? "ON (2.2)" : "OFF");
+  [["flatButton", !state.flat], ["textureButton", state.texture], ["lightOrbitButton", state.lightOrbit],
+   ["cameraOrbitButton", state.cameraOrbit], ["nonUniformButton", isNonUniform()], ["depthButton", state.depth],
+   ["modelButton", state.blinn], ["attenButton", state.atten], ["gammaButton", state.gamma]]
+    .forEach(([id, on]) => $(id).classList.toggle("on", on));
   setText(
     "cubeRotationButton",
     state.cubeRotation ? "Stop Object Rotation (P)" : "Resume Object Rotation (P)",
@@ -648,6 +692,9 @@ const actions = {
   cameraOrbit() { state.cameraOrbit = !state.cameraOrbit; },
   rotation() { state.cubeRotation = !state.cubeRotation; },
   depth() { state.depth = !state.depth; },
+  model() { state.blinn = !state.blinn; },
+  atten() { state.atten = !state.atten; },
+  gamma() { state.gamma = !state.gamma; },
   filter() { state.filter = cycle(FILTERS, state.filter); updateTextureState(); },
   wrap() { state.wrap = cycle(WRAPS, state.wrap); updateTextureState(); },
   nonUniform() { state.scale = isNonUniform() ? [1, 1, 1] : [1.8, 0.6, 1.0]; },
@@ -674,6 +721,9 @@ const actions = {
       time: 0,
       cubeRotation: true,
       cubeTime: 0,
+      blinn: false,
+      atten: false,
+      gamma: false,
     });
     state.camera.position = [0, 1.3, 5];
     state.camera.target = [0, 0, 0];
@@ -687,6 +737,9 @@ const keyActions = {
   l: "lightOrbit",
   p: "rotation",
   d: "depth",
+  b: "model",
+  k: "atten",
+  c: "gamma",
   h: "filter",
   g: "wrap",
   n: "nonUniform",
@@ -707,6 +760,9 @@ function bindControls() {
   onClick("filterButton", "filter");
   onClick("wrapButton", "wrap");
   onClick("depthButton", "depth");
+  onClick("modelButton", "model");
+  onClick("attenButton", "atten");
+  onClick("gammaButton", "gamma");
   onClick("resetButton", "reset");
 
   $("shapeSelect").onchange = (e) => {

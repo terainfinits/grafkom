@@ -34,6 +34,9 @@
             <div class="hud-card"><span>Komponen</span><b id="componentInfo">A D S</b></div>
             <div class="hud-card"><span>Scale</span><b id="scaleInfo">UNIFORM</b></div>
             <div class="hud-card"><span>Depth Test</span><b id="depthInfo">ON</b></div>
+            <div class="hud-card"><span>Model Specular</span><b id="modelInfo">PHONG</b></div>
+            <div class="hud-card"><span>Attenuation</span><b id="attenInfo">OFF</b></div>
+            <div class="hud-card"><span>Gamma</span><b id="gammaInfo">OFF</b></div>
           </div>
         </section>
         <aside class="control-panel">
@@ -72,6 +75,9 @@
             <button id="filterButton">Filtering (H)</button>
             <button id="wrapButton">Wrapping (G)</button>
             <button id="depthButton">Depth Test (D)</button>
+            <button id="modelButton">Phong / Blinn (B)</button>
+            <button id="attenButton">Attenuation (K)</button>
+            <button id="gammaButton">Gamma (C)</button>
           </div>
           <button class="wide-button" id="cubeRotationButton">Stop Object Rotation (P)</button>
 
@@ -121,11 +127,12 @@
             <span>H: filtering · G: wrapping</span>
             <span>1/2/3: ambient/diffuse/specular</span>
             <span>N: uniform/non-uniform · D: depth test</span>
+            <span>B: Phong/Blinn · K: attenuation · C: gamma</span>
             <span>L: light orbit · P: stop rotation · R: reset</span>
           </div>
         </aside>
       </div>
     </main>
-    <script type="module" src="./main.js"></script>
+    <script src="./main.js"></script>
   </body>
 </html>
