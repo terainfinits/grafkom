@@ -182,3 +182,6 @@ Semua parameter di atas juga tersedia lewat tombol, slider, dropdown, dan checkb
 ### HUD
 
 Kartu HUD di bawah canvas menampilkan nilai terkini: shading, posisi lampu, texture, filtering, wrapping, kamera, UV scale, shininess, ambient, komponen aktif (A/D/S), scale, depth test, model specular, attenuation, dan gamma.
+
+# Screenshot
+![prak5](../assets/ss_prak5.png)
