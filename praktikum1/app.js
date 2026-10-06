@@ -26,7 +26,8 @@ const ctx = canvas.getContext("2d");
 // DATA
 // --------------------------------------------------
 
-const rectangle = {
+//harusnya ini segiempat
+const rectangle = { 
     x: 80,
     y: 80,
     width: 160,
@@ -34,7 +35,8 @@ const rectangle = {
     color: "#3498db"
 };
 
-const movingBall = {
+//  harusnya ini bola gerak
+const movingBall = { 
     x: 350,
     y: 300,
     radius: 25,
@@ -45,7 +47,7 @@ const movingBall = {
 
 // Challenge Tambahan 34.3: Multiple Moving Objects
 // Menambahkan data objek yang bergerak
-const movingObjects = [
+const movingObjects = [ 
     {
         x: 350,
         y: 150,
@@ -72,6 +74,7 @@ const movingObjects = [
     }
 ];
 
+// harusnya ini yang bisa digerakkan
 const player = {
     x: 600,
     y: 350,
@@ -81,6 +84,7 @@ const player = {
     color: "#e67e22"
 };
 
+// harusnya ini posisi mouse
 const mouse = {
     x: 0,
     y: 0
@@ -103,8 +107,10 @@ const circles = [];
 // Menambahkan variabel trailMode
 let trailMode = false;
 
+// ini keyboard kayak e
 const keys = {};
 
+// daftar warna nanti biar berubah2 di domain ini
 const colors = [
     "#9b59b6",
     "#e74c3c",
@@ -113,6 +119,7 @@ const colors = [
     "#3498db"
 ];
 
+// ini index warna dari domain di atas
 let colorIndex = 0;
 
 // Fitur Tambahan: Pause
