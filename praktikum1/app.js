@@ -19,8 +19,8 @@ Challenge A, C, D, dan E sebenarnya sudah otomatis diterapkan
     ketika mengikuti alur panduan praktikum di materi
 */
 
-const canvas = document.getElementById("graphicsCanvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById("graphicsCanvas"); // ngelink dg HTML tag
+const ctx = canvas.getContext("2d"); // request 2D drawing API, bisa 2d webgl webgl2
 
 // --------------------------------------------------
 // DATA
@@ -28,25 +28,25 @@ const ctx = canvas.getContext("2d");
 
 //harusnya ini segiempat
 const rectangle = { 
-    x: 80,
+    x: 80, // koordinat (x,y)
     y: 80,
-    width: 160,
-    height: 100,
-    color: "#3498db"
+    width: 160, // lebar
+    height: 100, // tinggi 
+    color: "#3498db" // warna
 };
 
 //  harusnya ini bola gerak
 const movingBall = { 
     x: 350,
     y: 300,
-    radius: 25,
-    speedX: 2,
+    radius: 25, // jari-jari bola
+    speedX: 2, // kecepatan buat x + speedX
     speedY: 2,
     color: "#9b59b6"
 };
 
 // Challenge Tambahan 34.3: Multiple Moving Objects
-// Menambahkan data objek yang bergerak
+// Menambahkan data objek bola yang bergerak
 const movingObjects = [ 
     {
         x: 350,
@@ -74,13 +74,13 @@ const movingObjects = [
     }
 ];
 
-// harusnya ini yang bisa digerakkan
+// harusnya ini kotak yang bisa digerakkan
 const player = {
     x: 600,
     y: 350,
     width: 50,
     height: 50,
-    speed: 5,
+    speed: 5, 
     color: "#e67e22"
 };
 
@@ -93,14 +93,14 @@ const mouse = {
 // Challenge B: Follow Mouse
 // Menambahkan data lingkaran di sekitar mouse
 const mouseCircle = {
-    x: 0,
+    x: 0, // aneh banget dah kenapa ini ga langsung di mouse aja
     y: 0,
     radius: 15,
     color: "#e74c3c"
 }
 
 // Challenge Tambahan 34.1: Click to Create Circle
-// Menambahkan array circles
+// Menambahkan array circles, buat diklik-klik
 const circles = [];
 
 // Challenge Tambahan 34.2: Trail Mode
@@ -118,7 +118,6 @@ const colors = [
     "#f1c40f",
     "#3498db"
 ];
-
 // ini index warna dari domain di atas
 let colorIndex = 0;
 
@@ -138,31 +137,32 @@ let visualMode = "primitive";
 
 // Fitur Tambahan: Reset
 // Menyimpan kondisi awal semua objek supaya bisa dikembalikan lagi
+// spread syntax bikin objek dari definisi2 sebelumnya (player, movingBall)
 const initialState = {
-    player: { ...player },
+    player: { ...player }, 
     movingBall: { ...movingBall },
+    // map() runs a function for each item in movingObjects
     movingObjects: movingObjects.map((object) => ({ ...object })),
     mouse: { ...mouse },
     mouseCircle: { ...mouseCircle },
     colorIndex: colorIndex
-};
+}; 
 
 // Live state panel (sidebar)
 const statMouse = document.getElementById("stat-mouse");
 const statKeys = document.getElementById("stat-keys");
 const statPlayer = document.getElementById("stat-player");
 const statEvents = document.getElementById("stat-events");
-let eventCount = 0;
+let eventCount = 0; // variabel bisa diubah2 pakai let, kalo konstan pake const
 
+// ini apaan dah wkwkwk
 function updateStatePanel() {
-    statMouse.textContent =
-        `(${Math.round(mouse.x)}, ${Math.round(mouse.y)})`;
+    statMouse.textContent = `(${Math.round(mouse.x)}, ${Math.round(mouse.y)})`;
 
     const pressedKeys = Object.keys(keys).filter((k) => keys[k]);
     statKeys.textContent = pressedKeys.length ? pressedKeys.join(", ") : "—";
 
-    statPlayer.textContent =
-        `(${Math.round(player.x)}, ${Math.round(player.y)})`;
+    statPlayer.textContent = `(${Math.round(player.x)}, ${Math.round(player.y)})`;
 
     statEvents.textContent = eventCount;
 }
