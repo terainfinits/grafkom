@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three.js Mini 3D Scene — Praktikum 6</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="page-header">
+        <div>
+          <span class="eyebrow">PRAKTIKUM 06 · THREE.JS</span>
+          <h1>Three.js Mini 3D Scene</h1>
+          <p>Eksplorasi abstraction Three.js, material, lighting, shadow, camera, dan scene graph.</p>
+        </div>
+        <span class="status-badge" id="statusBadge">RUNNING · THREE.JS</span>
+      </header>
+      <div class="workspace">
+        <section class="canvas-panel">
+          <div id="sceneContainer" class="scene-container"></div>
+          <div class="hud-grid">
+            <div class="hud-card"><span>Camera</span><b id="cameraInfo">Perspective</b></div>
+            <div class="hud-card"><span>Camera position</span><b id="cameraPosInfo">0, 0, 0</b></div>
+            <div class="hud-card"><span>Objects</span><b id="objectInfo">0</b></div>
+            <div class="hud-card"><span>Triangles (renderer.info)</span><b id="rendererInfo">0</b></div>
+            <div class="hud-card"><span>FPS</span><b id="fpsInfo">0</b></div>
+            <div class="hud-card"><span>Light</span><b id="lightInfo">1.20</b></div>
+            <div class="hud-card"><span>Material cube</span><b id="materialInfo">Standard</b></div>
+            <div class="hud-card"><span>Animation</span><b id="animationInfo">Playing</b></div>
+          </div>
+        </section>
+        <aside class="control-panel">
+          <span class="eyebrow">PARAMETER CONTROL</span>
+          <label class="select-row">Camera mode
+            <select id="cameraSelect">
+              <option value="perspective">Perspective</option>
+              <option value="orthographic">Orthographic</option>
+            </select>
+          </label>
+          <label class="select-row">Material cube utama
+            <select id="materialSelect">
+              <option value="standard">MeshStandardMaterial</option>
+              <option value="basic">MeshBasicMaterial</option>
+              <option value="normal">MeshNormalMaterial</option>
+              <option value="lambert">MeshLambertMaterial</option>
+              <option value="phong">MeshPhongMaterial</option>
+            </select>
+          </label>
+          <label class="range-row" for="fovControl"><span>FOV</span><output id="fovValue">50°</output></label>
+          <input id="fovControl" type="range" min="25" max="100" value="50" />
+          <label class="range-row" for="lightControl"><span>Light intensity</span><output id="lightValue">1.20</output></label>
+          <input id="lightControl" type="range" min="0" max="4" step="0.05" value="1.2" />
+          <label class="select-row">Shadow quality
+            <select id="shadowSelect">
+              <option value="512">512 × 512</option>
+              <option value="1024" selected>1024 × 1024</option>
+              <option value="2048">2048 × 2048</option>
+            </select>
+          </label>
+          <label class="range-row" for="segmentControl"><span>Geometry segments</span><output id="segmentValue">24</output></label>
+          <input id="segmentControl" type="range" min="8" max="48" value="24" />
+
+          <fieldset class="orbit-settings">
+            <legend>OrbitControls · Camera</legend>
+            <label><input type="checkbox" data-orbit-setting="enabled" checked /> Aktifkan kontrol kamera</label>
+            <label><input type="checkbox" data-orbit-setting="enablePan" checked /> Izinkan pan</label>
+            <label><input type="checkbox" data-orbit-setting="enableDamping" checked /> Damping</label>
+            <label class="range-row" for="cameraDampingFactor"><span>Damping factor</span><output id="cameraDampingFactorValue">0.05</output></label>
+            <input id="cameraDampingFactor" data-orbit-setting="dampingFactor" type="range" min="0.01" max="0.25" step="0.01" value="0.05" />
+            <label class="range-row" for="cameraRotateSpeed"><span>Camera rotate speed</span><output id="cameraRotateSpeedValue">1.00</output></label>
+            <input id="cameraRotateSpeed" data-orbit-setting="rotateSpeed" type="range" min="0.1" max="3" step="0.1" value="1" />
+            <label class="range-row" for="cameraZoomSpeed"><span>Camera zoom speed</span><output id="cameraZoomSpeedValue">1.00</output></label>
+            <input id="cameraZoomSpeed" data-orbit-setting="zoomSpeed" type="range" min="0.1" max="3" step="0.1" value="1" />
+          </fieldset>
+
+          <label class="select-row" for="lightHelperControl">
+            Light helpers
+            <input id="lightHelperControl" type="checkbox" checked />
+          </label>
+          <div class="button-grid">
+            <button id="cameraButton">Camera (P)</button>
+            <button id="lightOrbitButton">Light orbit (L)</button>
+            <button id="galleryButton">Gallery (H)</button>
+            <button id="animationButton">Pause (Space)</button>
+          </div>
+          <button class="wide-button" id="resetButton">Reset Scene (R)</button>
+          <div class="keyboard-help">
+            <b>Camera &amp; Keyboard</b>
+            <span>Drag kiri: orbit · scroll: zoom</span>
+            <span>Drag kanan: pan</span>
+            <span>Arrow / WASD: move cube utama</span>
+            <span>Q/E: rotate cube utama</span>
+            <span>P (atau C): Perspective ↔ Orthographic</span>
+            <span>Space (atau G): pause / resume</span>
+            <span>L: light orbit · H: gallery · M: ganti material cube</span>
+            <span>R: reset</span>
+          </div>
+        </aside>
+      </div>
+    </main>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
