@@ -1,41 +1,28 @@
-import * as THREE from "three"; // ada di import file html
-import { OrbitControls } from "three/addons/controls/OrbitControls.js"; // ada di import file html
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-const $ = (selector) => document.querySelector(selector); // custom nyari html elemnen pakai css selector 
-const container = $("#sceneContainer"); // baris di atas dipakai disini
+const $ = (selector) => document.querySelector(selector);
+const container = $("#sceneContainer");
 
 // ---------------- Scene, camera, renderer ----------------
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("#07111f");
-const fog = new THREE.Fog("#07111f", 8, 22); // dipasang saat toggle Fog aktif
+scene.background = new THREE.Color("#1b1f2a");
+const fog = new THREE.Fog("#1b1f2a", 8, 22); // dipasang saat toggle Fog aktif
 
-const INITIAL_POSITION = new THREE.Vector3(4.8, 3.6, 6.5); // starting camera location
-// parameter: derajat fov vertikal, aspect ratio, near clipping plane, far clipping plane (hanya render antara near-far) 
-const cameraPerspective = new THREE.PerspectiveCamera(50, 1, 0.1, 100); 
-cameraPerspective.position.copy(INITIAL_POSITION); // kamera skrg di INITIAL_POSITION
-// parameter: left viewing bound, right vb, top vb, bottom vb, near plane, far plane
+const INITIAL_POSITION = new THREE.Vector3(4.8, 3.6, 6.5);
+const cameraPerspective = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+cameraPerspective.position.copy(INITIAL_POSITION);
 const cameraOrthographic = new THREE.OrthographicCamera(-5, 5, 5, -5, 0.1, 100);
-cameraOrthographic.position.copy(INITIAL_POSITION); // camera ortografik juga di INITIAL_POSITION
-let activeCamera = cameraPerspective; // variabel diubah nanti antara perspective atau orthographics
+cameraOrthographic.position.copy(INITIAL_POSITION);
+let activeCamera = cameraPerspective;
 
-const renderer = new THREE.WebGLRenderer({ antialias: true }); // antialias true -> smooths jagged edges
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // rendering resolution high-DPI screen, devicePixelRatio 2 biar g berat gpu
-renderer.shadowMap.enabled = true; // enable shadow rendering
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; //produces softer shadow edges than basic shadow mapping.
-renderer.outputColorSpace = THREE.SRGBColorSpace; //output colors in the sRGB color space, more accurate color appearance in browsers.
-container.appendChild(renderer.domElement); // Adds the renderer’s <canvas> element into the #sceneContainer HTML element.
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+container.appendChild(renderer.domElement);
 
-<<<<<<< HEAD
-const clock = new THREE.Clock(); //Creates a clock used to measure elapsed time, commonly for frame-rate-independent animation.
-const keys = {}; //Creates an empty object likely used to track which keyboard keys are pressed, for example keys["w"] = true
-const state = { 
-  animation: true, //animation is currently enabled.
-  lightOrbit: false, // a light is not currently orbiting.
-  gallery: true, //a gallery feature is enabled.
-  segment: 24, // likely controls geometry detail, such as the number of segments in a sphere or curve.
-  lightIntensity: 1.2, //brightness level for a light.
-  time: 0, //accumulated animation time.
-=======
 const clock = new THREE.Clock();
 const keys = {};
 const state = {
@@ -46,7 +33,6 @@ const state = {
   lightIntensity: 1.2,
   time: 0,
   speed: 1,
->>>>>>> fe53eb4 (Change UI to match, add several relevant features)
 };
 
 // ---------------- OrbitControls ----------------
@@ -125,7 +111,7 @@ function setCubeMaterial(name) {
 // ---------------- Ground & objek ----------------
 const ground = new THREE.Mesh(
   new THREE.PlaneGeometry(14, 14),
-  new THREE.MeshLambertMaterial({ color: "#102a40" }),
+  new THREE.MeshLambertMaterial({ color: "#262b38" }),
 );
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
@@ -205,7 +191,7 @@ scene.add(stars);
 
 // ---------------- Grid & axes ----------------
 const guides = new THREE.Group();
-const grid = new THREE.GridHelper(14, 14, "#28647d", "#16384f");
+const grid = new THREE.GridHelper(14, 14, "#c39a4f", "#3a4051");
 grid.position.y = 0.01;
 guides.add(grid, new THREE.AxesHelper(2.5));
 guides.visible = false;
@@ -266,7 +252,7 @@ function updateLightHelpers() {
 const selectables = [mainCube, sphere, cone, cylinder, torus, torusKnot, ...gallery.children];
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-const selectionBox = new THREE.BoxHelper(mainCube, "#4df3ff");
+const selectionBox = new THREE.BoxHelper(mainCube, "#c39a4f");
 selectionBox.visible = false;
 scene.add(selectionBox);
 let selected = null;
