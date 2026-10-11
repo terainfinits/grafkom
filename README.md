@@ -5,6 +5,10 @@ Anggota Group 3:
 | Nyoman Surya Hutama Andyartha | 5025241093 |
 | Willy Dava Nugraha | 5025241090 |
 
+# Link deployment
+
+Link Deploy Praktikum: [klik disini](https://terainfinits.github.io/grafkom)
+
 # Praktikum 1
 Folder Praktikum 1: [klik disini](https://github.com/terainfinits/grafkom/tree/main/praktikum1) \
 Link Deploy Praktikum 1: [klik disini](https://terainfinits.github.io/grafkom/praktikum1/index.html) \
