@@ -1,36 +1,38 @@
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import * as THREE from "three"; // ada di import file html
+import { OrbitControls } from "three/addons/controls/OrbitControls.js"; // ada di import file html
 
-const $ = (selector) => document.querySelector(selector);
-const container = $("#sceneContainer");
+const $ = (selector) => document.querySelector(selector); // custom nyari html elemnen pakai css selector 
+const container = $("#sceneContainer"); // baris di atas dipakai disini
 
 // ---------------- Scene, camera, renderer ----------------
-const scene = new THREE.Scene();
-scene.background = new THREE.Color("#07111f");
+const scene = new THREE.Scene(); // scene = root container all 3D objects, lights, cameras
+scene.background = new THREE.Color("#07111f"); // set scene bg
 
-const INITIAL_POSITION = new THREE.Vector3(4.8, 3.6, 6.5);
-const cameraPerspective = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
-cameraPerspective.position.copy(INITIAL_POSITION);
+const INITIAL_POSITION = new THREE.Vector3(4.8, 3.6, 6.5); // starting camera location
+// parameter: derajat fov vertikal, aspect ratio, near clipping plane, far clipping plane (hanya render antara near-far) 
+const cameraPerspective = new THREE.PerspectiveCamera(50, 1, 0.1, 100); 
+cameraPerspective.position.copy(INITIAL_POSITION); // kamera skrg di INITIAL_POSITION
+// parameter: left viewing bound, right vb, top vb, bottom vb, near plane, far plane
 const cameraOrthographic = new THREE.OrthographicCamera(-5, 5, 5, -5, 0.1, 100);
-cameraOrthographic.position.copy(INITIAL_POSITION);
-let activeCamera = cameraPerspective;
+cameraOrthographic.position.copy(INITIAL_POSITION); // camera ortografik juga di INITIAL_POSITION
+let activeCamera = cameraPerspective; // variabel diubah nanti antara perspective atau orthographics
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-container.appendChild(renderer.domElement);
+const renderer = new THREE.WebGLRenderer({ antialias: true }); // antialias true -> smooths jagged edges
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // rendering resolution high-DPI screen, devicePixelRatio 2 biar g berat gpu
+renderer.shadowMap.enabled = true; // enable shadow rendering
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; //produces softer shadow edges than basic shadow mapping.
+renderer.outputColorSpace = THREE.SRGBColorSpace; //output colors in the sRGB color space, more accurate color appearance in browsers.
+container.appendChild(renderer.domElement); // Adds the renderer’s <canvas> element into the #sceneContainer HTML element.
 
-const clock = new THREE.Clock();
-const keys = {};
-const state = {
-  animation: true,
-  lightOrbit: false,
-  gallery: true,
-  segment: 24,
-  lightIntensity: 1.2,
-  time: 0,
+const clock = new THREE.Clock(); //Creates a clock used to measure elapsed time, commonly for frame-rate-independent animation.
+const keys = {}; //Creates an empty object likely used to track which keyboard keys are pressed, for example keys["w"] = true
+const state = { 
+  animation: true, //animation is currently enabled.
+  lightOrbit: false, // a light is not currently orbiting.
+  gallery: true, //a gallery feature is enabled.
+  segment: 24, // likely controls geometry detail, such as the number of segments in a sphere or curve.
+  lightIntensity: 1.2, //brightness level for a light.
+  time: 0, //accumulated animation time.
 };
 
 // ---------------- OrbitControls ----------------
