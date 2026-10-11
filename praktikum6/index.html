@@ -1,112 +1,127 @@
 <!doctype html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Three.js Mini 3D Scene — Praktikum 6</title>
-    <link rel="stylesheet" href="./style.css" />
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
-          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
-        }
-      }
-    </script>
-  </head>
-  <body>
-    <main class="app-shell">
-      <header class="page-header">
-        <div>
-          <span class="eyebrow">PRAKTIKUM 06 · THREE.JS</span>
-          <h1>Three.js Mini 3D Scene</h1>
-          <p>Eksplorasi abstraction Three.js, material, lighting, shadow, camera, dan scene graph.</p>
-        </div>
-        <span class="status-badge" id="statusBadge">RUNNING · THREE.JS</span>
-      </header>
-      <div class="workspace">
-        <section class="canvas-panel">
-          <div id="sceneContainer" class="scene-container"></div>
-          <div class="hud-grid">
-            <div class="hud-card"><span>Camera</span><b id="cameraInfo">Perspective</b></div>
-            <div class="hud-card"><span>Camera position</span><b id="cameraPosInfo">0, 0, 0</b></div>
-            <div class="hud-card"><span>Objects</span><b id="objectInfo">0</b></div>
-            <div class="hud-card"><span>Triangles (renderer.info)</span><b id="rendererInfo">0</b></div>
-            <div class="hud-card"><span>FPS</span><b id="fpsInfo">0</b></div>
-            <div class="hud-card"><span>Light</span><b id="lightInfo">1.20</b></div>
-            <div class="hud-card"><span>Material cube</span><b id="materialInfo">Standard</b></div>
-            <div class="hud-card"><span>Animation</span><b id="animationInfo">Playing</b></div>
-          </div>
-        </section>
-        <aside class="control-panel">
-          <span class="eyebrow">PARAMETER CONTROL</span>
-          <label class="select-row">Camera mode
-            <select id="cameraSelect">
-              <option value="perspective">Perspective</option>
-              <option value="orthographic">Orthographic</option>
-            </select>
-          </label>
-          <label class="select-row">Material cube utama
-            <select id="materialSelect">
-              <option value="standard">MeshStandardMaterial</option>
-              <option value="basic">MeshBasicMaterial</option>
-              <option value="normal">MeshNormalMaterial</option>
-              <option value="lambert">MeshLambertMaterial</option>
-              <option value="phong">MeshPhongMaterial</option>
-            </select>
-          </label>
-          <label class="range-row" for="fovControl"><span>FOV</span><output id="fovValue">50°</output></label>
-          <input id="fovControl" type="range" min="25" max="100" value="50" />
-          <label class="range-row" for="lightControl"><span>Light intensity</span><output id="lightValue">1.20</output></label>
-          <input id="lightControl" type="range" min="0" max="4" step="0.05" value="1.2" />
-          <label class="select-row">Shadow quality
-            <select id="shadowSelect">
-              <option value="512">512 × 512</option>
-              <option value="1024" selected>1024 × 1024</option>
-              <option value="2048">2048 × 2048</option>
-            </select>
-          </label>
-          <label class="range-row" for="segmentControl"><span>Geometry segments</span><output id="segmentValue">24</output></label>
-          <input id="segmentControl" type="range" min="8" max="48" value="24" />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Praktikum 6 — Three.js Mini 3D Scene</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    { "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.185.1/examples/jsm/"
+    } }
+  </script>
+</head>
+<body>
+<div class="app-shell">
+  <header class="page-header">
+    <div>
+      <div class="eyebrow">PRAKTIKUM 6 · THREE.JS</div>
+      <h1>Mini 3D Scene Playground</h1>
+      <p>Orbit, zoom, klik objek, ubah material, cahaya, kamera, dan bayangan secara langsung.</p>
+    </div>
+    <div class="status-badge" id="statusBadge">RUNNING · THREE.JS</div>
+  </header>
 
-          <fieldset class="orbit-settings">
-            <legend>OrbitControls · Camera</legend>
-            <label><input type="checkbox" data-orbit-setting="enabled" checked /> Aktifkan kontrol kamera</label>
-            <label><input type="checkbox" data-orbit-setting="enablePan" checked /> Izinkan pan</label>
-            <label><input type="checkbox" data-orbit-setting="enableDamping" checked /> Damping</label>
-            <label class="range-row" for="cameraDampingFactor"><span>Damping factor</span><output id="cameraDampingFactorValue">0.05</output></label>
-            <input id="cameraDampingFactor" data-orbit-setting="dampingFactor" type="range" min="0.01" max="0.25" step="0.01" value="0.05" />
-            <label class="range-row" for="cameraRotateSpeed"><span>Camera rotate speed</span><output id="cameraRotateSpeedValue">1.00</output></label>
-            <input id="cameraRotateSpeed" data-orbit-setting="rotateSpeed" type="range" min="0.1" max="3" step="0.1" value="1" />
-            <label class="range-row" for="cameraZoomSpeed"><span>Camera zoom speed</span><output id="cameraZoomSpeedValue">1.00</output></label>
-            <input id="cameraZoomSpeed" data-orbit-setting="zoomSpeed" type="range" min="0.1" max="3" step="0.1" value="1" />
-          </fieldset>
-
-          <label class="select-row" for="lightHelperControl">
-            Light helpers
-            <input id="lightHelperControl" type="checkbox" checked />
-          </label>
-          <div class="button-grid">
-            <button id="cameraButton">Camera (P)</button>
-            <button id="lightOrbitButton">Light orbit (L)</button>
-            <button id="galleryButton">Gallery (H)</button>
-            <button id="animationButton">Pause (Space)</button>
-          </div>
-          <button class="wide-button" id="resetButton">Reset Scene (R)</button>
-          <div class="keyboard-help">
-            <b>Camera &amp; Keyboard</b>
-            <span>Drag kiri: orbit · scroll: zoom</span>
-            <span>Drag kanan: pan</span>
-            <span>Arrow / WASD: move cube utama</span>
-            <span>Q/E: rotate cube utama</span>
-            <span>P (atau C): Perspective ↔ Orthographic</span>
-            <span>Space (atau G): pause / resume</span>
-            <span>L: light orbit · H: gallery · M: ganti material cube</span>
-            <span>R: reset</span>
-          </div>
-        </aside>
+  <main class="workspace">
+    <section class="canvas-panel">
+      <div id="sceneContainer" class="scene-container"></div>
+      <div class="hud-grid">
+        <div class="hud-card">Kamera<b id="cameraInfo">-</b></div>
+        <div class="hud-card">Posisi kamera<b id="cameraPosInfo">-</b></div>
+        <div class="hud-card">Objek scene<b id="objectInfo">-</b></div>
+        <div class="hud-card">Triangles<b id="rendererInfo">-</b></div>
+        <div class="hud-card">Light<b id="lightInfo">-</b></div>
+        <div class="hud-card">Animasi<b id="animationInfo">-</b></div>
+        <div class="hud-card">Material cube<b id="materialInfo">Standard</b></div>
+        <div class="hud-card">FPS<b id="fpsInfo">-</b></div>
+        <div class="hud-card wide">Objek terpilih (klik objek, klik ganda = fokus)<b id="selectedInfo">—</b></div>
       </div>
-    </main>
-    <script type="module" src="./main.js"></script>
-  </body>
+    </section>
+
+    <aside class="control-panel">
+      <details open><summary>Kamera</summary>
+        <label class="select-row">Tipe kamera
+          <select id="cameraSelect"><option value="perspective">Perspective</option><option value="orthographic">Orthographic</option></select>
+        </label>
+        <label class="range-row" for="fovControl"><span>FOV (perspective)</span><output id="fovValue">50°</output></label>
+        <input type="range" id="fovControl" min="20" max="100" step="1" value="50" />
+        <div class="button-grid">
+          <button data-view="iso">Isometric</button><button data-view="top">Top</button>
+          <button data-view="front">Front</button><button data-view="side">Side</button>
+        </div>
+        <button id="cameraButton" class="wide-button">Ganti Kamera (P)</button>
+      </details>
+
+      <details open><summary>Objek &amp; Material</summary>
+        <label class="select-row">Material cube utama (M)
+          <select id="materialSelect">
+            <option value="standard">Standard</option><option value="basic">Basic</option>
+            <option value="normal">Normal</option><option value="lambert">Lambert</option><option value="phong">Phong</option>
+          </select>
+        </label>
+        <label class="color-row">Warna cube <input type="color" id="cubeColorControl" value="#4df3ff" /></label>
+        <label class="range-row" for="segmentControl"><span>Segment geometry</span><output id="segmentValue">24</output></label>
+        <input type="range" id="segmentControl" min="3" max="64" step="1" value="24" />
+        <label class="check-row"><input type="checkbox" id="wireframeControl" /> Wireframe (X)</label>
+        <button id="galleryButton">Toggle Gallery (H)</button>
+      </details>
+
+      <details open><summary>Cahaya &amp; Bayangan</summary>
+        <label class="range-row" for="lightControl"><span>Directional intensity</span><output id="lightValue">1.20</output></label>
+        <input type="range" id="lightControl" min="0" max="3" step="0.05" value="1.2" />
+        <label class="range-row" for="pointLightControl"><span>Point light intensity</span><output id="pointLightValue">1.10</output></label>
+        <input type="range" id="pointLightControl" min="0" max="4" step="0.05" value="1.1" />
+        <label class="color-row">Warna point light <input type="color" id="pointColorControl" value="#4df3ff" /></label>
+        <label class="select-row">Kualitas shadow
+          <select id="shadowSelect"><option value="512">512</option><option value="1024" selected>1024</option><option value="2048">2048</option><option value="4096">4096</option></select>
+        </label>
+        <label class="check-row"><input type="checkbox" id="lightHelperControl" checked /> Light helper</label>
+        <button id="lightOrbitButton">Light Orbit (L)</button>
+      </details>
+
+      <details open><summary>Tampilan</summary>
+        <label class="select-row">Tone mapping
+          <select id="toneSelect"><option value="none">None</option><option value="aces">ACES Filmic</option><option value="reinhard">Reinhard</option><option value="agx">AgX</option></select>
+        </label>
+        <label class="check-row"><input type="checkbox" id="gridControl" /> Grid &amp; axes (I)</label>
+        <label class="check-row"><input type="checkbox" id="fogControl" /> Fog (F)</label>
+        <label class="check-row"><input type="checkbox" id="starsControl" checked /> Bintang (T)</label>
+      </details>
+
+      <details open><summary>Animasi</summary>
+        <label class="range-row" for="speedControl"><span>Kecepatan</span><output id="speedValue">1.00×</output></label>
+        <input type="range" id="speedControl" min="0" max="3" step="0.05" value="1" />
+        <div class="button-grid">
+          <button id="screenshotButton">Screenshot (K)</button>
+          <button id="resetButton">Reset (R)</button>
+        </div>
+        <button id="animationButton" class="wide-button">Pause (Space)</button>
+      </details>
+
+      <fieldset class="orbit-settings">
+        <legend>OrbitControls</legend>
+        <label><input type="checkbox" id="cameraEnabled" data-orbit-setting="enabled" checked />Aktifkan kontrol kamera</label>
+        <label><input type="checkbox" id="cameraPan" data-orbit-setting="enablePan" checked />Izinkan pan</label>
+        <label><input type="checkbox" id="cameraDamping" data-orbit-setting="enableDamping" checked />Damping</label>
+        <label class="range-row" for="cameraDampingFactor"><span>Damping factor</span><output id="cameraDampingFactorValue">0.05</output></label>
+        <input type="range" id="cameraDampingFactor" data-orbit-setting="dampingFactor" min="0.01" max="0.25" step="0.01" value="0.05" />
+        <label class="range-row" for="cameraRotateSpeed"><span>Rotate speed</span><output id="cameraRotateSpeedValue">1.00</output></label>
+        <input type="range" id="cameraRotateSpeed" data-orbit-setting="rotateSpeed" min="0.1" max="3" step="0.1" value="1" />
+        <label class="range-row" for="cameraZoomSpeed"><span>Zoom speed</span><output id="cameraZoomSpeedValue">1.00</output></label>
+        <input type="range" id="cameraZoomSpeed" data-orbit-setting="zoomSpeed" min="0.1" max="3" step="0.1" value="1" />
+      </fieldset>
+
+      <div class="keyboard-help">
+        <span><b>WASD / Panah</b> gerak cube · <b>Q / E</b> putar cube</span>
+        <span><b>Space / G</b> pause · <b>P / C</b> kamera · <b>L</b> light orbit</span>
+        <span><b>H</b> gallery · <b>M</b> material · <b>X</b> wireframe · <b>I</b> grid</span>
+        <span><b>F</b> fog · <b>T</b> bintang · <b>K</b> screenshot · <b>R</b> reset</span>
+        <span><b>Klik</b> pilih objek · <b>Klik ganda</b> fokus kamera</span>
+      </div>
+    </aside>
+  </main>
+</div>
+<script type="module" src="main.js"></script>
+</body>
 </html>

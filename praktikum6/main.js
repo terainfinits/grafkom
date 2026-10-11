@@ -5,8 +5,9 @@ const $ = (selector) => document.querySelector(selector); // custom nyari html e
 const container = $("#sceneContainer"); // baris di atas dipakai disini
 
 // ---------------- Scene, camera, renderer ----------------
-const scene = new THREE.Scene(); // scene = root container all 3D objects, lights, cameras
-scene.background = new THREE.Color("#07111f"); // set scene bg
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#07111f");
+const fog = new THREE.Fog("#07111f", 8, 22); // dipasang saat toggle Fog aktif
 
 const INITIAL_POSITION = new THREE.Vector3(4.8, 3.6, 6.5); // starting camera location
 // parameter: derajat fov vertikal, aspect ratio, near clipping plane, far clipping plane (hanya render antara near-far) 
@@ -24,6 +25,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap; //produces softer shadow edges
 renderer.outputColorSpace = THREE.SRGBColorSpace; //output colors in the sRGB color space, more accurate color appearance in browsers.
 container.appendChild(renderer.domElement); // Adds the renderer’s <canvas> element into the #sceneContainer HTML element.
 
+<<<<<<< HEAD
 const clock = new THREE.Clock(); //Creates a clock used to measure elapsed time, commonly for frame-rate-independent animation.
 const keys = {}; //Creates an empty object likely used to track which keyboard keys are pressed, for example keys["w"] = true
 const state = { 
@@ -33,6 +35,18 @@ const state = {
   segment: 24, // likely controls geometry detail, such as the number of segments in a sphere or curve.
   lightIntensity: 1.2, //brightness level for a light.
   time: 0, //accumulated animation time.
+=======
+const clock = new THREE.Clock();
+const keys = {};
+const state = {
+  animation: true,
+  lightOrbit: false,
+  gallery: true,
+  segment: 24,
+  lightIntensity: 1.2,
+  time: 0,
+  speed: 1,
+>>>>>>> fe53eb4 (Change UI to match, add several relevant features)
 };
 
 // ---------------- OrbitControls ----------------
@@ -99,6 +113,7 @@ const materialNames = {
 const mainCube = new THREE.Mesh(new THREE.BoxGeometry(1.25, 1.25, 1.25), cubeMaterials.standard);
 mainCube.position.set(-1.4, 1, 0);
 mainCube.castShadow = true;
+mainCube.userData.name = "Cube utama";
 scene.add(mainCube);
 
 function setCubeMaterial(name) {
@@ -116,10 +131,11 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-function makeMesh(geometry, material, x, y, z) {
+function makeMesh(geometry, material, x, y, z, name) {
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(x, y, z);
   mesh.castShadow = true;
+  mesh.userData.name = name;
   scene.add(mesh);
   return mesh;
 }
@@ -127,29 +143,29 @@ const seg = state.segment;
 const sphere = makeMesh(
   new THREE.SphereGeometry(0.72, seg, seg),
   new THREE.MeshPhongMaterial({ color: "#ff6584", shininess: 70 }),
-  0.5, 0.85, 0,
+  0.5, 0.85, 0, "Sphere",
 );
 // Challenge A: Cone, Cylinder, Torus (+ TorusKnot)
 const cone = makeMesh(
   new THREE.ConeGeometry(0.65, 1.5, seg),
   new THREE.MeshStandardMaterial({ color: "#ffd166", roughness: 0.42, metalness: 0.08 }),
-  1.9, 0.75, -0.2,
+  1.9, 0.75, -0.2, "Cone",
 );
 const cylinder = makeMesh(
   new THREE.CylinderGeometry(0.5, 0.5, 1.4, seg),
   new THREE.MeshLambertMaterial({ color: "#95e06c" }),
-  -3.4, 0.7, 1.4,
+  -3.4, 0.7, 1.4, "Cylinder",
 );
 const torus = makeMesh(
   new THREE.TorusGeometry(0.5, 0.2, 16, seg * 2),
   new THREE.MeshPhongMaterial({ color: "#c77dff", shininess: 90 }),
-  3.4, 0.9, 1.6,
+  3.4, 0.9, 1.6, "Torus",
 );
 torus.rotation.x = Math.PI / 3;
 const torusKnot = makeMesh(
   new THREE.TorusKnotGeometry(0.55, 0.18, 64, 12),
   new THREE.MeshNormalMaterial(),
-  2.1, 1.1, -2,
+  2.1, 1.1, -2, "Torus Knot",
 );
 
 // Challenge B: Material gallery — geometry sama, material berbeda
@@ -160,13 +176,40 @@ const galleryMaterials = [
   new THREE.MeshLambertMaterial({ color: "#55efc4" }),
   new THREE.MeshPhongMaterial({ color: "#a78bfa", shininess: 90 }),
 ];
+const galleryNames = ["Basic", "Normal", "Lambert", "Phong"];
 galleryMaterials.forEach((material, index) => {
   const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.65, 0.65), material);
   mesh.position.set(-3.3 + index * 0.85, 0.35, -2.4);
   mesh.castShadow = true;
+  mesh.userData.name = `Gallery · ${galleryNames[index]}`;
   gallery.add(mesh);
 });
 scene.add(gallery);
+
+// ---------------- Bintang (Points) ----------------
+const starCount = 500;
+const starPositions = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount; i++) {
+  const r = 14 + Math.random() * 10;
+  const theta = Math.random() * Math.PI * 2;
+  const phi = Math.acos(Math.random() * 0.9 + 0.05); // belahan atas
+  starPositions.set([r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta)], i * 3);
+}
+const starGeometry = new THREE.BufferGeometry();
+starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+const stars = new THREE.Points(
+  starGeometry,
+  new THREE.PointsMaterial({ color: "#bfe9ff", size: 0.09, sizeAttenuation: true, fog: false }),
+);
+scene.add(stars);
+
+// ---------------- Grid & axes ----------------
+const guides = new THREE.Group();
+const grid = new THREE.GridHelper(14, 14, "#28647d", "#16384f");
+grid.position.y = 0.01;
+guides.add(grid, new THREE.AxesHelper(2.5));
+guides.visible = false;
+scene.add(guides);
 
 // ---------------- Lights ----------------
 scene.add(new THREE.AmbientLight("#9ecbff", 0.35));
@@ -219,6 +262,43 @@ function updateLightHelpers() {
   pointHelper.update();
 }
 
+// ---------------- Picking (Raycaster) ----------------
+const selectables = [mainCube, sphere, cone, cylinder, torus, torusKnot, ...gallery.children];
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+const selectionBox = new THREE.BoxHelper(mainCube, "#4df3ff");
+selectionBox.visible = false;
+scene.add(selectionBox);
+let selected = null;
+const tmpVec = new THREE.Vector3();
+
+function pick(event) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+  raycaster.setFromCamera(pointer, activeCamera);
+  const candidates = selectables.filter((o) => o.parent.visible);
+  return raycaster.intersectObjects(candidates, false)[0]?.object ?? null;
+}
+function select(object) {
+  selected = object;
+  selectionBox.visible = !!object;
+  if (object) selectionBox.setFromObject(object);
+}
+let downPos = null;
+renderer.domElement.addEventListener("pointerdown", (e) => (downPos = { x: e.clientX, y: e.clientY }));
+renderer.domElement.addEventListener("pointerup", (e) => {
+  // hanya klik (bukan drag orbit)
+  if (downPos && Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) < 5) select(pick(e));
+});
+renderer.domElement.addEventListener("dblclick", (e) => {
+  const object = pick(e);
+  if (!object) return;
+  select(object);
+  object.getWorldPosition(tmpVec);
+  controls.target.copy(tmpVec); // fokus orbit ke objek
+  controls.update();
+});
+
 // ---------------- Responsive ----------------
 function updateCameraProjection() {
   const aspect = container.clientWidth / Math.max(container.clientHeight, 1);
@@ -249,6 +329,10 @@ function updateHud() {
   $("#lightInfo").textContent = directionalLight.intensity.toFixed(2);
   $("#animationInfo").textContent = state.animation ? "Playing" : "Paused";
   $("#statusBadge").textContent = state.animation ? "RUNNING · THREE.JS" : "PAUSED · THREE.JS";
+  if (selected) {
+    selected.getWorldPosition(tmpVec);
+    $("#selectedInfo").textContent = `${selected.userData.name} (${tmpVec.x.toFixed(1)}, ${tmpVec.y.toFixed(1)}, ${tmpVec.z.toFixed(1)})`;
+  } else $("#selectedInfo").textContent = "—";
 }
 
 // ---------------- Update ----------------
@@ -264,27 +348,30 @@ function updateObject(dt) {
   mainCube.position.z = THREE.MathUtils.clamp(mainCube.position.z, -3.2, 2.4);
 }
 
-function updateScene(dt) {
+// dt = waktu nyata (input), sdt = waktu x kecepatan animasi
+function updateScene(dt, sdt) {
   updateObject(dt);
   if (state.lightOrbit) {
     // Challenge D: light bergerak mengelilingi scene
     directionalLight.position.x = Math.cos(state.time) * 4;
     directionalLight.position.z = Math.sin(state.time) * 4;
   }
-  sphere.rotation.y += dt * 0.8;
+  sphere.rotation.y += sdt * 0.8;
   sphere.position.y = 0.85 + Math.sin(state.time * 1.8) * 0.18;
-  cone.rotation.y -= dt * 0.65;
-  cylinder.rotation.y += dt * 0.5;
-  torus.rotation.z += dt * 0.9;
-  torusKnot.rotation.x += dt * 0.8;
-  torusKnot.rotation.y += dt * 1.1;
+  cone.rotation.y -= sdt * 0.65;
+  cylinder.rotation.y += sdt * 0.5;
+  torus.rotation.z += sdt * 0.9;
+  torusKnot.rotation.x += sdt * 0.8;
+  torusKnot.rotation.y += sdt * 1.1;
+  stars.rotation.y += sdt * 0.02;
   gallery.children.forEach((mesh, i) => {
-    mesh.rotation.y += dt * (0.35 + i * 0.15);
+    mesh.rotation.y += sdt * (0.35 + i * 0.15);
   });
 }
 
 function render() {
   updateLightHelpers();
+  if (selected) selectionBox.update();
   renderer.render(scene, activeCamera);
   updateHud();
 }
@@ -303,8 +390,8 @@ function animate() {
   }
 
   if (state.animation) {
-    state.time += dt;
-    updateScene(dt);
+    state.time += dt * state.speed;
+    updateScene(dt, dt * state.speed);
   }
   if (controls.enabled) controls.update();
   render();
@@ -324,6 +411,7 @@ function toggleCamera() {
 function toggleGallery() {
   state.gallery = !state.gallery;
   gallery.visible = state.gallery;
+  if (!state.gallery && selected?.parent === gallery) select(null);
 }
 // Challenge G: pause / resume (Space)
 function toggleAnimation() {
@@ -334,6 +422,78 @@ function cycleCubeMaterial() {
   const names = Object.keys(cubeMaterials);
   const current = names.find((n) => cubeMaterials[n] === mainCube.material);
   setCubeMaterial(names[(names.indexOf(current) + 1) % names.length]);
+}
+
+// Opsi tampilan baru (setiap setter juga menyinkronkan checkbox)
+function allMaterials() {
+  const set = new Set(Object.values(cubeMaterials));
+  scene.traverse((o) => o.material && set.add(o.material));
+  return set;
+}
+function setWireframe(on) {
+  $("#wireframeControl").checked = on;
+  allMaterials().forEach((m) => "wireframe" in m && (m.wireframe = on));
+}
+function setGuides(on) {
+  $("#gridControl").checked = on;
+  guides.visible = on;
+}
+function setFog(on) {
+  $("#fogControl").checked = on;
+  scene.fog = on ? fog : null;
+  allMaterials().forEach((m) => (m.needsUpdate = true));
+}
+function setStars(on) {
+  $("#starsControl").checked = on;
+  stars.visible = on;
+}
+const toneMappings = {
+  none: THREE.NoToneMapping,
+  aces: THREE.ACESFilmicToneMapping,
+  reinhard: THREE.ReinhardToneMapping,
+  agx: THREE.AgXToneMapping,
+};
+function setToneMapping(name) {
+  $("#toneSelect").value = name;
+  renderer.toneMapping = toneMappings[name];
+  allMaterials().forEach((m) => (m.needsUpdate = true));
+}
+function setSpeed(value) {
+  state.speed = Number(value);
+  $("#speedControl").value = value;
+  $("#speedValue").textContent = `${state.speed.toFixed(2)}×`;
+}
+function setCubeColor(color) {
+  ["standard", "basic", "lambert", "phong"].forEach((k) => cubeMaterials[k].color.set(color));
+  $("#cubeColorControl").value = color;
+}
+function setPointIntensity(value) {
+  pointLight.intensity = Number(value);
+  $("#pointLightControl").value = value;
+  $("#pointLightValue").textContent = Number(value).toFixed(2);
+}
+function setPointColor(color) {
+  pointLight.color.set(color);
+  pointHelper.update();
+  $("#pointColorControl").value = color;
+}
+const views = {
+  iso: INITIAL_POSITION,
+  top: new THREE.Vector3(0, 10, 0.01),
+  front: new THREE.Vector3(0, 2, 9),
+  side: new THREE.Vector3(9, 2, 0),
+};
+function setView(name) {
+  activeCamera.position.copy(views[name]);
+  controls.target.copy(cameraTarget);
+  controls.update();
+}
+function takeScreenshot() {
+  render(); // render dulu agar buffer canvas terisi
+  const link = document.createElement("a");
+  link.download = `three-scene-${Date.now()}.png`;
+  link.href = renderer.domElement.toDataURL("image/png");
+  link.click();
 }
 
 function reset() {
@@ -360,6 +520,17 @@ function reset() {
   $("#lightControl").value = 1.2;
   $("#lightValue").textContent = "1.20";
   $("#animationButton").textContent = "Pause (Space)";
+  // state tambahan
+  setWireframe(false);
+  setGuides(false);
+  setFog(false);
+  setStars(true);
+  setToneMapping("none");
+  setSpeed(1);
+  setCubeColor("#4df3ff");
+  setPointIntensity(1.1);
+  setPointColor("#4df3ff");
+  select(null);
 }
 
 function updateSegments(value) {
@@ -390,7 +561,10 @@ $("#animationButton").addEventListener("click", (e) => {
   toggleAnimation();
   e.currentTarget.blur(); // cegah Space menekan tombol lagi
 });
-$("#resetButton").addEventListener("click", reset);
+$("#resetButton").addEventListener("click", (e) => {
+  reset();
+  e.currentTarget.blur();
+});
 $("#fovControl").addEventListener("input", (e) => {
   cameraPerspective.fov = Number(e.target.value);
   cameraPerspective.updateProjectionMatrix();
@@ -409,6 +583,23 @@ $("#shadowSelect").addEventListener("change", (e) => {
   directionalLight.shadow.map = null;
   e.target.blur();
 });
+// kontrol tambahan
+$("#wireframeControl").addEventListener("change", (e) => setWireframe(e.target.checked));
+$("#gridControl").addEventListener("change", (e) => setGuides(e.target.checked));
+$("#fogControl").addEventListener("change", (e) => setFog(e.target.checked));
+$("#starsControl").addEventListener("change", (e) => setStars(e.target.checked));
+$("#toneSelect").addEventListener("change", (e) => {
+  setToneMapping(e.target.value);
+  e.target.blur();
+});
+$("#speedControl").addEventListener("input", (e) => setSpeed(e.target.value));
+$("#cubeColorControl").addEventListener("input", (e) => setCubeColor(e.target.value));
+$("#pointLightControl").addEventListener("input", (e) => setPointIntensity(e.target.value));
+$("#pointColorControl").addEventListener("input", (e) => setPointColor(e.target.value));
+$("#screenshotButton").addEventListener("click", takeScreenshot);
+document.querySelectorAll("[data-view]").forEach((b) =>
+  b.addEventListener("click", () => setView(b.dataset.view)),
+);
 
 // ---------------- Keyboard ----------------
 window.addEventListener("keydown", (event) => {
@@ -423,6 +614,11 @@ window.addEventListener("keydown", (event) => {
   if (key === "l") state.lightOrbit = !state.lightOrbit;
   if (key === "h") toggleGallery();
   if (key === "m") cycleCubeMaterial();
+  if (key === "x") setWireframe(!$("#wireframeControl").checked);
+  if (key === "i") setGuides(!guides.visible);
+  if (key === "f") setFog(!scene.fog);
+  if (key === "t") setStars(!stars.visible);
+  if (key === "k") takeScreenshot();
   if (key === "r") reset();
 });
 window.addEventListener("keyup", (event) => {
