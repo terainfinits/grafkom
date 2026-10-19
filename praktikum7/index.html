@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive 3D Prototype — The Archive</title>
+  <link rel="stylesheet" href="./style.css" />
+
+  <!-- three.js via CDN (r180 — versi yang sudah punya HDRLoader) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell shell--wide">
+      <a class="wordmark" href="#"><strong>THE ARCHIVE</strong> / lab-03 · web3d</a>
+      <nav class="site-nav" aria-label="Status">
+        <span id="statusBadge" class="badge">LOADING ASSETS…</span>
+      </nav>
+    </div>
+  </header>
+
+  <section class="detail-hero detail-hero--compact">
+    <div class="shell shell--wide">
+      <div class="detail-meta">
+        <span>three.js r180</span>
+        <span>PBR · HDR · Bloom</span>
+        <span>Raycasting · GLTF · Hierarchy</span>
+      </div>
+      <h1>Interactive 3D Web Prototype</h1>
+      <p class="dek">Scene interaktif dengan kamera perspective/orthographic, orbit controls, material PBR, environment HDR, bloom, dan model GLB beranimasi. Klik objek untuk memilih, drag untuk memutar kamera.</p>
+    </div>
+  </section>
+
+  <main class="shell shell--wide workspace">
+    <!-- ================= VIEWPORT ================= -->
+    <section class="viewport-column">
+      <div class="viewport">
+        <div id="sceneContainer" class="scene-container" aria-label="3D scene"></div>
+        <div class="hud hud--top mono">
+          <span>FPS <b id="fpsInfo">0</b></span>
+          <span>OBJ <b id="objectInfo">0</b></span>
+          <span>ENV <b id="environmentInfo">ON</b></span>
+          <span>CLIP <b id="modelInfo">loading…</b></span>
+        </div>
+        <div class="hud hud--bottom mono">
+          <span>hover: <b id="hoverInfo">-</b></span>
+          <span>selected: <b id="selectedInfo">-</b></span>
+        </div>
+      </div>
+
+      <div class="log-strip mono">
+        <span class="log-label">LOG</span>
+        <span id="logPanel">Menyiapkan scene…</span>
+      </div>
+
+      <div class="shortcut-row mono" aria-label="Keyboard shortcuts">
+        <span><kbd>P</kbd> panorama</span>
+        <span><kbd>E</kbd> refleksi</span>
+        <span><kbd>S</kbd> solar</span>
+        <span><kbd>R</kbd> reset</span>
+        <span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> clip</span>
+      </div>
+
+      <!-- Object inspector -->
+      <article class="card card--inspector">
+        <div class="card-top"><span>INSPECTOR</span><span class="status">raycaster</span></div>
+        <h2 id="infoTitle">Belum ada objek dipilih</h2>
+        <dl class="info-grid mono">
+          <dt>Position</dt><dd id="infoPosition">-</dd>
+          <dt>Rotation</dt><dd id="infoRotation">-</dd>
+          <dt>Scale</dt><dd id="infoScale">-</dd>
+          <dt>Material</dt><dd id="infoMaterial">-</dd>
+        </dl>
+      </article>
+    </section>
+
+    <!-- ================= CONTROL PANEL ================= -->
+    <aside class="control-column">
+      <!-- Camera -->
+      <article class="card">
+        <div class="card-top"><span>01 · CAMERA</span><span class="status">projection</span></div>
+        <h2>Kamera</h2>
+        <label class="field">
+          <span>Mode</span>
+          <select id="cameraSelect">
+            <option value="perspective">Perspective</option>
+            <option value="orthographic">Orthographic</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Field of view <output id="fovValue">52°</output></span>
+          <input id="fovControl" type="range" min="20" max="100" step="1" value="52" />
+        </label>
+      </article>
+
+      <!-- Orbit controls -->
+      <article class="card">
+        <div class="card-top"><span>02 · ORBIT</span><span class="status">OrbitControls</span></div>
+        <h2>Orbit Controls</h2>
+        <div class="toggle-row">
+          <label class="check"><input id="cameraEnabled" type="checkbox" data-orbit-setting="enabled" checked /> enabled</label>
+          <label class="check"><input id="cameraEnableDamping" type="checkbox" data-orbit-setting="enableDamping" checked /> damping</label>
+          <label class="check"><input id="cameraEnablePan" type="checkbox" data-orbit-setting="enablePan" checked /> pan</label>
+        </div>
+        <label class="field">
+          <span>Damping factor <output id="cameraDampingFactorValue">0.05</output></span>
+          <input id="cameraDampingFactor" type="range" min="0.01" max="0.3" step="0.01" value="0.05" data-orbit-setting="dampingFactor" />
+        </label>
+        <label class="field">
+          <span>Rotate speed <output id="cameraRotateSpeedValue">1.00</output></span>
+          <input id="cameraRotateSpeed" type="range" min="0.1" max="3" step="0.05" value="1" data-orbit-setting="rotateSpeed" />
+        </label>
+        <label class="field">
+          <span>Zoom speed <output id="cameraZoomSpeedValue">1.00</output></span>
+          <input id="cameraZoomSpeed" type="range" min="0.1" max="3" step="0.05" value="1" data-orbit-setting="zoomSpeed" />
+        </label>
+      </article>
+
+      <!-- Environment -->
+      <article class="card">
+        <div class="card-top"><span>03 · ENVIRONMENT</span><span class="status">HDR / PMREM</span></div>
+        <h2>Panorama &amp; Refleksi</h2>
+        <label class="field">
+          <span>Panorama</span>
+          <select id="panoramaSelect">
+            <option value="studio">Studio Small 09 (HDR)</option>
+            <option value="ladybrand">Ladybrand Heritage House (HDR)</option>
+            <option value="procedural">Procedural</option>
+          </select>
+        </label>
+        <p id="panoramaStatus" class="note">Memuat…</p>
+        <div class="button-row">
+          <button id="panoramaButton" class="btn" type="button" aria-pressed="true">Panorama: ON (P)</button>
+          <button id="environmentButton" class="btn" type="button" aria-pressed="true">Refleksi: ON (E)</button>
+        </div>
+      </article>
+
+      <!-- Materials -->
+      <article class="card">
+        <div class="card-top"><span>04 · MATERIAL</span><span class="status">PBR gallery</span></div>
+        <h2>Material PBR</h2>
+        <label class="field">
+          <span>Roughness <output id="roughnessValue">0.35</output></span>
+          <input id="roughnessControl" type="range" min="0" max="1" step="0.01" value="0.35" />
+        </label>
+        <label class="field">
+          <span>Metalness <output id="metalnessValue">0.65</output></span>
+          <input id="metalnessControl" type="range" min="0" max="1" step="0.01" value="0.65" />
+        </label>
+      </article>
+
+      <!-- Bloom -->
+      <article class="card">
+        <div class="card-top"><span>05 · POST-FX</span><span class="status">UnrealBloomPass</span></div>
+        <h2>Bloom &amp; Emissive</h2>
+        <label class="field">
+          <span>Emissive intensity <output id="emissiveIntensityValue">5.00</output></span>
+          <input id="emissiveIntensityControl" type="range" min="0" max="10" step="0.1" value="5" />
+        </label>
+        <label class="field">
+          <span>Bloom strength <output id="bloomIntensityValue">0.55</output></span>
+          <input id="bloomIntensityControl" type="range" min="0" max="2" step="0.01" value="0.55" />
+        </label>
+        <label class="field">
+          <span>Bloom radius <output id="bloomRadiusValue">0.30</output></span>
+          <input id="bloomRadiusControl" type="range" min="0" max="1" step="0.01" value="0.3" />
+        </label>
+        <div class="button-row">
+          <button id="bloomButton" class="btn" type="button" aria-pressed="true">Bloom: ON</button>
+        </div>
+      </article>
+
+      <!-- Animation -->
+      <article class="card">
+        <div class="card-top"><span>06 · ANIMATION</span><span class="status">mixer · hierarchy</span></div>
+        <h2>Animasi</h2>
+        <label class="field">
+          <span>Orbit speed <output id="orbitValue">0.45</output></span>
+          <input id="orbitControl" type="range" min="0" max="2" step="0.01" value="0.45" />
+        </label>
+        <div class="button-row">
+          <button id="solarButton" class="btn" type="button">Solar play/pause (S)</button>
+        </div>
+        <div class="button-row button-row--three">
+          <button id="clip1Button" class="btn btn--ghost" type="button">Clip 1</button>
+          <button id="clip2Button" class="btn btn--ghost" type="button">Clip 2</button>
+          <button id="clip3Button" class="btn btn--ghost" type="button">Clip 3</button>
+        </div>
+      </article>
+
+      <button id="resetButton" class="btn btn--rust btn--block" type="button">Reset scene (R)</button>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell shell--wide">
+      <span>Interactive 3D Web Prototype · three.js</span>
+      <nav>
+        <a href="https://threejs.org/docs/" target="_blank" rel="noopener">three.js docs</a>
+        <a href="https://polyhaven.com/hdris" target="_blank" rel="noopener">Poly Haven HDRI</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
