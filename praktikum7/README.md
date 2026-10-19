@@ -242,4 +242,4 @@ Praktikum 07 berhasil mengintegrasikan aspek-aspek utama grafika komputer 3D mod
 
 ## 12. Screenshot
 
-![prak7](./assets/ss_prak7.png)
+![prak7](../assets/ss_prak7.png)
