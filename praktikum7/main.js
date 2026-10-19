@@ -19,7 +19,8 @@ const orthographicCamera = new THREE.OrthographicCamera(-6, 6, 6, -6, 0.1, 100);
 orthographicCamera.position.copy(perspectiveCamera.position);
 let activeCamera = perspectiveCamera;
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+// preserveDrawingBuffer: dibutuhkan agar screenshot PNG tidak hitam.
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -59,11 +60,13 @@ let controls;
 const orbitDefaults = {
   enabled: true, enableDamping: true, enablePan: true,
   dampingFactor: 0.05, rotateSpeed: 1, zoomSpeed: 1,
+  autoRotate: false, autoRotateSpeed: 2,
 };
 const orbitSettings = { ...orbitDefaults };
 function applyOrbitSettings() {
   Object.assign(controls, orbitSettings);
   document.querySelector("#cameraDampingFactor").disabled = !orbitSettings.enableDamping;
+  document.querySelector("#cameraAutoRotateSpeed").disabled = !orbitSettings.autoRotate;
 }
 function resetOrbitSettings() {
   Object.assign(orbitSettings, orbitDefaults);
@@ -305,18 +308,83 @@ scene.add(silver);
 interactiveObjects.push(silver);
 
 const loader = new GLTFLoader();
-const modelUrl = new URL("./Duck.glb", import.meta.url).href;
-loader.load(
-  modelUrl,
+// Daftar model GLB yang bisa dipilih dari panel "Model".
+const modelOptions = {
+  duck: { label: "Duck", url: new URL("./Duck.glb", import.meta.url).href },
+  fox: { label: "Fox", url: new URL("./assets/models/Fox.glb", import.meta.url).href },
+  cesiumMan: { label: "CesiumMan", url: new URL("./assets/models/CesiumMan.glb", import.meta.url).href },
+  helmet: { label: "DamagedHelmet", url: new URL("./assets/models/DamagedHelmet.glb", import.meta.url).href },
+};
+let modelRequest = 0;
+
+// Hapus model GLB lama dari scene, daftar raycast, dan mixer animasi.
+function unloadCurrentModel() {
+  const root = state.gltfRoot;
+  if (!root) return;
+  state.mixer?.stopAllAction();
+  if (state.selected && isInside(state.selected, root)) {
+    state.selected = null;
+    $("#selectedInfo").textContent = "-";
+    updateInfo(null);
+  }
+  if (state.hovered && isInside(state.hovered, root)) {
+    state.hovered = null;
+    $("#hoverInfo").textContent = "-";
+  }
+  root.traverse((object) => {
+    const index = interactiveObjects.indexOf(object);
+    if (index !== -1) interactiveObjects.splice(index, 1);
+    if (object.isMesh) {
+      object.geometry?.dispose();
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      materials.forEach((material) => {
+        Object.values(material || {}).forEach((value) => value?.isTexture && value.dispose());
+        material?.dispose();
+      });
+    }
+  });
+  scene.remove(root);
+  state.gltfRoot = null;
+  state.mixer = null;
+  state.actions = [];
+  state.activeAction = null;
+}
+function isInside(object, root) {
+  for (let current = object; current; current = current.parent)
+    if (current === root) return true;
+  return false;
+}
+
+function loadModel(url, label, { revokeUrl = false } = {}) {
+  const request = ++modelRequest;
+  $("#statusBadge").textContent = `LOADING ${label.toUpperCase()}…`;
+  $("#modelStatus").textContent = `Memuat ${label}…`;
+  loader.load(
+  url,
   (gltf) => {
+    if (revokeUrl) URL.revokeObjectURL(url);
+    // Abaikan hasil lama jika pengguna sudah memilih model lain.
+    if (request !== modelRequest) return;
+    unloadCurrentModel();
     const root = gltf.scene;
-    root.name = "Imported Duck GLB";
+    root.name = `Imported ${label} GLB`;
     fitImportedModel(root);
     root.traverse((object) => {
       if (!object.name) object.name = object.type;
       if (object.isMesh) {
         object.castShadow = true;
         object.receiveShadow = true;
+        // Beberapa GLB (mis. Fox) tidak menyimpan normal; tanpa normal,
+        // lighting menghasilkan NaN yang membuat bloom menghitamkan layar.
+        // GLTFLoader juga menyalakan flatShading (normal dari turunan layar)
+        // yang menghasilkan NaN pada garis wireframe, jadi dimatikan.
+        if (!object.geometry.attributes.normal) {
+          object.geometry.computeVertexNormals();
+          (Array.isArray(object.material) ? object.material : [object.material]).forEach((material) => {
+            material.flatShading = false;
+            material.needsUpdate = true;
+          });
+        }
         interactiveObjects.push(object);
       }
     });
@@ -327,10 +395,16 @@ loader.load(
       ? gltf.animations
       : createFallbackClips();
     state.actions = clips.map((clip) => state.mixer.clipAction(clip));
+    state.mixer.timeScale = animationSpeed;
     if (state.actions.length) playClip(0);
+    updateClipButtons(clips);
+    applyWireframe();
+    $("#objectInfo").textContent = String(interactiveObjects.length);
     $("#modelInfo").textContent =
       `${clips.length} clip${clips.length === 1 ? "" : "s"}`;
     $("#statusBadge").textContent = "GLB LOADED · READY";
+    $("#modelStatus").textContent =
+      `${label} · ${countDescendants(root)} node · ${gltf.animations.length ? `${clips.length} animasi bawaan` : "animasi fallback"}`;
     log(`GLB loaded: ${root.name}; ${countDescendants(root)} descendants.`);
     console.log("GLB hierarchy", {
       root: root.name,
@@ -340,12 +414,23 @@ loader.load(
   },
   undefined,
   (error) => {
-    $("#modelInfo").textContent = "Fallback procedural";
-    $("#statusBadge").textContent = "FALLBACK SCENE · READY";
-    log("Duck.glb tidak dapat dimuat; scene procedural tetap aktif.");
+    if (revokeUrl) URL.revokeObjectURL(url);
+    if (request !== modelRequest) return;
+    if (state.gltfRoot) {
+      $("#statusBadge").textContent = "GLB LOADED · READY";
+      $("#modelStatus").textContent = `${label} gagal dimuat - model sebelumnya tetap aktif`;
+    } else {
+      $("#modelInfo").textContent = "Fallback procedural";
+      $("#statusBadge").textContent = "FALLBACK SCENE · READY";
+      $("#modelStatus").textContent = `${label} gagal dimuat`;
+    }
+    log(`${label} tidak dapat dimuat; scene procedural tetap aktif.`);
     console.warn("GLB loading error", error);
   },
-);
+  );
+}
+let animationSpeed = 1;
+loadModel(modelOptions.duck.url, modelOptions.duck.label);
 
 function createEnvironmentTexture() {
   const canvas = document.createElement("canvas");
@@ -711,6 +796,7 @@ function resetScene() {
   updateInfo(null);
   hierarchyGroup.rotation.set(0, 0, 0);
   solarSystem.rotation.set(0, 0, 0);
+  resetExtras();
   log("Scene di-reset. Klik objek untuk memilih.");
 }
 function updateCamera() {
@@ -737,6 +823,236 @@ resize();
 updateCamera();
 $("#objectInfo").textContent = String(interactiveObjects.length);
 
+// =====================================================================
+// FITUR TAMBAHAN
+// Model switcher & upload GLB, kecepatan animasi, pencahayaan,
+// helper (grid/axes/wireframe), preset sudut kamera, dan screenshot.
+// =====================================================================
+
+// ---------- Model switcher + upload / drag-and-drop GLB ----------
+$("#modelSelect").addEventListener("change", (event) => {
+  const option = modelOptions[event.target.value];
+  if (option) loadModel(option.url, option.label);
+});
+function loadModelFile(file) {
+  if (!file) return;
+  if (!/\.glb$/i.test(file.name)) {
+    $("#modelStatus").textContent = "Gunakan file .glb (glTF binary, semua tekstur di dalam satu file).";
+    return;
+  }
+  $("#modelSelect").value = "custom";
+  loadModel(URL.createObjectURL(file), file.name.replace(/\.glb$/i, ""), { revokeUrl: true });
+}
+$("#modelFile").addEventListener("change", (event) => {
+  loadModelFile(event.target.files[0]);
+  event.target.value = "";
+});
+const viewport = $(".viewport");
+let dragDepth = 0;
+viewport.addEventListener("dragenter", (event) => {
+  event.preventDefault();
+  dragDepth += 1;
+  viewport.classList.add("is-dragging");
+});
+viewport.addEventListener("dragover", (event) => event.preventDefault());
+viewport.addEventListener("dragleave", () => {
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (!dragDepth) viewport.classList.remove("is-dragging");
+});
+viewport.addEventListener("drop", (event) => {
+  event.preventDefault();
+  dragDepth = 0;
+  viewport.classList.remove("is-dragging");
+  loadModelFile(event.dataTransfer.files[0]);
+});
+
+// ---------- Animasi: nama clip & kecepatan ----------
+function updateClipButtons(clips) {
+  [1, 2, 3].forEach((number, index) => {
+    const button = $(`#clip${number}Button`);
+    const clip = clips[index];
+    button.disabled = !clip;
+    button.textContent = clip
+      ? `${number} · ${(clip.name || `Clip ${number}`).replace(/\s*\(fallback\)/, "").slice(0, 12)}`
+      : `${number} · —`;
+    button.title = clip?.name || "Tidak ada clip";
+  });
+}
+$("#animSpeedControl").addEventListener("input", (event) => {
+  animationSpeed = Number(event.target.value);
+  $("#animSpeedValue").textContent = `${animationSpeed.toFixed(2)}×`;
+  if (state.mixer) state.mixer.timeScale = animationSpeed;
+});
+
+// ---------- Pencahayaan ----------
+const lightDefaults = { exposure: 0.85, keyIntensity: 1.8, keyColor: "#ffffff", shadows: true };
+const lightSettings = { ...lightDefaults };
+function applyLighting() {
+  renderer.toneMappingExposure = lightSettings.exposure;
+  keyLight.intensity = lightSettings.keyIntensity;
+  keyLight.color.set(lightSettings.keyColor);
+  keyLight.castShadow = lightSettings.shadows;
+  $("#exposureControl").value = lightSettings.exposure;
+  $("#exposureValue").textContent = lightSettings.exposure.toFixed(2);
+  $("#keyIntensityControl").value = lightSettings.keyIntensity;
+  $("#keyIntensityValue").textContent = lightSettings.keyIntensity.toFixed(2);
+  $("#keyColorControl").value = lightSettings.keyColor;
+  $("#keyColorValue").textContent = lightSettings.keyColor;
+  $("#shadowToggle").checked = lightSettings.shadows;
+}
+$("#exposureControl").addEventListener("input", (event) => {
+  lightSettings.exposure = Number(event.target.value);
+  applyLighting();
+});
+$("#keyIntensityControl").addEventListener("input", (event) => {
+  lightSettings.keyIntensity = Number(event.target.value);
+  applyLighting();
+});
+$("#keyColorControl").addEventListener("input", (event) => {
+  lightSettings.keyColor = event.target.value;
+  applyLighting();
+});
+$("#shadowToggle").addEventListener("change", (event) => {
+  lightSettings.shadows = event.target.checked;
+  applyLighting();
+  log(`Shadow ${lightSettings.shadows ? "ON" : "OFF"}`);
+});
+applyLighting();
+
+// ---------- Helper: grid, axes, wireframe ----------
+const gridHelper = new THREE.GridHelper(26, 26, "#c39a4f", "#3a4051");
+gridHelper.position.y = 0.01;
+const axesHelper = new THREE.AxesHelper(3);
+axesHelper.position.y = 0.02;
+scene.add(gridHelper, axesHelper);
+const helperState = { grid: false, axes: false, wireframe: false };
+function applyHelpers() {
+  gridHelper.visible = helperState.grid;
+  axesHelper.visible = helperState.axes;
+  $("#gridToggle").checked = helperState.grid;
+  $("#axesToggle").checked = helperState.axes;
+  $("#wireframeToggle").checked = helperState.wireframe;
+  applyWireframe();
+}
+function applyWireframe() {
+  scene.traverse((object) => {
+    if (!object.isMesh || object === ground) return;
+    const materials = Array.isArray(object.material) ? object.material : [object.material];
+    materials.forEach((material) => {
+      if (material && "wireframe" in material) material.wireframe = helperState.wireframe;
+    });
+  });
+}
+function toggleHelper(key) {
+  helperState[key] = !helperState[key];
+  applyHelpers();
+  log(`${key} ${helperState[key] ? "ON" : "OFF"}`);
+}
+$("#gridToggle").addEventListener("change", () => toggleHelper("grid"));
+$("#axesToggle").addEventListener("change", () => toggleHelper("axes"));
+$("#wireframeToggle").addEventListener("change", () => toggleHelper("wireframe"));
+applyHelpers();
+
+// ---------- Preset sudut kamera (dengan transisi halus) ----------
+const viewDirections = {
+  front: [0, 0.18, 1],
+  side: [1, 0.18, 0],
+  top: [0, 1, 0.001],
+  iso: [1, 0.72, 1],
+};
+let cameraTween = null;
+function goToView(name) {
+  const direction = new THREE.Vector3(...viewDirections[name]).normalize();
+  const distance = THREE.MathUtils.clamp(
+    activeCamera.position.distanceTo(controls.target),
+    controls.minDistance,
+    controls.maxDistance,
+  );
+  cameraTween = {
+    from: activeCamera.position.clone(),
+    to: controls.target.clone().addScaledVector(direction, distance),
+    t: 0,
+  };
+  document.querySelectorAll("[data-camera-view]").forEach((button) =>
+    button.setAttribute("aria-pressed", String(button.dataset.cameraView === name)),
+  );
+  log(`Camera view: ${name}`);
+}
+function updateCameraTween(delta) {
+  if (!cameraTween) return;
+  cameraTween.t = Math.min(cameraTween.t + delta / 0.7, 1);
+  const eased = 1 - Math.pow(1 - cameraTween.t, 3);
+  activeCamera.position.lerpVectors(cameraTween.from, cameraTween.to, eased);
+  if (cameraTween.t >= 1) cameraTween = null;
+}
+document.querySelectorAll("[data-camera-view]").forEach((button) =>
+  button.addEventListener("click", () => goToView(button.dataset.cameraView)),
+);
+// Drag manual membatalkan transisi kamera yang sedang berjalan.
+renderer.domElement.addEventListener("pointerdown", () => {
+  cameraTween = null;
+  document.querySelectorAll("[data-camera-view]").forEach((button) =>
+    button.setAttribute("aria-pressed", "false"),
+  );
+});
+
+// ---------- Screenshot PNG ----------
+function takeScreenshot() {
+  composer.render();
+  renderer.domElement.toBlob((blob) => {
+    if (!blob) return log("Screenshot gagal dibuat.");
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `web3d-prototype-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.png`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    log(`Screenshot disimpan sebagai PNG (${Math.round(blob.size / 1024)} KB).`);
+  }, "image/png");
+}
+$("#screenshotButton").addEventListener("click", takeScreenshot);
+
+// ---------- Shortcut tambahan ----------
+window.addEventListener("keydown", (event) => {
+  if (event.target.matches("input, select")) return;
+  const key = event.key.toLowerCase();
+  if (key === "g") toggleHelper("grid");
+  if (key === "w") toggleHelper("wireframe");
+  if (key === "c") takeScreenshot();
+});
+
+// ---------- Reset fitur tambahan ----------
+function resetExtras() {
+  cameraTween = null;
+  document.querySelectorAll("[data-camera-view]").forEach((button) =>
+    button.setAttribute("aria-pressed", "false"),
+  );
+  animationSpeed = 1;
+  $("#animSpeedControl").value = 1;
+  $("#animSpeedValue").textContent = "1.00×";
+  if (state.mixer) state.mixer.timeScale = 1;
+  Object.assign(lightSettings, lightDefaults);
+  applyLighting();
+  Object.assign(helperState, { grid: false, axes: false, wireframe: false });
+  applyHelpers();
+}
+
+// Jumlah segitiga semua mesh yang terlihat (renderer.info hanya mencatat pass terakhir composer).
+function sceneTriangleCount() {
+  let total = 0;
+  scene.traverseVisible((object) => {
+    if (!object.isMesh || !object.geometry) return;
+    const geometry = object.geometry;
+    total += (geometry.index ? geometry.index.count : geometry.attributes.position.count) / 3;
+  });
+  return Math.round(total);
+}
+function formatCount(value) {
+  return value >= 1000 ? `${(value / 1000).toFixed(1)}k` : String(value);
+}
+
 let frameCount = 0;
 let fpsTime = 0;
 function animate() {
@@ -754,6 +1070,7 @@ function animate() {
     state.selected.rotation.y += delta * 0.55;
   }
   keyLight.position.x = Math.cos(state.time * state.orbitSpeed) * 6;
+  updateCameraTween(delta);
   if (controls.enabled) controls.update();
   renderPass.camera = activeCamera;
   composer.render();
@@ -761,6 +1078,7 @@ function animate() {
   fpsTime += delta;
   if (fpsTime > 0.5) {
     $("#fpsInfo").textContent = String(Math.round(frameCount / fpsTime));
+    $("#triInfo").textContent = formatCount(sceneTriangleCount());
     frameCount = 0;
     fpsTime = 0;
   }
