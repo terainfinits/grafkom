@@ -1,9 +1,19 @@
+/*File Purpose: Defines the visual styling, UI layout overlays, typography, color palette, and state animations for the 3D Interactive Museum application.
+Connected Files:
+- ./index.html: HTML document structured with the canvas viewport and UI overlay elements styled by this CSS.
+- https://fonts.googleapis.com/css2?family=IBM+Plex+Mono: Google Font imported for monospaced UI text styling.
+- ./ui/*.js: UI module scripts (banner, dialog, inspectPanel, pauseMenu, perfOverlay) that dynamically render and toggle class states (.is-visible, .is-done, .is-explored, [hidden]).
+*/
+
+/*Import IBM Plex Mono font family from Google Fonts API for museum HUD and dialogue typography */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap');
 
+/*Global box sizing resets to include padding and borders in element size calculations */
 * {
   box-sizing: border-box;
 }
 
+/* Full-screen viewport container setup, disabling scrolling and setting dark theme background */
 html,
 body {
   margin: 0;
@@ -12,6 +22,7 @@ body {
   background: #1b1f2a;
 }
 
+/* Main WebGL canvas styling taking full viewport space with grab cursor for camera drag interaction */
 #scene {
   display: block;
   width: 100vw;
@@ -20,16 +31,19 @@ body {
   touch-action: none; /* supaya drag di touchscreen tidak men-scroll halaman */
 }
 
+/* Dynamic cursor state applied via JS when user actively clicks and drags camera */
 #scene.is-dragging {
   cursor: grabbing;
 }
 
+/* On-screen interaction prompt HUD positioned at lower center */
 .interact-prompt {
   position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%);
   padding: 8px 14px; background: rgba(27, 31, 42, 0.85); border: 1px solid #c39a4f;
   color: #e6e2d6; font-family: 'IBM Plex Mono', monospace; font-size: 13px; pointer-events: none;
 }
 
+/* NPC and interactive object narrative dialogue container fixed near screen bottom */
 .dialog {
   position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%);
   width: min(640px, calc(100vw - 32px)); padding: 18px 22px 16px;
@@ -46,6 +60,7 @@ body {
 .dialog-btn:hover { border-color: #c39a4f; }
 .dialog-btn.is-primary { border-color: #c39a4f; background: rgba(195, 154, 79, 0.15); }
 
+/* Keyboard shortcut keys indicator badge styling inside prompt and dialogue UI */
 .dialog kbd,
 .interact-prompt kbd {
   display: inline-block; min-width: 20px; padding: 0 5px; margin: 0 1px;
@@ -53,17 +68,19 @@ body {
   font-family: inherit; font-size: 11px; text-align: center;
 }
 
+/* Temporary floating notification popup fixed at top center */
 .toast {
   position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
   padding: 10px 18px; background: rgba(27, 31, 42, 0.92); border: 1px solid #c39a4f;
   color: #e8c97a; font-family: 'IBM Plex Mono', monospace; font-size: 13px; pointer-events: none;
 }
 
-/* ---------- Menu jeda (Esc) ---------- */
+/* ---------- Menu jeda (trigger dengan Esc) ---------- */
 .pause-overlay {
   position: fixed; inset: 0; display: grid; place-items: center; padding: 16px;
   background: rgba(10, 12, 18, 0.6); backdrop-filter: blur(3px);
 }
+/* Hides pause menu overlay when [hidden] attribute is applied */
 .pause-overlay[hidden] { display: none; }
 .pause-menu {
   width: min(460px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; padding: 22px 26px 20px;
@@ -85,7 +102,7 @@ body {
   font-family: inherit; font-size: 11px; text-align: center;
 }
 
-/* ---------- Overlay performa (tombol `) ---------- */
+/* ---------- Overlay performa (tombol backtick `) ---------- */
 .perf-overlay {
   position: fixed; top: 12px; left: 12px; padding: 8px 12px;
   background: rgba(10, 12, 18, 0.8); border: 1px solid #3a4051;
@@ -93,24 +110,27 @@ body {
   line-height: 1.5; white-space: pre; pointer-events: none;
 }
 
-/* ---------- Layar loading ---------- */
+/* ---------- Layar loading (Full-screen initial assets) ---------- */
 .loading {
   position: fixed; inset: 0; display: grid; place-content: center; gap: 10px; text-align: center;
   background: #1b1f2a; color: #e6e2d6; font-family: 'IBM Plex Mono', monospace;
   transition: opacity 0.6s ease;
 }
+/* State rule fading out loading screen when assets finish loading */
 .loading.is-done { opacity: 0; pointer-events: none; }
 .loading-title { font-size: 22px; letter-spacing: 0.08em; color: #e8c97a; }
 .loading-text { font-size: 13px; color: #a9b0c0; animation: loading-pulse 1.2s ease-in-out infinite; }
+/* Keyframe pulse animation during loading state */
 @keyframes loading-pulse { 50% { opacity: 0.4; } }
 
-/* ---------- Pelacak ruangan: banner, label, achievement ---------- */
+/* ---------- Pelacak ruangan: banner, label, achievement (bentuk popups) ---------- */
 .room-banner,
 .room-label,
 .achievement {
   position: fixed; pointer-events: none; font-family: 'IBM Plex Mono', monospace;
   opacity: 0; transition: opacity 0.6s ease, transform 0.6s ease;
 }
+/* State transition rule revealing room tracking elements when active */
 .room-banner.is-visible,
 .room-label.is-visible,
 .achievement.is-visible { opacity: 1; transform: none; }
@@ -144,28 +164,31 @@ body {
 .achievement-title { margin: 2px 0; font-size: 14px; color: #e8c97a; }
 .achievement-detail { font-size: 12px; color: #a9b0c0; }
 
-/* ---------- Menu jeda: daftar quest & ruang ---------- */
+/* ---------- Menu jeda: daftar quest & ruang (tracker list) ---------- */
 .pause-quests { margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 1.9; }
 .pause-quests li { display: flex; gap: 8px; }
 .pause-quests .q-mark { width: 1.2em; flex: none; }
 .pause-quests .q-count { margin-left: auto; }
+/* Quest progress state status colors */
 .pause-quests .is-done { color: #8992a6; }
 .pause-quests .is-active { color: #e8c97a; }
 .pause-quests .is-pending { color: #c8cbd4; }
 .pause-quests .is-locked { color: #5f6577; }
 .pause-rooms { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; font-size: 13px; line-height: 1.9; }
+/* Room discovery status indicators */
 .pause-rooms .is-visited { color: #e6e2d6; }
 .pause-rooms .is-visited::before { content: '✓ '; color: #9fe1a8; }
 .pause-rooms .is-unknown { color: #5f6577; }
 .pause-rooms .is-unknown::before { content: '○ '; }
 
-/* ---------- Panel inspect artefak ---------- */
+/* ---------- Panel inspect artefak (detailed inspect panel UI drawer) ---------- */
 .inspect-panel {
   position: fixed; top: 16px; right: 16px; bottom: 16px; width: min(340px, calc(100vw - 32px));
   overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px;
   background: rgba(27, 31, 42, 0.94); border: 1px solid #c39a4f;
   color: #e6e2d6; font-family: 'IBM Plex Mono', monospace;
 }
+/* Hides artifact panel when inactive */
 .inspect-panel[hidden] { display: none; }
 .inspect-kicker { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #c39a4f; }
 .inspect-title { margin: 0; font-family: Georgia, serif; font-size: 28px; font-weight: 500; color: #e8c97a; }
@@ -178,6 +201,7 @@ body {
 .inspect-progress { margin-top: auto; font-size: 12px; }
 .inspect-bar { height: 4px; background: #3a4051; overflow: hidden; }
 .inspect-bar span { display: block; height: 100%; width: 0; background: #c39a4f; }
+/* Progress bar color change when artifact exploration is completed */
 .inspect-panel.is-explored .inspect-bar span { background: #9fe1a8; }
 .inspect-status { margin-top: 6px; color: #a9b0c0; }
 .inspect-panel.is-explored .inspect-status { color: #9fe1a8; }

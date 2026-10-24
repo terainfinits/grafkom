@@ -1,3 +1,17 @@
+/*
+File Purpose: Main entry point for the 3D Interactive Museum Tour application. Configures the WebGL renderer, scene graph, first-person walk controls, interactive UI overlays, dynamic lighting pool, artifact inspect mode, quest progression, and core animation loop.
+
+Connected Files:
+- ./scene/building.js, ./scene/aula.js, ./scene/courtyard.js, ./scene/facade.js, ./scene/ticketBooth.js, ./scene/entranceDoor.js, ./scene/exhibits.js, ./scene/outdoor.js, ./scene/garden.js: Modules creating physical 3D scene elements.
+- ./scene/layout.js: Holds spatial layout definitions (ROOMS data and FRONT_Z origin coordinate).
+- ./controls/walkControls.js: First-person navigation and collision detection system.
+- ./ui/dialog.js, ./ui/pauseMenu.js, ./ui/perfOverlay.js, ./ui/banner.js, ./ui/inspectPanel.js: Visual UI components for dialogues, pause menu, stats overlay, room banners, and inspection drawers.
+- ./game/progress.js, ./game/roomTracker.js, ./game/hover.js, ./game/inspect.js: Game loop logic, quest progression, spatial room detection, raycast target highlighting, and artifact examination modes.
+- ./scene/optimize.js: Provides mesh merging helpers (`mergeStatic`) to reduce WebGL draw calls.
+- ./scene/lightPool.js: Dynamic point light management system cycling closest active light sources.
+- ./data/artifacts.js: Structured array containing museum exhibit metadata.
+*/
+
 import * as THREE from 'three';
 import { createBuilding } from './scene/building.js';
 import { FRONT_Z, ROOMS } from './scene/layout.js';
@@ -23,7 +37,7 @@ import { InspectPanel } from './ui/inspectPanel.js';
 import { mergeStatic } from './scene/optimize.js';
 import { createLightPool } from './scene/lightPool.js';
 
-// ---------- Renderer ----------
+// ---------- Renderer (WebGL Renderer initialization & Shadow Map configuration) ----------
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -36,7 +50,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap; // tepi bayangan lebih halus
 // saat ada yang bergerak, mis. pintu). Ini menghapus satu pass render penuh di setiap frame.
 renderer.shadowMap.autoUpdate = false;
 
-// ---------- Scene ----------
+// ---------- Scene (root creation) ----------
 const scene = new THREE.Scene(); // langit & fog diatur di createOutdoor()
 
 // ---------- Camera ----------
@@ -46,6 +60,7 @@ const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerH
 const START_DISTANCE = 13; // jarak dari dinding depan, supaya seluruh fasad & loket terlihat
 camera.position.set(0, EYE_HEIGHT, FRONT_Z + START_DISTANCE);
 
+// Instantiate and add 3D scene elements to scene graph
 // ---------- Ruangan ----------
 const building = createBuilding(); // denah diatur di scene/layout.js
 scene.add(building.group);
@@ -157,6 +172,7 @@ function resumeControls() {
   controls.enabled = true;
 }
 
+// Handles conversation flow with ticket booth NPC
 function talkToCashier() {
   pauseControls();
 
@@ -190,6 +206,7 @@ function talkToCashier() {
   }
 }
 
+// Executes ticket purchase action, opens entrance door, and updates quest progression state
 function buyTicket() {
   door.open();
   dialog.open({
@@ -202,6 +219,7 @@ function buyTicket() {
   });
 }
 
+// Interaction Hotkey 'E' listener
 window.addEventListener('keydown', (e) => {
   // e.defaultPrevented = tombol sudah dipakai dialog (mis. E untuk menutup), jangan dibuka lagi
   if (e.code !== 'KeyE' || e.repeat || e.defaultPrevented || dialog.isOpen || pauseMenu.isOpen || inspect.isActive) return;
@@ -209,7 +227,7 @@ window.addEventListener('keydown', (e) => {
   else if (hover.current) startInspect(hover.current);
 });
 
-// ---------- Menu jeda (Esc) ----------
+// ---------- Menu jeda (Esc) / Pause Menu system & 'Escape' hotkey binding ----------
 const pauseMenu = new PauseMenu({
   getStatus: () => ({
     quests: progress.quests,
@@ -255,6 +273,7 @@ const inspect = new InspectMode(camera, canvas, {
   },
 });
 
+// Enters detailed inspection camera mode and positions focused inspection light source
 function startInspect(item) {
   pauseControls();
   dialog.hidePrompt();
@@ -288,7 +307,7 @@ lightPool.update(camera.position);
 const inspectLight = new THREE.PointLight(0xfff0dd, 0, 5, 2);
 scene.add(inspectLight);
 
-// ---------- Loop ----------
+// ---------- Loop (Main Application Engine Loop) ----------
 const clock = new THREE.Clock();
 const perf = new PerfOverlay(renderer); // tombol ` untuk menampilkan angka performa
 
@@ -322,7 +341,7 @@ function loop() {
   perf.update(dt);
 }
 
-// ---------- Resize ----------
+// ---------- Resize (Window Resizing Handler) ----------
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -332,8 +351,9 @@ window.addEventListener('resize', () => {
 // ---------- Mulai ----------
 // Shader dikompilasi dulu (di balik layar loading) sebelum loop berjalan. Tanpa ini,
 // kompilasi terjadi di frame pertama & saat pertama kali melihat material baru → tersendat.
+// Asynchronous Application Bootstrap & Shader Pre-compilation
 controls.enabled = false;
-await renderer.compileAsync(scene, camera);
+await renderer.compileAsync(scene, camera); // Warm up WebGL shader programs behind the loading screen to eliminate runtime frame stutter
 renderer.shadowMap.needsUpdate = true; // gambar peta bayangan statis sekali
 clock.getDelta();                      // buang selisih waktu selama loading
 renderer.setAnimationLoop(loop);

@@ -1,13 +1,20 @@
+<!--File Purpose: Entry point HTML file for the 3D Interactive Museum Tour project. Sets up the WebGL canvas, loading overlay, CSS styles, and maps Three.js CDN module dependencies.
+Connected Files:
+- ./style.css: Contains layout, typography, canvas positioning, and UI component styles.
+- ./main.js: Primary ES module script executing scene setup, camera controls, event listeners, and main render loop.
+- https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js: Three.js core WebGL rendering library.
+- https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/: Three.js extra module addons (loaders, controls, postprocessing).-->
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interactive Museum — Project ETS</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css"> <!-- ngelink file style.css-->
 
-<!-- Three.js dari CDN (tanpa npm / bundler) -->
-<script type="importmap">
+<!-- ngelink Three.js dari CDN (tanpa npm / bundler) -->
+<script type="importmap"> 
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
@@ -18,7 +25,7 @@
 </head>
 <body>
 
-<canvas id="scene"></canvas>
+<canvas id="scene"></canvas> <!--ngelink WebGL viewport canvas element where Three.js attaches its rendering pipeline -->
 
 <!-- Ditulis langsung di HTML supaya langsung tampil, selagi Three.js & scene masih dimuat -->
 <div id="loading" class="loading" role="status">
@@ -26,6 +33,6 @@
   <div class="loading-text">Memuat museum…</div>
 </div>
 
-<script type="module" src="main.js"></script>
+<script type="module" src="main.js"></script> <!--ngelink file main.js-->
 </body>
 </html>
