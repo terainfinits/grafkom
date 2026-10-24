@@ -125,4 +125,24 @@ export const ARTIFACTS = [
       'Digunakan dalam tradisi mangulosi, pernikahan, kelahiran, dan upacara adat.',
     sumber: [],
   },
+  {
+    id: 'cual',
+    build: 'cual',
+    display: 'wall',
+    ruang: 'wastra',
+    position: [-15.1, 3.9], // permukaan dinding utara ruang wastra
+    facing: Math.PI,         // menghadap −Z (ke dalam ruang)
+    nama: 'Kain Cual',
+    asal: 'Bangka Belitung — pengaruh budaya Melayu dan Tionghoa',
+    periode: '—',
+    bahan: 'Benang tenun, benang hias emas',
+    koordinat: [-2.13, 106.11],
+    deskripsiSingkat: 'Warisan tekstil Bangka Belitung yang dipengaruhi tradisi Melayu dan budaya maritim.',
+    deskripsi:
+      'Kain cual merupakan warisan tekstil Bangka Belitung yang dipengaruhi tradisi Melayu dan budaya maritim. ' +
+      'Ditenun dengan tambahan benang hias dan motif dekoratif. ' +
+      'Motif khasnya berupa bunga, dedaunan, dan unsur pesisir dengan warna merah, emas, dan hijau. ' +
+      'Digunakan dalam acara adat, penyambutan tamu, dan busana resmi.',
+    sumber: [],
+  },
 ];

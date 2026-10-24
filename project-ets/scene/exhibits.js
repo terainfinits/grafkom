@@ -5,6 +5,7 @@ import { createBaraSangihe } from './artifacts/baraSangihe.js';
 import { createSalawaku } from './artifacts/salawaku.js';
 import { createBusurPanah } from './artifacts/busurPanah.js';
 import { createUlos } from './artifacts/ulos.js';
+import { createCual } from './artifacts/cual.js';
 
 /*
  * Pajangan koleksi: untuk setiap entri di data/artifacts.js dibuat tempat pajang,
@@ -33,6 +34,7 @@ const BUILDERS = {
   salawaku: createSalawaku,
   busurPanah: createBusurPanah,
   ulos: createUlos,
+  cual: createCual,
 };
 
 // Sudut & jarak kamera saat inspect, per jenis pajangan
@@ -163,7 +165,9 @@ const DISPLAYS = {
     stand.add(footprint);
     return {
       baseY: 0, centerY, frontZ: t + 0.015, footprint,
-      plaque: new THREE.Vector3(0, bottom - 0.12, 0.01),
+      // Plakat di muka papan, pada ruang kosong 15 cm di bawah benda. (Kalau ditempel di
+      // dinding bawah panel, plakat tertutup lambrisering yang menonjol dari dinding.)
+      plaque: new THREE.Vector3(0, bottom + 0.075, t + 0.002),
       light: new THREE.Vector3(0, 2.8, 1.0),
     };
   },
