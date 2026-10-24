@@ -20,9 +20,10 @@
 
 <canvas id="scene"></canvas>
 
-<div class="hud">
-  <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> jalan &nbsp;·&nbsp; <kbd>Shift</kbd> lari</p>
-  <p>Tahan klik kiri + geser mouse untuk menoleh</p>
+<!-- Ditulis langsung di HTML supaya langsung tampil, selagi Three.js & scene masih dimuat -->
+<div id="loading" class="loading" role="status">
+  <div class="loading-title">Museum Interaktif 3D</div>
+  <div class="loading-text">Memuat museum…</div>
 </div>
 
 <script type="module" src="main.js"></script>

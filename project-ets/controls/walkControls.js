@@ -17,6 +17,8 @@ export class WalkControls {
     bounds = null,           // { minX, maxX, minZ, maxZ }
     jumpSpeed = 4.5,         // kecepatan awal lompat (m/s) → tinggi lompat ± 0,7 m
     gravity = 14,            // percepatan jatuh (m/s²), sedikit lebih kuat dari 9,8 agar terasa "game"
+    colliders = [],          // daftar penghalang { minX, maxX, minZ, maxZ, enabled }
+    radius = 0.3,            // "lebar badan" pemain, supaya tidak menempel ke objek
   } = {}) {
     this.camera = camera;
     this.dom = domElement;
@@ -28,6 +30,8 @@ export class WalkControls {
     this.bounds = bounds;
     this.jumpSpeed = jumpSpeed;
     this.gravity = gravity;
+    this.colliders = colliders;
+    this.radius = radius;
 
     // State lompat
     this.velocityY = 0;          // kecepatan vertikal saat ini
@@ -64,7 +68,7 @@ export class WalkControls {
 
   // ---------- Input keyboard ----------
   _onKeyDown(e) {
-    if (!this.enabled) return;
+    if (!this.enabled || e.defaultPrevented) return; // abaikan tombol yang sudah dipakai UI (mis. dialog)
     if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault(); // jangan scroll halaman
     if (e.code === 'Space' && !e.repeat) this.jumpRequested = true; // menahan Spasi tidak memicu lompat berulang
     this.keys.add(e.code);
@@ -130,8 +134,13 @@ export class WalkControls {
       const run = this._pressed('ShiftLeft', 'ShiftRight') ? this.runMultiplier : 1;
       const step = this.speed * run * dt;
 
-      pos.x += dx * step;
-      pos.z += dz * step;
+      // Gerak per sumbu: kalau X menabrak, Z tetap boleh jalan (dan sebaliknya),
+      // sehingga pemain "menyusur" penghalang alih-alih berhenti total.
+      const nextX = pos.x + dx * step;
+      if (!this._collides(nextX, pos.z)) pos.x = nextX;
+
+      const nextZ = pos.z + dz * step;
+      if (!this._collides(pos.x, nextZ)) pos.z = nextZ;
     }
 
     // 4) Gerak vertikal — lompat & gravitasi
@@ -156,6 +165,17 @@ export class WalkControls {
       pos.x = Math.max(b.minX, Math.min(b.maxX, pos.x));
       pos.z = Math.max(b.minZ, Math.min(b.maxZ, pos.z));
     }
+  }
+
+  // Apakah titik (x, z) menabrak salah satu collider aktif?
+  // Setiap kotak diperbesar sebesar radius pemain.
+  _collides(x, z) {
+    const r = this.radius;
+    return this.colliders.some((c) =>
+      c.enabled !== false &&
+      x > c.minX - r && x < c.maxX + r &&
+      z > c.minZ - r && z < c.maxZ + r
+    );
   }
 
   dispose() {
