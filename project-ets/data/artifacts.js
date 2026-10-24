@@ -235,4 +235,23 @@ export const ARTIFACTS = [
       'Sasando dimainkan dengan memetik dawai menggunakan kedua tangan.',
     sumber: ['https://id.wikipedia.org/wiki/Sasando'],
   },
+  {
+    id: 'tehyan',
+    build: 'tehyan',
+    display: 'pedestal',
+    ruang: 'pertunjukan',
+    position: [15.1, 2.8],   // dekat dinding utara ruang pertunjukan
+    facing: Math.PI,          // menghadap −Z (ke tengah ruang)
+    nama: 'Tehyan',
+    asal: 'Betawi (Jakarta) — pengaruh budaya Tionghoa peranakan',
+    periode: '— (menunggu riset)',
+    bahan: 'Kayu, batok kelapa, kulit, dawai',
+    koordinat: [-6.2, 106.82],
+    deskripsiSingkat: 'Alat musik gesek berdawai dua dengan resonator batok kelapa.',
+    deskripsi:
+      'Tehyan adalah alat musik gesek berdawai dua dengan resonator dari batok kelapa yang ditutup kulit, ' +
+      'dimainkan dengan busur. Tehyan menjadi bagian dari ansambel gambang kromong Betawi yang ' +
+      'dipengaruhi budaya Tionghoa peranakan. (Teks sementara — menunggu riset.)',
+    sumber: [],
+  },
 ];
