@@ -51,21 +51,22 @@ export const ARTIFACTS = [
     sumber: [],
   },
   {
-    id: 'pasatimpo',
-    build: 'pasatimpo',
+    id: 'bara-sangihe',
+    build: 'baraSangihe',
     ruang: 'pusaka',
     position: [-2.4, -28.5],
     facing: 0.35,
-    nama: 'Pasatimpo',
-    asal: 'Sulawesi Tengah (Kaili)',
+    nama: 'Bara Sangihe',
+    asal: 'Kepulauan Sangihe, Sulawesi Utara',
     periode: '— (menunggu riset)',
-    bahan: 'Besi, kayu',
-    koordinat: [-0.9, 119.87],
-    deskripsiSingkat: 'Senjata tikam suku Kaili dengan hulu menyerupai kepala burung.',
+    bahan: 'Baja, kayu, beludru, benang emas',
+    koordinat: [3.6, 125.5],
+    deskripsiSingkat: 'Pedang dari Kepulauan Sangihe dengan ujung bilah bercabang seperti mulut buaya.',
     deskripsi:
-      'Pasatimpo adalah senjata tradisional suku Kaili di Sulawesi Tengah. Bilahnya sedikit ' +
-      'melengkung, hulunya membengkok menyerupai kepala burung, dan sarungnya melebar di bagian ' +
-      'pangkal. (Teks sementara — menunggu riset.)',
+      'Bara adalah pedang tradisional dari Kepulauan Sangihe, Sulawesi Utara. Bilahnya lurus dengan ' +
+      'ujung bercabang menyerupai mulut buaya yang bergerigi, hulunya dari kayu hitam yang bercabang ' +
+      'dua, dan sarungnya berlapis beludru merah dengan sulaman benang emas. ' +
+      '(Teks sementara — menunggu riset.)',
     sumber: [],
   },
   {

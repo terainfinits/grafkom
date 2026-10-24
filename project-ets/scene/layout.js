@@ -82,7 +82,7 @@ export const ROOMS = [
   { name: 'Ruang Pusaka', x: [-4.1, 4.1], z: [-30, -24], height: 3.5, floor: 'wood', ceiling: 'kayu',
     lights: [[0, -27]], dim: true,
     info: { id: 'pusaka', title: 'Ruang Pusaka', subtitle: 'Senjata dan pusaka tradisional',
-      description: 'Keris, mandau, pasatimpo, trisula, serta busur dan panah dari berbagai penjuru Nusantara.',
+      description: 'Keris, mandau, bara sangihe, trisula, serta busur dan panah dari berbagai penjuru Nusantara.',
       achievement: 'Penjaga Pusaka' } },
 ];
 

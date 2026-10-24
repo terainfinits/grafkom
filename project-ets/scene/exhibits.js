@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { createKeris } from './artifacts/keris.js';
 import { createMandau } from './artifacts/mandau.js';
-import { createPasatimpo } from './artifacts/pasatimpo.js';
+import { createBaraSangihe } from './artifacts/baraSangihe.js';
 import { createTrisula } from './artifacts/trisula.js';
 import { createBusurPanah } from './artifacts/busurPanah.js';
 
@@ -26,7 +26,7 @@ import { createBusurPanah } from './artifacts/busurPanah.js';
 const BUILDERS = {
   keris: createKeris,
   mandau: createMandau,
-  pasatimpo: createPasatimpo,
+  baraSangihe: createBaraSangihe,
   trisula: createTrisula,
   busurPanah: createBusurPanah,
 };
