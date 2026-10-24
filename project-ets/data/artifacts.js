@@ -145,4 +145,24 @@ export const ARTIFACTS = [
       'Digunakan dalam acara adat, penyambutan tamu, dan busana resmi.',
     sumber: [],
   },
+  {
+    id: 'songket',
+    build: 'songket',
+    display: 'floor',
+    ruang: 'wastra',
+    position: [-15.1, -6.7], // dekat dinding selatan ruang wastra
+    facing: 0,                // menghadap +Z (ke tengah ruang)
+    nama: 'Songket',
+    asal: 'Palembang, Minangkabau, Riau, Lombok, dan komunitas Melayu di berbagai daerah',
+    periode: '—',
+    bahan: 'Benang tenun, benang emas atau perak',
+    koordinat: [-2.99, 104.76],
+    deskripsiSingkat: 'Kain tenun mewah dengan kilau benang emas atau perak, lambang status kehormatan.',
+    deskripsi:
+      'Songket adalah kain tenun mewah yang dikenal dengan kilau benang emas atau peraknya dan sering dikaitkan dengan status kehormatan. ' +
+      'Ditenun dengan tambahan benang emas atau perak secara manual. ' +
+      'Motif khasnya berupa pucuk rebung, bunga, dan motif geometris dengan warna merah, hitam, ungu, atau hijau. ' +
+      'Dipakai untuk pernikahan, upacara adat, dan busana resmi.',
+    sumber: [],
+  },
 ];

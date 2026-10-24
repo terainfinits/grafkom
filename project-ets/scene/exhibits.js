@@ -6,6 +6,7 @@ import { createSalawaku } from './artifacts/salawaku.js';
 import { createBusurPanah } from './artifacts/busurPanah.js';
 import { createUlos } from './artifacts/ulos.js';
 import { createCual } from './artifacts/cual.js';
+import { createSongket } from './artifacts/songket.js';
 
 /*
  * Pajangan koleksi: untuk setiap entri di data/artifacts.js dibuat tempat pajang,
@@ -35,6 +36,7 @@ const BUILDERS = {
   busurPanah: createBusurPanah,
   ulos: createUlos,
   cual: createCual,
+  songket: createSongket,
 };
 
 // Sudut & jarak kamera saat inspect, per jenis pajangan
