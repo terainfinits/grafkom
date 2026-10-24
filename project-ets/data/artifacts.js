@@ -1,4 +1,12 @@
-/*
+/* File Purpose: Mengonfigurasi dan menyimpan struktur data array koleksi artefak dan wastra pameran museum (metadata pameran mencakup ID, posisi koordinat 3D, arah orientasi, jenis dudukan, informasi sejarah, deskripsi, dan tautan referensi).
+
+Connected Files:
+- ../scene/exhibits.js: Mengimpor konstanta ARTIFACTS untuk membuat dan memosisikan objek 3D artefak beserta pedestal/dudukan di dalam ruang pameran.
+- ../main.js: Membaca daftar artefak untuk menentukan jumlah total koleksi dan menginisialisasi sistem interaksi inspeksi/hover.
+- ../ui/inspectPanel.js: Mengambil metadata artefak (nama, asal, periode, bahan, deskripsi, sumber) untuk ditampilkan pada panel antarmuka UI saat pemain memeriksa koleksi.
+- ../game/progress.js: Menggunakan ID artefak untuk melacak status koleksi yang sudah atau belum diperiksa oleh pemain.
+- ../scene/artifacts/*.js: Fungsi-fungsi prosedural pembentuk model 3D (seperti keris.js, mandau.js, busurPanah.js) yang dirujuk oleh properti 'build'.
+
  * Daftar koleksi museum. Menambah artefak = menambah satu entri di sini
  * + (kalau prosedural) satu fungsi pembuat model di scene/artifacts/.
  *
@@ -11,6 +19,8 @@
  *  nama, asal, periode, bahan, deskripsiSingkat, deskripsi, sumber: isi panel info
  *  koordinat : [lintang, bujur] asal daerah (untuk kuis peta, opsional)
  */
+
+// export agar bisa di-import file js lain; Array konstanta yang diekspor berisi objek-objek data koleksi artefak dan wastra pameran museum 
 export const ARTIFACTS = [
   {
     id: 'keris',
