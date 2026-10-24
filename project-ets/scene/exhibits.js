@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { createKeris } from './artifacts/keris.js';
 import { createMandau } from './artifacts/mandau.js';
 import { createBaraSangihe } from './artifacts/baraSangihe.js';
-import { createTrisula } from './artifacts/trisula.js';
+import { createSalawaku } from './artifacts/salawaku.js';
 import { createBusurPanah } from './artifacts/busurPanah.js';
 
 /*
@@ -11,8 +11,8 @@ import { createBusurPanah } from './artifacts/busurPanah.js';
  *
  * Jenis tempat pajang (data.display):
  *   'pedestal' (default) : pedestal kayu setinggi 1 m, untuk benda kecil (keris, mandau, ...)
- *   'stand'              : dudukan rendah, untuk benda panjang yang berdiri tegak (trisula)
- *   'wall'               : panel di dinding, untuk benda yang dipajang vertikal (busur & panah)
+ *   'stand'              : dudukan rendah, untuk benda panjang yang berdiri tegak (mis. tombak)
+ *   'wall'               : panel di dinding, untuk benda yang dipajang vertikal (busur & panah, salawaku)
  *
  * Pembuat model cukup membuat bendanya di sekitar titik (0, 0, 0); posisinya di atas
  * pajangan diatur otomatis dari kotak pembatasnya (Box3), dan ukuran pedestal/panel
@@ -27,7 +27,7 @@ const BUILDERS = {
   keris: createKeris,
   mandau: createMandau,
   baraSangihe: createBaraSangihe,
-  trisula: createTrisula,
+  salawaku: createSalawaku,
   busurPanah: createBusurPanah,
 };
 

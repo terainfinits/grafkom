@@ -70,21 +70,23 @@ export const ARTIFACTS = [
     sumber: [],
   },
   {
-    id: 'trisula',
-    build: 'trisula',
-    display: 'stand',
+    id: 'salawaku',
+    build: 'salawaku',
+    display: 'wall',
     ruang: 'pusaka',
-    position: [3.3, -25.4],
-    facing: -Math.PI / 2, // menghadap ke tengah ruang (−X)
-    nama: 'Trisula',
-    asal: 'Sumatera Selatan',
+    position: [4.0, -26.4],  // permukaan dinding timur ruang pusaka (berhadapan dengan busur & panah)
+    facing: -Math.PI / 2,    // menghadap −X (ke dalam ruang)
+    nama: 'Salawaku',
+    asal: 'Maluku',
     periode: '— (menunggu riset)',
-    bahan: 'Besi, kayu, kuningan',
-    koordinat: [-2.99, 104.76],
-    deskripsiSingkat: 'Tombak bermata tiga bergagang panjang.',
+    bahan: 'Kayu, cat, kepingan kerang',
+    koordinat: [-3.7, 128.18],
+    deskripsiSingkat: 'Perisai kayu panjang dan sempit dari Maluku, bertatah kepingan kerang.',
     deskripsi:
-      'Trisula adalah senjata berupa tombak bermata tiga dengan gagang panjang: mata tengah lurus ' +
-      'dan lebih panjang, diapit dua mata samping yang melengkung. (Teks sementara — menunggu riset.)',
+      'Salawaku adalah perisai tradisional Maluku yang panjang dan sempit, melebar di kedua ujungnya. ' +
+      'Mukanya dicat gelap dan dihias kepingan kerang, sedangkan pegangannya berada di bagian belakang. ' +
+      'Salawaku lazim dipadukan dengan parang, antara lain dalam tari Cakalele. ' +
+      '(Teks sementara — menunggu riset.)',
     sumber: [],
   },
   {
