@@ -196,7 +196,7 @@ export const ARTIFACTS = [
     sumber: ['https://injourney.id/media-publication/article/12-macam-kain-tradisional-indonesia-dan-ciri-khasnya'],
   },
   {
-    id: 'tenun-sumba',
+    id: 'tenun-sumba',  
     build: 'sumba',
     display: 'floor',
     ruang: 'wastra',
@@ -214,5 +214,25 @@ export const ARTIFACTS = [
       'Motif khasnya antara lain kuda, rusa, buaya, pohon kehidupan, dan figur manusia dengan warna merah, biru, dan cokelat. ' +
       'Digunakan dalam pernikahan, ritual adat, dan sebagai koleksi wastra bernilai tinggi.',
     sumber: ['https://injourney.id/media-publication/article/12-macam-kain-tradisional-indonesia-dan-ciri-khasnya'],
+  },
+  // ----------- selasar timur, ruang alat musik tradisional --------------------
+  {
+  id: 'sasando',
+  build: 'sasando',                // Kunci builder di exhibits.js
+  ruang: 'selasar-timur',          // ID ruang lokasi
+  display: 'pedestal',             // Dipajang di atas pedestal
+  position: [15.0, 0.0],           // Koordinat [X, Z] di Selasar Timur
+  facing: -Math.PI / 2,            // Menghadap ke arah barat/tengah selasar (-X)
+  nama: 'Sasando',
+  asal: 'Rote Ndao, Nusa Tenggara Timur',
+  periode: 'Abad ke-7 M–sekarang',
+  bahan: 'Daun lontar, bambu, kayu, kawat dawai',
+  koordinat: [-10.73, 123.07],
+  deskripsiSingkat: 'Alat musik petik khas Pulau Rote dengan wadah resonator dari daun lontar.',
+  deskripsi:
+    'Sasando adalah alat musik petik tradisional khas masyarakat Rote Ndao. ' +
+    'Bagian utamanya berupa tabung bambu yang dipasangi dawai/senar, dikelilingi wadah berbentuk kipas melingkar yang terbuat dari anyaman daun lontar sebagai resonator suara. ' +
+    'Sasando dimainkan dengan memetik dawai menggunakan kedua tangan.',
+  sumber: ['https://id.wikipedia.org/wiki/Sasando'],
   },
 ];

@@ -9,6 +9,7 @@ import { createCual } from './artifacts/cual.js';
 import { createSongket } from './artifacts/songket.js';
 import { createSasirangan } from './artifacts/sasirangan.js';
 import { createSumba } from './artifacts/sumba.js';
+import { createSasando } from './artifacts/sasando.js';
 
 /*
  * Pajangan koleksi: untuk setiap entri di data/artifacts.js dibuat tempat pajang,
@@ -41,6 +42,7 @@ const BUILDERS = {
   songket: createSongket,
   sasirangan: createSasirangan,
   sumba: createSumba,
+  sasando: createSasando,
 };
 
 // Sudut & jarak kamera saat inspect, per jenis pajangan
