@@ -4,7 +4,7 @@ import * as THREE from 'three';
  * Light pool — hanya N lampu terdekat dengan pemain yang benar-benar menyala.
  *
  * Masalah: setiap PointLight dihitung oleh SETIAP piksel di layar, walaupun lampunya
- * jauh di ruang lain. Museum ini punya 23 PointLight → 23 perhitungan cahaya per piksel.
+ * jauh di ruang lain. Museum ini punya puluhan PointLight → puluhan perhitungan cahaya per piksel.
  *
  * Solusi: semua PointLight di scene diubah menjadi "lampu virtual" (cukup data posisi,
  * warna, intensitas). Di scene hanya ada N PointLight sungguhan; setiap frame keduanya

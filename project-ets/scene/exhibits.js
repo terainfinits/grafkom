@@ -1,9 +1,14 @@
 import * as THREE from 'three';
 import { createKeris } from './artifacts/keris.js';
 import { createMandau } from './artifacts/mandau.js';
-import { createPasatimpo } from './artifacts/pasatimpo.js';
-import { createTrisula } from './artifacts/trisula.js';
+import { createBaraSangihe } from './artifacts/baraSangihe.js';
+import { createSalawaku } from './artifacts/salawaku.js';
 import { createBusurPanah } from './artifacts/busurPanah.js';
+import { createUlos } from './artifacts/ulos.js';
+import { createCual } from './artifacts/cual.js';
+import { createSongket } from './artifacts/songket.js';
+import { createSasirangan } from './artifacts/sasirangan.js';
+import { createSumba } from './artifacts/sumba.js';
 
 /*
  * Pajangan koleksi: untuk setiap entri di data/artifacts.js dibuat tempat pajang,
@@ -11,8 +16,10 @@ import { createBusurPanah } from './artifacts/busurPanah.js';
  *
  * Jenis tempat pajang (data.display):
  *   'pedestal' (default) : pedestal kayu setinggi 1 m, untuk benda kecil (keris, mandau, ...)
- *   'stand'              : dudukan rendah, untuk benda panjang yang berdiri tegak (trisula)
- *   'wall'               : panel di dinding, untuk benda yang dipajang vertikal (busur & panah)
+ *   'stand'              : dudukan rendah, untuk benda panjang yang berdiri tegak (mis. tombak)
+ *   'wall'               : panel di dinding, untuk benda yang dipajang vertikal (busur & panah, salawaku)
+ *   'floor'              : tanpa alas, benda berdiri di lantai dengan kakinya sendiri (kain di
+ *                          gawangan); plakat nama di tiang kecil di depannya
  *
  * Pembuat model cukup membuat bendanya di sekitar titik (0, 0, 0); posisinya di atas
  * pajangan diatur otomatis dari kotak pembatasnya (Box3), dan ukuran pedestal/panel
@@ -26,9 +33,14 @@ import { createBusurPanah } from './artifacts/busurPanah.js';
 const BUILDERS = {
   keris: createKeris,
   mandau: createMandau,
-  pasatimpo: createPasatimpo,
-  trisula: createTrisula,
+  baraSangihe: createBaraSangihe,
+  salawaku: createSalawaku,
   busurPanah: createBusurPanah,
+  ulos: createUlos,
+  cual: createCual,
+  songket: createSongket,
+  sasirangan: createSasirangan,
+  sumba: createSumba,
 };
 
 // Sudut & jarak kamera saat inspect, per jenis pajangan
@@ -36,6 +48,7 @@ const VIEW = {
   pedestal: { elevation: 40, distance: 1.6 }, // dari atas-depan, seperti melihat ke vitrine
   stand: { elevation: 12, distance: 1.25 },
   wall: { elevation: 6, distance: 1.25 },
+  floor: { elevation: 8, distance: 1.25 },
 };
 
 export function createExhibits(artifacts) {
@@ -78,6 +91,7 @@ export function createExhibits(artifacts) {
 
     const plaque = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.08), createPlaqueMaterial(data.nama));
     plaque.position.copy(display.plaque);
+    if (display.plaqueTilt) plaque.rotation.x = -display.plaqueTilt; // plakat miring seperti di mimbar baca
     stand.add(plaque);
 
     // Lampu sorot kecil (ikut light pool, jadi hanya menyala saat pemain dekat)
@@ -157,10 +171,33 @@ const DISPLAYS = {
     stand.add(footprint);
     return {
       baseY: 0, centerY, frontZ: t + 0.015, footprint,
-      plaque: new THREE.Vector3(0, bottom - 0.12, 0.01),
+      // Plakat di muka papan, pada ruang kosong 15 cm di bawah benda. (Kalau ditempel di
+      // dinding bawah panel, plakat tertutup lambrisering yang menonjol dari dinding.)
+      plaque: new THREE.Vector3(0, bottom + 0.075, t + 0.002),
       light: new THREE.Vector3(0, 2.8, 1.0),
     };
   },
+};
+
+DISPLAYS.floor = (stand, mats, size) => {
+  // Tiang plakat kecil setinggi pinggang di depan-samping kanan benda (bukan di tengah,
+  // supaya tidak menutupi benda saat dilihat dari depan)
+  const postX = size.x / 2 + 0.2, postZ = size.z / 2 + 0.2, postH = 0.85;
+  addBox(stand, mats.wood, 0.06, postH, 0.06, postX, postH / 2, postZ);
+  addBox(stand, mats.wood, 0.4, 0.03, 0.14, postX, postH, postZ);          // papan sandaran plakat
+  // Collider tak terlihat yang mencakup benda & tiang plakat
+  const x0 = -size.x / 2 - 0.1, x1 = postX + 0.25, z0 = -size.z / 2 - 0.1, z1 = postZ + 0.1;
+  const footprint = new THREE.Mesh(
+    new THREE.BoxGeometry(x1 - x0, 0.1, z1 - z0),
+    new THREE.MeshBasicMaterial({ visible: false })
+  );
+  footprint.position.set((x0 + x1) / 2, 0.05, (z0 + z1) / 2);
+  stand.add(footprint);
+  return {
+    baseY: 0, footprint,
+    plaque: new THREE.Vector3(postX, postH + 0.03, postZ), plaqueTilt: 0.9,
+    light: new THREE.Vector3(0, 3.0, 1.0),
+  };
 };
 
 function addBox(parent, material, w, h, d, x, y, z) {

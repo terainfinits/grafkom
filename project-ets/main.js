@@ -297,7 +297,7 @@ canvas.addEventListener('pointerup', (e) => {
 });
 
 // ---------- Light pool ----------
-// 23 PointLight (ruangan, lampu gantung aula, kios, lampu taman) → hanya 8 terdekat yang menyala.
+// Semua PointLight (ruangan, lampu gantung aula, kios, lampu taman, sorot koleksi) → hanya 8 terdekat yang menyala.
 // Dibuat setelah semua modul scene selesai menambahkan lampunya.
 const lightPool = createLightPool(scene, { size: 8 });
 lightPool.update(camera.position);
