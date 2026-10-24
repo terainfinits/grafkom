@@ -38,3 +38,15 @@ Folder Praktikum 5: [klik disini](https://github.com/terainfinits/grafkom/tree/m
 Link Deploy Praktikum 5: [klik disini](https://terainfinits.github.io/grafkom/praktikum5/index.html) \
 Screenshot Praktikum 5:
 ![prak5](./assets/ss_prak5.png)
+
+# Praktikum 6
+Folder Praktikum 5: [klik disini](https://github.com/terainfinits/grafkom/tree/main/praktikum6) \
+Link Deploy Praktikum 5: [klik disini](https://terainfinits.github.io/grafkom/praktikum6/index.html) \
+Screenshot Praktikum 5:
+![prak5](./assets/ss_prak6.png)
+
+# Praktikum 7
+Folder Praktikum 5: [klik disini](https://github.com/terainfinits/grafkom/tree/main/praktikum7) \
+Link Deploy Praktikum 5: [klik disini](https://terainfinits.github.io/grafkom/praktikum7/index.html) \
+Screenshot Praktikum 5:
+![prak5](./assets/ss_prak7.png)
