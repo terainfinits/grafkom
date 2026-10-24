@@ -165,4 +165,24 @@ export const ARTIFACTS = [
       'Dipakai untuk pernikahan, upacara adat, dan busana resmi.',
     sumber: [],
   },
+  {
+    id: 'sasirangan',
+    build: 'sasirangan',
+    display: 'floor',
+    ruang: 'wastra',
+    position: [-12.2, 2.4],  // sudut timur laut ruang wastra
+    facing: -2.5,             // serong menghadap ke tengah ruang
+    nama: 'Sasirangan',
+    asal: 'Kalimantan Selatan — terutama masyarakat Banjar',
+    periode: '—',
+    bahan: 'Kain, benang jelujur, pewarna',
+    koordinat: [-3.32, 114.59],
+    deskripsiSingkat: 'Kain berteknik pewarnaan unik yang menjadi simbol identitas budaya masyarakat Banjar.',
+    deskripsi:
+      'Sasirangan memiliki teknik pewarnaan yang unik dan menjadi simbol identitas budaya masyarakat Banjar. ' +
+      'Kain dijelujur atau diikat sebelum dicelup warna. ' +
+      'Motif khasnya antara lain Kambang Raja, Bayam Raja, dan motif alam dengan warna cerah. ' +
+      'Digunakan dalam tradisi Banjar serta busana sehari-hari maupun formal.',
+    sumber: [],
+  },
 ];
