@@ -76,10 +76,6 @@ body {
 .pause-controls { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; font-size: 13px; }
 .pause-controls dt { color: #e6e2d6; white-space: nowrap; }
 .pause-controls dd { margin: 0; color: #a9b0c0; }
-.pause-progress { font-size: 13px; line-height: 1.9; }
-.pause-progress div { display: flex; justify-content: space-between; gap: 16px; }
-.pause-progress span { color: #a9b0c0; }
-.pause-progress strong { color: #e8c97a; font-weight: 500; text-align: right; }
 .pause-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .dialog-btn.is-danger { border-color: #b3302a; color: #f2b8a8; }
 
@@ -107,3 +103,58 @@ body {
 .loading-title { font-size: 22px; letter-spacing: 0.08em; color: #e8c97a; }
 .loading-text { font-size: 13px; color: #a9b0c0; animation: loading-pulse 1.2s ease-in-out infinite; }
 @keyframes loading-pulse { 50% { opacity: 0.4; } }
+
+/* ---------- Pelacak ruangan: banner, label, achievement ---------- */
+.room-banner,
+.room-label,
+.achievement {
+  position: fixed; pointer-events: none; font-family: 'IBM Plex Mono', monospace;
+  opacity: 0; transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.room-banner.is-visible,
+.room-label.is-visible,
+.achievement.is-visible { opacity: 1; transform: none; }
+
+.room-banner {
+  top: 64px; left: 50%; transform: translate(-50%, -8px);
+  width: min(520px, calc(100vw - 32px)); padding: 18px 24px; text-align: center;
+  background: rgba(27, 31, 42, 0.82); border-top: 1px solid #c39a4f; border-bottom: 1px solid #c39a4f;
+  color: #e6e2d6;
+}
+.room-banner.is-visible { transform: translate(-50%, 0); }
+.room-banner-kicker { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #c39a4f; }
+.room-banner-title { margin: 4px 0 2px; font-family: Georgia, serif; font-size: 30px; color: #e8c97a; }
+.room-banner-subtitle { font-size: 13px; font-style: italic; color: #d9cdb4; }
+.room-banner-rule { width: 64px; height: 1px; margin: 12px auto; background: #c39a4f; }
+.room-banner-text { font-size: 13px; line-height: 1.7; }
+
+.room-label {
+  top: 64px; left: 50%; transform: translate(-50%, -6px);
+  padding: 6px 18px; border-top: 1px solid #c39a4f; border-bottom: 1px solid #c39a4f;
+  background: rgba(27, 31, 42, 0.6); font-family: Georgia, serif; font-size: 18px; color: #e8c97a;
+}
+.room-label.is-visible { transform: translate(-50%, 0); }
+
+.achievement {
+  right: 20px; bottom: 20px; transform: translateX(12px);
+  min-width: 220px; padding: 10px 14px; background: rgba(27, 31, 42, 0.94);
+  border: 1px solid #c39a4f; color: #e6e2d6;
+}
+.achievement-kicker { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: #c39a4f; }
+.achievement-title { margin: 2px 0; font-size: 14px; color: #e8c97a; }
+.achievement-detail { font-size: 12px; color: #a9b0c0; }
+
+/* ---------- Menu jeda: daftar quest & ruang ---------- */
+.pause-quests { margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 1.9; }
+.pause-quests li { display: flex; gap: 8px; }
+.pause-quests .q-mark { width: 1.2em; flex: none; }
+.pause-quests .q-count { margin-left: auto; }
+.pause-quests .is-done { color: #8992a6; }
+.pause-quests .is-active { color: #e8c97a; }
+.pause-quests .is-pending { color: #c8cbd4; }
+.pause-quests .is-locked { color: #5f6577; }
+.pause-rooms { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; font-size: 13px; line-height: 1.9; }
+.pause-rooms .is-visited { color: #e6e2d6; }
+.pause-rooms .is-visited::before { content: '✓ '; color: #9fe1a8; }
+.pause-rooms .is-unknown { color: #5f6577; }
+.pause-rooms .is-unknown::before { content: '○ '; }

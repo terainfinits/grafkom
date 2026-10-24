@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { createBuilding } from './scene/building.js';
-import { FRONT_Z } from './scene/layout.js';
+import { FRONT_Z, ROOMS } from './scene/layout.js';
 import { WalkControls } from './controls/walkControls.js';
 import { createTicketBooth } from './scene/ticketBooth.js';
 import { createOutdoor, YARD } from './scene/outdoor.js';
@@ -12,6 +12,9 @@ import { createCourtyard } from './scene/courtyard.js';
 import { Dialog } from './ui/dialog.js';
 import { PauseMenu } from './ui/pauseMenu.js';
 import { PerfOverlay } from './ui/perfOverlay.js';
+import { Banner } from './ui/banner.js';
+import { Progress } from './game/progress.js';
+import { RoomTracker } from './game/roomTracker.js';
 import { mergeStatic } from './scene/optimize.js';
 import { createLightPool } from './scene/lightPool.js';
 
@@ -101,7 +104,29 @@ const controls = new WalkControls(camera, canvas, {
 // ---------- Dialog petugas loket ----------
 const dialog = new Dialog();
 const CASHIER = 'Petugas Loket';
-let hasTicket = false;
+
+// ---------- Progress, quest, & pelacak ruangan ----------
+const roomTracker = new RoomTracker(ROOMS); // ruang = entri ROOMS yang punya `info`
+const progress = new Progress({ roomCount: roomTracker.all.length });
+const banner = new Banner();
+
+// Setiap kali quest aktif berganti, beri tahu lewat toast singkat
+progress.onChange(({ active, activeChanged }) => {
+  if (activeChanged && active) dialog.toast(`Quest baru: ${active.label}`, 4000);
+});
+
+function onRoomEntered(info) {
+  if (progress.visitRoom(info.id)) {
+    // Pertama kali: banner penjelasan + achievement (hanya sekali per ruang)
+    banner.showRoom(info);
+    banner.achievement(info.achievement, `Ruang ditemukan ${progress.visited.size}/${progress.roomCount}`);
+    if (progress.visited.size === progress.roomCount) {
+      dialog.toast('Semua ruang sudah dijelajahi — koleksi segera hadir', 5000);
+    }
+  } else {
+    banner.showLabel(info.title);
+  }
+}
 
 // Halaman panduan — dipakai saat pertama kali & saat pemain minta diulang
 const GUIDE_PAGES = [
@@ -125,7 +150,7 @@ function resumeControls() {
 function talkToCashier() {
   pauseControls();
 
-  if (!hasTicket) {
+  if (!progress.hasTicket) {
     dialog.open({
       name: CASHIER,
       pages: [
@@ -156,14 +181,13 @@ function talkToCashier() {
 }
 
 function buyTicket() {
-  hasTicket = true;
   door.open();
   dialog.open({
     name: CASHIER,
     pages: [{ text: 'Terima kasih! Ini tiketnya. Pintunya sudah saya buka, selamat menjelajah!' }],
     onClose: () => {
       resumeControls();
-      dialog.toast('Tiket didapat — silakan masuk lewat pintu');
+      progress.buyTicket(); // quest berikutnya ("Masuki museum") diumumkan lewat toast
     },
   });
 }
@@ -176,7 +200,10 @@ window.addEventListener('keydown', (e) => {
 
 // ---------- Menu jeda (Esc) ----------
 const pauseMenu = new PauseMenu({
-  getStatus: () => ({ hasTicket, explored: 0, total: 0 }), // artifact belum ada → total 0
+  getStatus: () => ({
+    quests: progress.quests,
+    rooms: roomTracker.all.map((r) => ({ title: r.title, visited: progress.visited.has(r.id) })),
+  }),
   onResume: resumeControls,
   // Cara paling sederhana & pasti bersih: muat ulang halaman (semua state kembali awal)
   onRestart: () => location.reload(),
@@ -219,6 +246,9 @@ function loop() {
     else dialog.hidePrompt();
   }
 
+  const entered = roomTracker.update(dt, camera.position);
+  if (entered) onRoomEntered(entered);
+
   lightPool.update(camera.position);
   renderer.render(scene, camera);
   perf.update(dt);
@@ -244,3 +274,4 @@ controls.enabled = true;
 const loading = document.getElementById('loading');
 loading.classList.add('is-done');
 loading.addEventListener('transitionend', () => loading.remove());
+dialog.toast(`Quest: ${progress.activeQuest.label}`, 5000); // quest pertama: beli tiket

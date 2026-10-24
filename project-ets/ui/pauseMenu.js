@@ -1,11 +1,11 @@
 /**
- * PauseMenu — menu jeda (Esc): panduan kontrol, progress, Lanjut & Mulai ulang.
+ * PauseMenu — menu jeda (Esc): panduan kontrol, quest, daftar ruang, Lanjut & Mulai ulang.
  * Ini satu-satunya tempat panduan kontrol selain dari petugas loket
  * (HUD permanen sengaja tidak dipakai supaya layar bersih).
  *
  * Pemakaian:
  *   const menu = new PauseMenu({
- *     getStatus: () => ({ hasTicket, explored, total }),
+ *     getStatus: () => ({ quests: progress.quests, rooms: [{ title, visited }] }),
  *     onResume: () => { ... },
  *     onRestart: () => { ... },
  *   });
@@ -57,10 +57,13 @@ export class PauseMenu {
       list.append(dt, dd);
     }
 
-    // ---------- Progress (diisi ulang tiap menu dibuka) ----------
-    const progressHeading = el('div', 'pause-heading');
-    progressHeading.textContent = 'Progress';
-    this.progressEl = el('div', 'pause-progress');
+    // ---------- Quest & ruang (diisi ulang tiap menu dibuka) ----------
+    const questHeading = el('div', 'pause-heading');
+    questHeading.textContent = 'Quest';
+    this.questsEl = el('ul', 'pause-quests');
+    const roomHeading = el('div', 'pause-heading');
+    roomHeading.textContent = 'Ruang';
+    this.roomsEl = el('div', 'pause-rooms');
 
     // ---------- Tombol ----------
     const actions = el('div', 'pause-actions');
@@ -70,7 +73,7 @@ export class PauseMenu {
     resumeBtn.addEventListener('click', () => this.close());
     actions.append(this.restartBtn, resumeBtn);
 
-    panel.append(title, controlsHeading, list, progressHeading, this.progressEl, actions);
+    panel.append(title, controlsHeading, list, questHeading, this.questsEl, roomHeading, this.roomsEl, actions);
     this.overlay.append(panel);
     document.body.append(this.overlay);
   }
@@ -79,7 +82,7 @@ export class PauseMenu {
     if (this.isOpen) return;
     this.isOpen = true;
     this._resetRestartBtn();
-    this._renderProgress();
+    this._renderStatus();
     this.overlay.hidden = false;
   }
 
@@ -90,14 +93,31 @@ export class PauseMenu {
     this.onResume?.();
   }
 
-  _renderProgress() {
-    const { hasTicket, explored = 0, total = 0 } = this.getStatus();
-    const ticket = hasTicket ? 'sudah dibeli' : 'belum dibeli — temui petugas loket';
-    // total = 0 berarti artifact belum dipasang di museum
-    const artifacts = total > 0 ? `${explored} / ${total}` : 'belum tersedia';
-    this.progressEl.innerHTML =
-      `<div><span>Tiket</span><strong>${ticket}</strong></div>` +
-      `<div><span>Artifact dijelajahi</span><strong>${artifacts}</strong></div>`;
+  _renderStatus() {
+    const { quests, rooms } = this.getStatus();
+    const marks = { done: '✓', active: '▸', pending: '·', locked: '—' };
+
+    this.questsEl.replaceChildren(...quests.map((q) => {
+      const li = el('li', `is-${q.status}`);
+      const mark = el('span', 'q-mark');
+      mark.textContent = marks[q.status];
+      const label = el('span');
+      label.textContent = q.status === 'locked' ? `${q.label} (segera hadir)` : q.label;
+      li.append(mark, label);
+      if (q.total && q.status !== 'locked') {
+        const count = el('span', 'q-count');
+        count.textContent = `${q.count}/${q.total}`;
+        li.append(count);
+      }
+      return li;
+    }));
+
+    // Ruang yang belum dikunjungi disamarkan "???" supaya ada kejutan saat menemukannya
+    this.roomsEl.replaceChildren(...rooms.map((r) => {
+      const item = el('div', r.visited ? 'is-visited' : 'is-unknown');
+      item.textContent = r.visited ? r.title : '???';
+      return item;
+    }));
   }
 
   // Mulai ulang perlu klik dua kali, supaya progress tidak hilang karena salah klik

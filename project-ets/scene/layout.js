@@ -36,27 +36,54 @@ const WINDOW = { width: 3, bottom: 1, top: 2.6 };
  * Ruang: batas lantai (garis tengah dinding), tinggi langit-langit, jenis lantai & plafon, titik lampu.
  *   floor  : 'kawung' (tegel motif batik kawung), 'tegel' (tegel bunga nila), 'wood' (papan jati), 'stone'
  *   ceiling: 'kayu' (papan kayu) atau 'gedek' (anyaman bambu)
+ *   info   : data untuk pelacak ruangan (game/roomTracker.js) — id, judul, subjudul,
+ *            penjelasan (muncul sekali saat pertama masuk), & judul achievement.
+ *            Ruang tanpa `info` (mis. pelataran) tidak dihitung sebagai ruang tersendiri.
  * open: true → tanpa langit-langit & lampu (langit terbuka). Tanpa `floor`, yang terlihat
  *   adalah rumput halaman; dengan `floor`, lantai dipasang sedikit di atas rumput.
  */
 export const ROOMS = [
   { name: 'Lobby', x: [-7, 7], z: [0, 7.1], height: 5, floor: 'kawung', ceiling: 'kayu',
-    lights: [[-3.5, 3.5], [3.5, 3.5]] },
+    lights: [[-3.5, 3.5], [3.5, 3.5]],
+    info: { id: 'lobi', title: 'Lobi', subtitle: 'Gerbang penyambutan',
+      description: 'Titik awal kunjungan. Patung dan lukisan dekoratif di sini menjadi pengantar kekayaan budaya Nusantara.',
+      achievement: 'Selamat Datang' } },
   { name: 'Selasar barat', x: [-10.1, -7], z: [-12, 7.1], height: 3.5, floor: 'wood', ceiling: 'gedek',
-    lights: [[-8.55, 2], [-8.55, -7]] },
+    lights: [[-8.55, 2], [-8.55, -7]],
+    info: { id: 'selasar-barat', title: 'Selasar Barat', subtitle: 'Lorong menuju Ruang Wastra & Aula',
+      description: 'Lorong berjendela yang menghadap taman, dihiasi lukisan dan patung dekoratif.',
+      achievement: 'Penjelajah Lorong Barat' } },
   { name: 'Selasar timur', x: [7, 10.1], z: [-12, 7.1], height: 3.5, floor: 'wood', ceiling: 'gedek',
-    lights: [[8.55, 2], [8.55, -7]] },
+    lights: [[8.55, 2], [8.55, -7]],
+    info: { id: 'selasar-timur', title: 'Selasar Timur', subtitle: 'Lorong menuju Ruang Pertunjukan & Aula',
+      description: 'Lorong berjendela yang menghadap taman, dihiasi lukisan dan patung dekoratif.',
+      achievement: 'Penjelajah Lorong Timur' } },
   { name: 'Ruang Wastra', x: [-20.1, -10.1], z: [-8, 4], height: 4, floor: 'tegel', ceiling: 'gedek',
-    lights: [[-15.1, 1], [-15.1, -5]] },
+    lights: [[-15.1, 1], [-15.1, -5]],
+    info: { id: 'wastra', title: 'Ruang Wastra', subtitle: 'Kain tradisional Nusantara',
+      description: 'Batik, tenun ikat, songket, hingga ulos — setiap helai menyimpan cerita daerah asalnya.',
+      achievement: 'Pencinta Wastra' } },
   { name: 'Ruang Pertunjukan', x: [10.1, 20.1], z: [-8, 4], height: 4, floor: 'tegel', ceiling: 'gedek',
-    lights: [[15.1, 1], [15.1, -5]] },
-  { name: 'Taman tengah', x: [-7, 7], z: [-12, 0], open: true },
+    lights: [[15.1, 1], [15.1, -5]],
+    info: { id: 'pertunjukan', title: 'Ruang Pertunjukan', subtitle: 'Alat musik tradisional',
+      description: 'Bunyi-bunyian yang mengiringi upacara dan pertunjukan, dari gamelan hingga alat musik daerah lainnya.',
+      achievement: 'Penikmat Nada' } },
+  { name: 'Taman tengah', x: [-7, 7], z: [-12, 0], open: true,
+    info: { id: 'taman', title: 'Taman', subtitle: 'Ruang terbuka di jantung museum',
+      description: 'Kolam teratai, pohon kamboja, dan pelataran batu yang kelak menjadi panggung pertunjukan.',
+      achievement: 'Di Bawah Langit Terbuka' } },
   // Pelataran batu di taman, dari pintu aula ke tengah taman (calon panggung pertunjukan)
   { name: 'Pelataran', x: [-3, 3], z: [-11.9, -4], open: true, floor: 'stone' },
   { name: 'Aula utama', x: [-10.1, 10.1], z: [-24, -12], height: 7, floor: 'kawung', ceiling: 'kayu',
-    lights: [[-5, -18], [5, -18]] },
+    lights: [[-5, -18], [5, -18]],
+    info: { id: 'aula', title: 'Aula', subtitle: 'Koleksi utama',
+      description: 'Ruang termegah dengan empat soko guru dan langit-langit tumpang sari. Di tengahnya tersimpan artefak unggulan museum.',
+      achievement: 'Jantung Museum' } },
   { name: 'Ruang Pusaka', x: [-4.1, 4.1], z: [-30, -24], height: 3.5, floor: 'wood', ceiling: 'kayu',
-    lights: [[0, -27]], dim: true },
+    lights: [[0, -27]], dim: true,
+    info: { id: 'pusaka', title: 'Ruang Pusaka', subtitle: 'Senjata dan pusaka tradisional',
+      description: 'Keris, rencong, mandau, dan pusaka lain yang dirawat turun-temurun.',
+      achievement: 'Penjaga Pusaka' } },
 ];
 
 /*
