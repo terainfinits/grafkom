@@ -38,17 +38,16 @@ export const ARTIFACTS = [
     position: [2.4, -28.5],
     facing: -0.35, // sedikit menghadap ke tengah ruang
     nama: 'Mandau',
-    asal: 'Kalimantan Timur (Dayak)',
-    periode: '— (menunggu riset)',
+    asal: 'Kalimantan (Dayak)',
+    periode: 'Abad ke-17–18 M',
     bahan: 'Besi, tanduk, kayu, rotan, rambut',
     koordinat: [-0.5, 117.15],
-    deskripsiSingkat: 'Parang tradisional suku Dayak dengan bilah bertakik ukiran.',
+    deskripsiSingkat: 'Parang tradisional suku Dayak dengan bilah berhias ukiran.',
     deskripsi:
-      'Mandau adalah senjata tradisional suku Dayak di Kalimantan, berupa parang bermata satu yang ' +
-      'melebar ke ujung. Punggung bilahnya kerap dihias takik ukiran, hulunya dibuat dari tanduk yang ' +
-      'diukir dan dihias rambut, dan bilahnya disimpan dalam sarung kayu (kumpang) berikat rotan. ' +
-      '(Teks sementara — menunggu riset.)',
-    sumber: [],
+      'Mandau adalah senjata tradisional suku Dayak di Kalimantan, berupa parang bermata satu dengan bilah yang melebar ke ujung. Bilahnya dihiasi ukiran dan terkadang tatahan logam, sedangkan hulunya terbuat dari kayu, tanduk, atau tulang yang dapat dihias rambut. Mandau disimpan dalam sarung kayu bernama kumpang yang biasanya diikat dengan anyaman rotan.',
+    sumber: [
+      'https://id.wikipedia.org/wiki/Mandau'
+    ],
   },
   {
     id: 'bara-sangihe',
@@ -58,36 +57,34 @@ export const ARTIFACTS = [
     facing: 0.35,
     nama: 'Bara Sangihe',
     asal: 'Kepulauan Sangihe, Sulawesi Utara',
-    periode: '— (menunggu riset)',
+    periode: 'Abad ke-17 M (tercatat)',
     bahan: 'Baja, kayu, beludru, benang emas',
     koordinat: [3.6, 125.5],
     deskripsiSingkat: 'Pedang dari Kepulauan Sangihe dengan ujung bilah bercabang seperti mulut buaya.',
     deskripsi:
-      'Bara adalah pedang tradisional dari Kepulauan Sangihe, Sulawesi Utara. Bilahnya lurus dengan ' +
-      'ujung bercabang menyerupai mulut buaya yang bergerigi, hulunya dari kayu hitam yang bercabang ' +
-      'dua, dan sarungnya berlapis beludru merah dengan sulaman benang emas. ' +
-      '(Teks sementara — menunggu riset.)',
-    sumber: [],
+      'Bara Sangihe adalah pedang tradisional dari Kepulauan Sangihe, Sulawesi Utara. Bilahnya terbuat dari besi dengan ujung bercabang dan bergerigi, sedangkan gagangnya memiliki dua cabang serta dihiasi ukiran bermotif tradisional. Selain sebagai senjata, pedang ini menjadi simbol keberanian dan kehormatan serta digunakan dalam upacara adat, seperti pernikahan dan penobatan raja.',
+    sumber: [
+      'https://id.wikipedia.org/wiki/Pedang_Bara_Sangihe'
+    ],
   },
   {
     id: 'salawaku',
     build: 'salawaku',
     display: 'wall',
     ruang: 'pusaka',
-    position: [4.0, -26.4],  // permukaan dinding timur ruang pusaka (berhadapan dengan busur & panah)
-    facing: -Math.PI / 2,    // menghadap −X (ke dalam ruang)
+    position: [4.0, -26.4], // permukaan dinding timur ruang pusaka (berhadapan dengan busur & panah)
+    facing: -Math.PI / 2, // menghadap −X (ke dalam ruang)
     nama: 'Salawaku',
     asal: 'Maluku',
-    periode: '— (menunggu riset)',
+    periode: 'Abad ke-14 M',
     bahan: 'Kayu, cat, kepingan kerang',
     koordinat: [-3.7, 128.18],
     deskripsiSingkat: 'Perisai kayu panjang dan sempit dari Maluku, bertatah kepingan kerang.',
     deskripsi:
-      'Salawaku adalah perisai tradisional Maluku yang panjang dan sempit, melebar di kedua ujungnya. ' +
-      'Mukanya dicat gelap dan dihias kepingan kerang, sedangkan pegangannya berada di bagian belakang. ' +
-      'Salawaku lazim dipadukan dengan parang, antara lain dalam tari Cakalele. ' +
-      '(Teks sementara — menunggu riset.)',
-    sumber: [],
+      'Salawaku adalah perisai tradisional Maluku yang berbentuk panjang dan ramping, dengan bagian atas dan bawah lebih lebar daripada tengahnya. Permukaannya dicat gelap dan dihiasi kepingan kerang bermotif simbol keberanian. Selain melindungi tubuh, salawaku digunakan bersama parang dalam peperangan dan ditampilkan dalam tari Cakalele serta upacara penyambutan tamu.',
+    sumber: [
+      'https://id.wikipedia.org/wiki/Salawaku'
+    ],
   },
   {
     id: 'busur-panah',
@@ -95,18 +92,17 @@ export const ARTIFACTS = [
     display: 'wall',
     ruang: 'pusaka',
     position: [-4.0, -26.4], // permukaan dinding barat ruang pusaka
-    facing: Math.PI / 2,     // menghadap +X (ke dalam ruang)
+    facing: Math.PI / 2, // menghadap +X (ke dalam ruang)
     nama: 'Busur & Panah',
     asal: 'Papua',
-    periode: '— (menunggu riset)',
+    periode: 'Prasejarah–sekarang (perkiraan)',
     bahan: 'Kayu, bambu, rotan, gelagah',
     koordinat: [-4.1, 138.95],
     deskripsiSingkat: 'Busur kayu dan anak panah tanpa bulu dengan beragam mata panah.',
     deskripsi:
-      'Busur dan panah digunakan masyarakat Papua untuk berburu dan berperang. Busur dibuat dari kayu ' +
-      'atau bambu dengan tali dari bilah rotan atau bambu, sedangkan anak panahnya dari batang ' +
-      'gelagah tanpa bulu, dengan mata panah dari kayu keras atau bambu yang bentuknya berbeda ' +
-      'sesuai buruan. (Teks sementara — menunggu riset.)',
-    sumber: [],
+      'Busur dan panah merupakan senjata tradisional masyarakat Papua yang digunakan untuk berburu dan berperang. Busur dibuat dari kayu atau bambu dengan tali dari rotan atau bambu, sedangkan anak panah menggunakan batang gelagah tanpa bulu dan mata panah dari kayu keras atau bambu dengan bentuk sesuai fungsinya.',
+    sumber: [
+      'https://www.traveloka.com/id-id/explore/destination/mengenal-senjata-tradisional-busur-panah-papua-tengah/1006986'
+    ],
   },
 ];
