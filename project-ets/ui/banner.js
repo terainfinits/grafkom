@@ -5,6 +5,7 @@
  *                              (judul, subjudul, penjelasan singkat)
  *  showLabel(title)          : label nama ruang kecil saat ruang dimasuki lagi
  *  achievement(title, detail): kartu achievement di pojok kanan bawah
+ *  hideRoom()                : sembunyikan banner & label ruang (mis. saat mode inspect dimulai)
  *
  * Elemen HTML dibuat di sini (seperti dialog.js), jadi index.html tidak perlu diubah.
  * Muncul/hilang memakai class `is-visible` + transisi CSS supaya memudar halus.
@@ -50,6 +51,11 @@ export class Banner {
     this.award.querySelector('.achievement-title').textContent = title;
     this.award.querySelector('.achievement-detail').textContent = detail;
     this._show(this.award, ACHIEVEMENT_MS);
+  }
+
+  hideRoom() {
+    this._hide(this.room);
+    this._hide(this.label);
   }
 
   _show(node, ms) {

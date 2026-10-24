@@ -15,6 +15,11 @@ import { PerfOverlay } from './ui/perfOverlay.js';
 import { Banner } from './ui/banner.js';
 import { Progress } from './game/progress.js';
 import { RoomTracker } from './game/roomTracker.js';
+import { ARTIFACTS } from './data/artifacts.js';
+import { createExhibits } from './scene/exhibits.js';
+import { Hover } from './game/hover.js';
+import { InspectMode, EXPLORE_S } from './game/inspect.js';
+import { InspectPanel } from './ui/inspectPanel.js';
 import { mergeStatic } from './scene/optimize.js';
 import { createLightPool } from './scene/lightPool.js';
 
@@ -65,6 +70,11 @@ scene.add(booth.group);
 const door = createEntranceDoor();
 scene.add(door.group);
 
+// ---------- Koleksi: pedestal + artefak (data di data/artifacts.js) ----------
+// Tidak ikut mergeStatic: model harus bisa di-raycast & disorot satu per satu.
+const exhibits = createExhibits(ARTIFACTS);
+scene.add(exhibits.group);
+
 // ---------- Area luar (langit, tanah, matahari) ----------
 const outdoor = createOutdoor(scene);
 scene.add(outdoor.group);
@@ -80,7 +90,7 @@ for (const g of [building.group, aula.group, courtyard.group, facade.group, gard
 
 // Semua mesh gedung, fasad, loket, taman, & pintu ikut memberi dan menerima bayangan matahari.
 // Atap ikut memberi bayangan, jadi cahaya matahari hanya masuk lewat pintu.
-for (const g of [building.group, aula.group, courtyard.group, facade.group, booth.group, garden.group, door.group]) {
+for (const g of [building.group, aula.group, courtyard.group, facade.group, booth.group, garden.group, door.group, exhibits.group]) {
   g.traverse((obj) => {
     if (obj.isMesh) obj.castShadow = obj.receiveShadow = true;
   });
@@ -98,7 +108,7 @@ const controls = new WalkControls(camera, canvas, {
     minZ: YARD.minZ + YARD_MARGIN,
     maxZ: YARD.maxZ - YARD_MARGIN,
   },
-  colliders: [...building.colliders, ...aula.colliders, ...courtyard.colliders, ...facade.colliders, ...booth.colliders, ...garden.colliders, ...door.colliders], // dinding, saka, kios, papan, lampu, & pintu tidak bisa ditembus
+  colliders: [...building.colliders, ...aula.colliders, ...courtyard.colliders, ...facade.colliders, ...booth.colliders, ...garden.colliders, ...door.colliders, ...exhibits.colliders], // dinding, saka, kios, papan, lampu, pintu, & pedestal tidak bisa ditembus
 });
 
 // ---------- Dialog petugas loket ----------
@@ -107,7 +117,7 @@ const CASHIER = 'Petugas Loket';
 
 // ---------- Progress, quest, & pelacak ruangan ----------
 const roomTracker = new RoomTracker(ROOMS); // ruang = entri ROOMS yang punya `info`
-const progress = new Progress({ roomCount: roomTracker.all.length });
+const progress = new Progress({ roomCount: roomTracker.all.length, artifactCount: exhibits.items.length });
 const banner = new Banner();
 
 // Setiap kali quest aktif berganti, beri tahu lewat toast singkat
@@ -194,8 +204,9 @@ function buyTicket() {
 
 window.addEventListener('keydown', (e) => {
   // e.defaultPrevented = tombol sudah dipakai dialog (mis. E untuk menutup), jangan dibuka lagi
-  if (e.code !== 'KeyE' || e.repeat || e.defaultPrevented || dialog.isOpen || pauseMenu.isOpen) return;
+  if (e.code !== 'KeyE' || e.repeat || e.defaultPrevented || dialog.isOpen || pauseMenu.isOpen || inspect.isActive) return;
   if (booth.isPlayerNear(camera.position)) talkToCashier();
+  else if (hover.current) startInspect(hover.current);
 });
 
 // ---------- Menu jeda (Esc) ----------
@@ -210,12 +221,13 @@ const pauseMenu = new PauseMenu({
 });
 
 // Prioritas Esc: dialog terbuka → dialog yang menutup (ditangani Dialog, ditandai defaultPrevented);
-// menu terbuka → lanjut; selain itu → buka menu jeda.
-// (Nanti: saat mode inspect, Esc = kembali dari inspect.)
+// mode inspect → kembali berjalan; menu terbuka → lanjut; selain itu → buka menu jeda.
 window.addEventListener('keydown', (e) => {
   if (e.code !== 'Escape' || e.repeat || e.defaultPrevented || dialog.isOpen) return;
   e.preventDefault();
-  if (pauseMenu.isOpen) {
+  if (inspect.isActive) {
+    inspect.exit();
+  } else if (pauseMenu.isOpen) {
     pauseMenu.close();
   } else {
     pauseControls();
@@ -224,11 +236,57 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+// ---------- Koleksi: hover & inspect ----------
+const hover = new Hover(camera, canvas, exhibits.items);
+const inspectPanel = new InspectPanel({ onBack: () => inspect.exit() });
+const inspect = new InspectMode(camera, canvas, {
+  // Geser pusat pandangan sebesar setengah lebar panel (+ jaraknya ke tepi layar)
+  getViewShift: () => (inspectPanel.el.offsetWidth + 16) / 2,
+  onExit: () => {
+    inspectPanel.hide();
+    inspectLight.intensity = 0;
+    resumeControls();
+  },
+  onExplored: (item) => {
+    inspectPanel.setProgress(1, true);
+    if (progress.inspectArtifact(item.data.id)) {
+      banner.achievement('Koleksi diperiksa', `${item.data.nama} · ${progress.inspected.size}/${progress.artifactCount}`);
+    }
+  },
+});
+
+function startInspect(item) {
+  pauseControls();
+  dialog.hidePrompt();
+  banner.hideRoom(); // banner ruang berada di tengah atas & bisa menutupi artefak
+  hover.clear();
+  inspectPanel.show(item.data, progress.inspected.has(item.data.id));
+  // Lampu khusus inspect, di depan-atas artefak (ruang pusaka sengaja redup)
+  inspectLight.position.copy(item.focus).addScaledVector(item.viewDir, 1).add(new THREE.Vector3(0, 1, 0));
+  inspectLight.intensity = 4;
+  inspect.enter(item);
+}
+
+// Klik (bukan seret untuk menoleh) pada artefak yang sedang disorot → periksa
+let pointerDownAt = null;
+canvas.addEventListener('pointerdown', (e) => { pointerDownAt = [e.clientX, e.clientY]; });
+canvas.addEventListener('pointerup', (e) => {
+  const start = pointerDownAt;
+  pointerDownAt = null;
+  if (!start || !hover.current || inspect.isActive || !controls.enabled) return;
+  if (Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 5) startInspect(hover.current);
+});
+
 // ---------- Light pool ----------
 // 23 PointLight (ruangan, lampu gantung aula, kios, lampu taman) → hanya 8 terdekat yang menyala.
 // Dibuat setelah semua modul scene selesai menambahkan lampunya.
 const lightPool = createLightPool(scene, { size: 8 });
 lightPool.update(camera.position);
+
+// Lampu inspect dibuat SETELAH pool (tidak ikut dipindah-pindah pool). Selalu ada di scene
+// dengan intensitas 0, supaya jumlah lampu tetap & shader tidak dikompilasi ulang saat inspect.
+const inspectLight = new THREE.PointLight(0xfff0dd, 0, 5, 2);
+scene.add(inspectLight);
 
 // ---------- Loop ----------
 const clock = new THREE.Clock();
@@ -240,9 +298,19 @@ function loop() {
   booth.update(dt, camera.position);
   if (door.update(dt)) renderer.shadowMap.needsUpdate = true; // bayangan pintu ikut bergerak
 
-  // tampilkan "E – Bicara" hanya saat dekat loket, dan tidak ada dialog / menu yang terbuka
-  if (!dialog.isOpen && !pauseMenu.isOpen) {
+  inspect.update(dt);
+  if (inspect.state === 'inspecting' && !progress.inspected.has(inspect.item.data.id)) {
+    inspectPanel.setProgress(inspect.viewTime / EXPLORE_S, false);
+  }
+
+  // Sorot artefak hanya saat berjalan bebas (bukan saat dialog, menu, atau inspect)
+  hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !inspect.isActive;
+  const hovered = hover.update();
+
+  // Prompt "E": bicara dengan petugas, atau periksa artefak yang disorot
+  if (!dialog.isOpen && !pauseMenu.isOpen && !inspect.isActive) {
     if (booth.isPlayerNear(camera.position)) dialog.showPrompt('Bicara dengan petugas loket');
+    else if (hovered) dialog.showPrompt(`Periksa ${hovered.data.nama} (atau klik)`);
     else dialog.hidePrompt();
   }
 

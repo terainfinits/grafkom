@@ -49,6 +49,14 @@ export class Progress {
     return true;
   }
 
+  // Mengembalikan true kalau artefak ini baru pertama kali tercatat diperiksa
+  inspectArtifact(id) {
+    if (this.inspected.has(id)) return false;
+    this.inspected.add(id);
+    this._emit();
+    return true;
+  }
+
   get quests() {
     const list = [
       { id: 'tiket', label: 'Beli tiket di loket', done: this.hasTicket },
