@@ -23,7 +23,7 @@
 <main>
   <section class="hero">
     <div class="shell">
-      <p class="kicker">Daftar Praktikum</p>
+      <p class="kicker">Daftar Praktikum &amp; Project</p>
       <!-- EDIT: headline + intro copy -->
       <h1>Praktikum Grafika Komputer (B)</h1>
       <p>Nama Anggota:</p>
@@ -32,7 +32,20 @@
     </div>
   </section>
 
-  <section class="catalog">
+  <!-- ---------- TABS ---------- -->
+  <div class="shell">
+    <div class="tabs" role="tablist" aria-label="Kategori">
+      <button class="tab" role="tab" id="tab-praktikum" aria-controls="panel-praktikum" aria-selected="true" data-tab="praktikum">
+        Praktikum <span class="tab-count">8</span>
+      </button>
+      <button class="tab" role="tab" id="tab-project" aria-controls="panel-project" aria-selected="false" tabindex="-1" data-tab="project">
+        Project <span class="tab-count">1</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ---------- PANEL: PRAKTIKUM ---------- -->
+  <section class="catalog" id="panel-praktikum" role="tabpanel" aria-labelledby="tab-praktikum">
     <div class="shell catalog-grid">
 
       <a class="card" href="praktikum1/index.html">
@@ -52,24 +65,6 @@
           <span class="arrow">→</span>
         </div>
       </a>
-
-      <!-- <a class="card" href="praktikum2/index.html">
-        <div class="card-top">
-          <span>Grafika Komputer</span>
-          <span class="status">● Selesai</span>
-        </div>
-        <h2>Praktikum 2</h2>
-        <p>Fundamental WebGL</p>
-        <div class="card-tags">
-          <span>WebGL 2</span>
-          <span>Primitive</span>
-          <span>Vertex</span>
-        </div>
-        <div class="card-open">
-          <span>Klik Untuk Membuka Praktikum 2</span>
-          <span class="arrow">→</span>
-        </div>
-      </a> -->
 
       <a class="card" href="praktikum2/index.html">
         <div class="card-top">
@@ -190,11 +185,47 @@
 
     </div>
   </section>
+
+  <!-- ---------- PANEL: PROJECT ---------- -->
+  <section class="catalog" id="panel-project" role="tabpanel" aria-labelledby="tab-project" hidden>
+    <div class="shell catalog-grid">
+
+      <!-- EDIT: ganti href ke folder project ETS -->
+      <a class="card card--featured" href="project-ets/index.html">
+        <div class="card-top">
+          <span>Grafika Komputer · Project ETS</span>
+          <span class="status">● Dalam Pengerjaan</span>
+        </div>
+
+        <h2>Interactive Museum</h2>
+        <p>Museum virtual berisi artifact yang dapat di-hover, dipilih, diperiksa, dan ditampilkan informasinya hingga seluruh artifact utama selesai dieksplorasi.</p>
+
+        <div class="track">
+          <span class="track-label">Tema<x/span>
+          <div class="track-options">
+            <span class="track-option is-chosen">Interactive 3D Application / Experience</span>
+          </div>
+        </div>
+
+        <div class="card-tags">
+          <span>Keyword 1</span>
+          <span>Keyword 2</span>
+          <span>Keyword 3</span>
+        </div>
+
+        <div class="card-open">
+          <span>Klik Untuk Membuka Project ETS</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
 </main>
 
 <footer class="site-footer">
   <div class="shell">
-    <span>© 2026 Willy Dava Nugraha & Nyoman Surya Hutama Andyartha</span>
+    <span>© 2026 Willy Dava Nugraha &amp; Nyoman Surya Hutama Andyartha</span>
     <!-- <nav>
       <a href="mailto:you@example.com">Email</a>
       <a href="https://github.com/yourname" target="_blank" rel="noopener">GitHub</a>
@@ -202,6 +233,36 @@
     </nav> -->
   </div>
 </footer>
+
+<script>
+  // Tab switching — URL hash (#project / #praktikum) keeps the tab linkable
+  (function () {
+    const tabs = document.querySelectorAll('.tab');
+
+    function activate(name, updateHash) {
+      tabs.forEach(function (tab) {
+        const on = tab.dataset.tab === name;
+        tab.setAttribute('aria-selected', on);
+        tab.tabIndex = on ? 0 : -1;
+        document.getElementById(tab.getAttribute('aria-controls')).hidden = !on;
+      });
+      if (updateHash) history.replaceState(null, '', '#' + name);
+    }
+
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener('click', function () { activate(tab.dataset.tab, true); });
+      tab.addEventListener('keydown', function (e) {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        next.focus();
+        activate(next.dataset.tab, true);
+      });
+    });
+
+    const fromHash = location.hash.replace('#', '');
+    if (fromHash === 'project' || fromHash === 'praktikum') activate(fromHash, false);
+  })();
+</script>
 
 </body>
 </html>
