@@ -13,6 +13,7 @@ import { Dialog } from './ui/dialog.js';
 import { PauseMenu } from './ui/pauseMenu.js';
 import { PerfOverlay } from './ui/perfOverlay.js';
 import { mergeStatic } from './scene/optimize.js';
+import { createLightPool } from './scene/lightPool.js';
 
 // ---------- Renderer ----------
 const canvas = document.getElementById('scene');
@@ -196,6 +197,12 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
+// ---------- Light pool ----------
+// 23 PointLight (ruangan, lampu gantung aula, kios, lampu taman) → hanya 8 terdekat yang menyala.
+// Dibuat setelah semua modul scene selesai menambahkan lampunya.
+const lightPool = createLightPool(scene, { size: 8 });
+lightPool.update(camera.position);
+
 // ---------- Loop ----------
 const clock = new THREE.Clock();
 const perf = new PerfOverlay(renderer); // tombol ` untuk menampilkan angka performa
@@ -212,6 +219,7 @@ function loop() {
     else dialog.hidePrompt();
   }
 
+  lightPool.update(camera.position);
   renderer.render(scene, camera);
   perf.update(dt);
 }
