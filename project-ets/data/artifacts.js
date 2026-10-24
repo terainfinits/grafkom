@@ -103,4 +103,26 @@ export const ARTIFACTS = [
       'https://www.traveloka.com/id-id/explore/destination/mengenal-senjata-tradisional-busur-panah-papua-tengah/1006986'
     ],
   },
+
+  // ---------- Ruang Wastra ----------
+  {
+    id: 'ulos',
+    build: 'ulos',
+    display: 'floor',
+    ruang: 'wastra',
+    position: [-18.4, -2],  // dekat dinding barat, lurus dengan pintu masuk dari selasar
+    facing: Math.PI / 2,     // menghadap +X (ke arah pintu)
+    nama: 'Ulos Batak',
+    asal: 'Sumatera Utara — masyarakat Batak Toba, Karo, Simalungun, dan Mandailing',
+    periode: '—',
+    bahan: 'Benang tenun, benang emas',
+    koordinat: [2.6, 98.9],
+    deskripsiSingkat: 'Kain sakral masyarakat Batak yang memiliki makna spiritual dan sosial dalam berbagai tahapan kehidupan.',
+    deskripsi:
+      'Kain sakral masyarakat Batak yang memiliki makna spiritual dan sosial dalam berbagai tahapan kehidupan. ' +
+      'Dominan merah, hitam, dan putih dengan pola geometris. ' +
+      'Ditenun secara tradisional menggunakan alat tenun bukan mesin (ATBM). ' +
+      'Digunakan dalam tradisi mangulosi, pernikahan, kelahiran, dan upacara adat.',
+    sumber: [],
+  },
 ];
