@@ -7,7 +7,13 @@ Anggota Group 3:
 
 # Link deployment
 
-Link Deploy Praktikum: [klik disini](https://terainfinits.github.io/grafkom)
+Link Deploy Praktikum & Project (ETS): [klik disini](https://terainfinits.github.io/grafkom)
+
+# Project ETS
+Folder Project ETS: [klik disini](https://github.com/terainfinits/grafkom/tree/main/project-ets) \
+Link Deploy Project ETS: [klik disini](https://terainfinits.github.io/grafkom/project-ets/index.html) \
+Screenshot Project ETS:
+![ets](./assets/ss_ets.png)
 
 # Praktikum 1
 Folder Praktikum 1: [klik disini](https://github.com/terainfinits/grafkom/tree/main/praktikum1) \
@@ -40,13 +46,13 @@ Screenshot Praktikum 5:
 ![prak5](./assets/ss_prak5.png)
 
 # Praktikum 6
-Folder Praktikum 5: [klik disini](https://github.com/terainfinits/grafkom/tree/main/praktikum6) \
-Link Deploy Praktikum 5: [klik disini](https://terainfinits.github.io/grafkom/praktikum6/index.html) \
-Screenshot Praktikum 5:
-![prak5](./assets/ss_prak6.png)
+Folder Praktikum 6: [klik disini](https://github.com/terainfinits/grafkom/tree/main/praktikum6) \
+Link Deploy Praktikum 6: [klik disini](https://terainfinits.github.io/grafkom/praktikum6/index.html) \
+Screenshot Praktikum 6:
+![prak6](./assets/ss_prak6.png)
 
 # Praktikum 7
-Folder Praktikum 5: [klik disini](https://github.com/terainfinits/grafkom/tree/main/praktikum7) \
-Link Deploy Praktikum 5: [klik disini](https://terainfinits.github.io/grafkom/praktikum7/index.html) \
-Screenshot Praktikum 5:
-![prak5](./assets/ss_prak7.png)
+Folder Praktikum 7: [klik disini](https://github.com/terainfinits/grafkom/tree/main/praktikum7) \
+Link Deploy Praktikum 7: [klik disini](https://terainfinits.github.io/grafkom/praktikum7/index.html) \
+Screenshot Praktikum 7:
+![prak7](./assets/ss_prak7.png)
