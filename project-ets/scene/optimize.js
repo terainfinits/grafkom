@@ -11,8 +11,8 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
  *
  * Kenapa per petak, bukan satu mesh untuk seluruh gedung: mesh raksasa tidak bisa
  * di-culling (dibuang saat di luar pandangan) & tidak bisa diurutkan depan → belakang,
- * sehingga GPU menggambar semua dinding di balik dinding lain — dengan 25 lampu per
- * piksel. Hasil uji: draw call turun, tapi waktu per frame malah naik ±3×. Dengan petak,
+ * sehingga GPU menggambar semua dinding di balik dinding lain — dengan semua lampu per
+ * piksel (saat itu 25, sebelum ada light pool). Hasil uji: draw call turun, tapi waktu per frame malah naik ±3×. Dengan petak,
  * draw call tetap rendah dan culling tetap bekerja.
  *
  * Yang TIDAK digabung (dibiarkan apa adanya):

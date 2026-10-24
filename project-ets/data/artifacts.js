@@ -10,8 +10,6 @@
  *              facing = arah hadap muka pajangan (radian, 0 = +Z, π/2 = +X)
  *  nama, asal, periode, bahan, deskripsiSingkat, deskripsi, sumber: isi panel info
  *  koordinat : [lintang, bujur] asal daerah (untuk kuis peta, opsional)
- *
- * CATATAN: teks di bawah masih SEMENTARA — akan diganti dengan hasil riset.
  */
 export const ARTIFACTS = [
   {
