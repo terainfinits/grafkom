@@ -15,6 +15,8 @@ export class WalkControls {
     maxPitch = Math.PI / 3,  // batas menunduk/mendongak (60°)
     eyeHeight = 1.6,
     bounds = null,           // { minX, maxX, minZ, maxZ }
+    jumpSpeed = 4.5,         // kecepatan awal lompat (m/s) → tinggi lompat ± 0,7 m
+    gravity = 14,            // percepatan jatuh (m/s²), sedikit lebih kuat dari 9,8 agar terasa "game"
   } = {}) {
     this.camera = camera;
     this.dom = domElement;
@@ -24,6 +26,13 @@ export class WalkControls {
     this.maxPitch = maxPitch;
     this.eyeHeight = eyeHeight;
     this.bounds = bounds;
+    this.jumpSpeed = jumpSpeed;
+    this.gravity = gravity;
+
+    // State lompat
+    this.velocityY = 0;          // kecepatan vertikal saat ini
+    this.onGround = true;        // apakah sedang menapak lantai
+    this.jumpRequested = false;  // diisi saat Spasi ditekan, dipakai di update()
 
     this.enabled = true; // nanti dimatikan saat mode inspect
 
@@ -56,7 +65,8 @@ export class WalkControls {
   // ---------- Input keyboard ----------
   _onKeyDown(e) {
     if (!this.enabled) return;
-    if (e.code.startsWith('Arrow')) e.preventDefault(); // jangan scroll halaman
+    if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault(); // jangan scroll halaman
+    if (e.code === 'Space' && !e.repeat) this.jumpRequested = true; // menahan Spasi tidak memicu lompat berulang
     this.keys.add(e.code);
   }
 
@@ -100,29 +110,47 @@ export class WalkControls {
     // 2) Baca input gerak (-1, 0, 1)
     const forward = (this._pressed('KeyW', 'ArrowUp') ? 1 : 0) - (this._pressed('KeyS', 'ArrowDown') ? 1 : 0);
     const strafe  = (this._pressed('KeyD', 'ArrowRight') ? 1 : 0) - (this._pressed('KeyA', 'ArrowLeft') ? 1 : 0);
-    if (forward === 0 && strafe === 0) return;
-
-    // 3) Arah maju & kanan di bidang XZ (hanya pakai yaw, jadi menunduk tidak membuat "terbang")
-    //    Kamera default melihat ke -Z.
-    const sin = Math.sin(this.yaw);
-    const cos = Math.cos(this.yaw);
-    let dx = forward * -sin + strafe * cos;
-    let dz = forward * -cos + strafe * -sin;
-
-    // normalisasi supaya jalan diagonal tidak lebih cepat
-    const len = Math.hypot(dx, dz);
-    dx /= len;
-    dz /= len;
-
-    const run = this._pressed('ShiftLeft', 'ShiftRight') ? this.runMultiplier : 1;
-    const step = this.speed * run * dt;
-
     const pos = this.camera.position;
-    pos.x += dx * step;
-    pos.z += dz * step;
-    pos.y = this.eyeHeight;
 
-    // 4) Batasi agar tidak menembus dinding
+    // 3) Gerak horizontal — hanya jika ada input
+    //    (tidak lagi pakai "return" lebih awal, karena lompat tetap harus dihitung walau diam)
+    if (forward !== 0 || strafe !== 0) {
+      // Arah maju & kanan di bidang XZ (hanya pakai yaw, jadi menunduk tidak membuat "terbang")
+      // Kamera default melihat ke -Z.
+      const sin = Math.sin(this.yaw);
+      const cos = Math.cos(this.yaw);
+      let dx = forward * -sin + strafe * cos;
+      let dz = forward * -cos + strafe * -sin;
+
+      // normalisasi supaya jalan diagonal tidak lebih cepat
+      const len = Math.hypot(dx, dz);
+      dx /= len;
+      dz /= len;
+
+      const run = this._pressed('ShiftLeft', 'ShiftRight') ? this.runMultiplier : 1;
+      const step = this.speed * run * dt;
+
+      pos.x += dx * step;
+      pos.z += dz * step;
+    }
+
+    // 4) Gerak vertikal — lompat & gravitasi
+    if (this.jumpRequested && this.onGround) {
+      this.velocityY = this.jumpSpeed;
+      this.onGround = false;
+    }
+    this.jumpRequested = false; // Spasi saat masih di udara diabaikan (tidak ada double jump)
+
+    this.velocityY -= this.gravity * dt; // gravitasi mengurangi kecepatan ke atas tiap frame
+    pos.y += this.velocityY * dt;
+
+    if (pos.y <= this.eyeHeight) {       // menyentuh lantai
+      pos.y = this.eyeHeight;
+      this.velocityY = 0;
+      this.onGround = true;
+    }
+
+    // 5) Batasi agar tidak menembus dinding
     if (this.bounds) {
       const b = this.bounds;
       pos.x = Math.max(b.minX, Math.min(b.maxX, pos.x));
