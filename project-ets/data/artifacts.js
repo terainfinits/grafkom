@@ -123,7 +123,7 @@ export const ARTIFACTS = [
       'Dominan merah, hitam, dan putih dengan pola geometris. ' +
       'Ditenun secara tradisional menggunakan alat tenun bukan mesin (ATBM). ' +
       'Digunakan dalam tradisi mangulosi, pernikahan, kelahiran, dan upacara adat.',
-    sumber: [],
+    sumber: ['https://injourney.id/media-publication/article/12-macam-kain-tradisional-indonesia-dan-ciri-khasnya'],
   },
   {
     id: 'cual',
@@ -143,7 +143,7 @@ export const ARTIFACTS = [
       'Ditenun dengan tambahan benang hias dan motif dekoratif. ' +
       'Motif khasnya berupa bunga, dedaunan, dan unsur pesisir dengan warna merah, emas, dan hijau. ' +
       'Digunakan dalam acara adat, penyambutan tamu, dan busana resmi.',
-    sumber: [],
+    sumber: ['https://injourney.id/media-publication/article/12-macam-kain-tradisional-indonesia-dan-ciri-khasnya'],
   },
   {
     id: 'songket',
@@ -163,7 +163,7 @@ export const ARTIFACTS = [
       'Ditenun dengan tambahan benang emas atau perak secara manual. ' +
       'Motif khasnya berupa pucuk rebung, bunga, dan motif geometris dengan warna merah, hitam, ungu, atau hijau. ' +
       'Dipakai untuk pernikahan, upacara adat, dan busana resmi.',
-    sumber: [],
+    sumber: ['https://injourney.id/media-publication/article/12-macam-kain-tradisional-indonesia-dan-ciri-khasnya'],
   },
   {
     id: 'sasirangan',
@@ -183,6 +183,26 @@ export const ARTIFACTS = [
       'Kain dijelujur atau diikat sebelum dicelup warna. ' +
       'Motif khasnya antara lain Kambang Raja, Bayam Raja, dan motif alam dengan warna cerah. ' +
       'Digunakan dalam tradisi Banjar serta busana sehari-hari maupun formal.',
-    sumber: [],
+    sumber: ['https://injourney.id/media-publication/article/12-macam-kain-tradisional-indonesia-dan-ciri-khasnya'],
+  },
+  {
+    id: 'tenun-sumba',
+    build: 'sumba',
+    display: 'floor',
+    ruang: 'wastra',
+    position: [-12.3, -6.1], // sudut tenggara ruang wastra
+    facing: -0.65,            // serong menghadap ke tengah ruang
+    nama: 'Tenun Sumba',
+    asal: 'Pulau Sumba, Nusa Tenggara Timur — terutama komunitas adat Marapu',
+    periode: '—',
+    bahan: 'Benang katun, pewarna alami (mengkudu, indigo)',
+    koordinat: [-9.65, 120.26],
+    deskripsiSingkat: 'Tenun ikat bermotif detail dengan warna khas dari pewarna alami.',
+    deskripsi:
+      'Tenun Sumba terkenal karena motifnya yang detail dan penggunaan pewarna alami yang menghasilkan karakter warna yang khas. ' +
+      'Dibuat dengan teknik tenun ikat memakai pewarna alami seperti mengkudu dan indigo. ' +
+      'Motif khasnya antara lain kuda, rusa, buaya, pohon kehidupan, dan figur manusia dengan warna merah, biru, dan cokelat. ' +
+      'Digunakan dalam pernikahan, ritual adat, dan sebagai koleksi wastra bernilai tinggi.',
+    sumber: ['https://injourney.id/media-publication/article/12-macam-kain-tradisional-indonesia-dan-ciri-khasnya'],
   },
 ];
