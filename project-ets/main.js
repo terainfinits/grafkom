@@ -13,6 +13,7 @@ Connected Files:
 - ./scene/vfx/ripples.js: Lotus pond water VFX (scrolling normal map + expanding ripple rings).
 - ./scene/vfx/petals.js: Falling flower petal VFX (InstancedMesh) shown when the completion screen opens.
 - ./scene/lightPool.js: Dynamic point light management system cycling closest active light sources.
+- ./audio/music.js, ./data/music.js: Background music playlist (fade-in on door open, ducking during inspect/quiz).
 - ./data/artifacts.js: Structured array containing museum exhibit metadata.
 */
 
@@ -32,6 +33,7 @@ import { PauseMenu } from './ui/pauseMenu.js';
 import { CompletionScreen } from './ui/completionScreen.js';
 import { PerfOverlay } from './ui/perfOverlay.js';
 import { DevPanel } from './ui/devPanel.js';
+import { Music } from './audio/music.js';
 import { Banner } from './ui/banner.js';
 import { Progress } from './game/progress.js';
 import { RoomTracker } from './game/roomTracker.js';
@@ -154,6 +156,9 @@ const controls = new WalkControls(camera, canvas, {
 
 // ---------- Dialog petugas loket ----------
 const dialog = new Dialog();
+
+// ---------- Musik latar (mulai saat pintu terbuka) ----------
+const music = new Music();
 const CASHIER = 'Mas Bima · Petugas Loket';
 
 // ---------- Progress, quest, & pelacak ruangan ----------
@@ -247,6 +252,7 @@ function talkToCashier() {
 // Executes ticket purchase action, opens entrance door, and updates quest progression state
 function buyTicket() {
   door.open();
+  music.start(); // musik masuk pelan bersamaan dengan pintu terbuka
   dialog.open({
     name: CASHIER,
     pages: [{ text: 'Terima kasih! Ini tiketnya. Pintunya sudah saya bukakan. Selamat menjelajah, semoga betah!' }],
@@ -267,6 +273,7 @@ window.addEventListener('keydown', (e) => {
 
 // ---------- Menu jeda (Esc) / Pause Menu system & 'Escape' hotkey binding ----------
 const pauseMenu = new PauseMenu({
+  music,
   getStatus: () => ({
     quests: progress.quests,
     rooms: roomTracker.all.map((r) => ({ title: r.title, visited: progress.visited.has(r.id) })),
@@ -386,7 +393,7 @@ const perf = new PerfOverlay(renderer); // tombol ` untuk menampilkan angka perf
 // pemain tetap bisa masuk walau tiket "dibeli" lewat jalan pintas.
 function devSkip(leaveOne) {
   const left = leaveOne ? exhibits.items.at(-1) : null; // koleksi terakhir di data (pinisi, di lobi)
-  if (!progress.hasTicket) door.open();
+  if (!progress.hasTicket) { door.open(); music.start(); }
   progress.devComplete({
     rooms: roomTracker.all.map((r) => r.id),
     artifacts: exhibits.items.map((i) => i.data.id).filter((id) => id !== left?.data.id),
@@ -398,7 +405,7 @@ function devSkip(leaveOne) {
     dialog.toast(`Developer mode: tinggal periksa ${left.data.nama}${room ? ` di ${room.title}` : ''}`, 5000);
   }
 }
-new DevPanel({ onCompleteAll: () => devSkip(false), onLeaveOne: () => devSkip(true) });
+new DevPanel({ onCompleteAll: () => devSkip(false), onLeaveOne: () => devSkip(true), music });
 
 function loop() {
   const dt = Math.min(clock.getDelta(), 0.1); // dibatasi supaya tidak "teleport" saat tab kembali aktif
@@ -415,6 +422,10 @@ function loop() {
   }
 
   // Sorot artefak hanya saat berjalan bebas (bukan saat dialog, menu, atau inspect)
+  // Musik diredam selama memeriksa koleksi & kuis
+  music.ducked = inspect.isActive || quiz.isOpen;
+  music.update(dt);
+
   hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !quiz.isOpen && !inspect.isActive;
   const hovered = hover.update();
 

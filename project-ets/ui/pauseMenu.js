@@ -8,6 +8,7 @@
  *     getStatus: () => ({ quests: progress.quests, rooms: [{ title, visited }] }),
  *     onResume: () => { ... },
  *     onRestart: () => { ... },
+ *     music,              // (opsional) audio/music.js → bagian Musik: lagu, volume, mute
  *   });
  *   menu.open(); menu.close(); menu.isOpen;
  *
@@ -26,7 +27,7 @@ const CONTROLS = [
 ];
 
 export class PauseMenu {
-  constructor({ getStatus, onResume, onRestart }) {
+  constructor({ getStatus, onResume, onRestart, music }) {
     this.getStatus = getStatus;
     this.onResume = onResume;
     this.onRestart = onRestart;
@@ -65,6 +66,9 @@ export class PauseMenu {
     roomHeading.textContent = 'Ruang';
     this.roomsEl = el('div', 'pause-rooms');
 
+    // ---------- Musik ----------
+    const musicParts = music ? this._buildMusic(music) : [];
+
     // ---------- Tombol ----------
     const actions = el('div', 'pause-actions');
     this.restartBtn = button('Mulai ulang', 'dialog-btn');
@@ -73,7 +77,7 @@ export class PauseMenu {
     resumeBtn.addEventListener('click', () => this.close());
     actions.append(this.restartBtn, resumeBtn);
 
-    panel.append(title, controlsHeading, list, questHeading, this.questsEl, roomHeading, this.roomsEl, actions);
+    panel.append(title, controlsHeading, list, questHeading, this.questsEl, roomHeading, this.roomsEl, ...musicParts, actions);
     this.overlay.append(panel);
     document.body.append(this.overlay);
   }
@@ -93,7 +97,47 @@ export class PauseMenu {
     this.onResume?.();
   }
 
+  _buildMusic(music) {
+    this.music = music;
+    const heading = el('div', 'pause-heading');
+    heading.textContent = 'Musik';
+    this.trackEl = el('div', 'pause-track');
+    const row = el('div', 'pause-music');
+    this.muteBtn = button('', 'dialog-btn');
+    this.muteBtn.addEventListener('click', () => {
+      music.muted = !music.muted;
+      this._renderMusic();
+    });
+    this.volumeEl = el('input', 'pause-volume');
+    Object.assign(this.volumeEl, { type: 'range', min: 0, max: 100, step: 5 });
+    this.volumeEl.setAttribute('aria-label', 'Volume musik');
+    this.volumeEl.addEventListener('input', () => {
+      music.volume = this.volumeEl.value / 100;
+      if (music.muted) music.muted = false; // menggeser volume = ingin mendengar
+      this._renderMusic();
+    });
+    row.append(this.muteBtn, this.volumeEl);
+    // Lagu bisa berganti saat menu sedang terbuka → perbarui labelnya
+    const prev = music.onTrackChange;
+    music.onTrackChange = (track) => {
+      prev?.(track);
+      if (this.isOpen) this._renderMusic();
+    };
+    const credit = el('div', 'pause-credit');
+    credit.textContent = `Musik: ${music.credit}`;
+    return [heading, this.trackEl, row, credit];
+  }
+
+  _renderMusic() {
+    if (!this.music) return;
+    const track = this.music.current;
+    this.trackEl.textContent = track ? `♪ ${track.judul}` : 'Mulai diputar saat pintu museum terbuka';
+    this.muteBtn.textContent = this.music.muted ? 'Nyalakan' : 'Bisukan';
+    this.volumeEl.value = Math.round(this.music.volume * 100);
+  }
+
   _renderStatus() {
+    this._renderMusic();
     const { quests, rooms } = this.getStatus();
     const marks = { done: '✓', active: '▸', pending: '·', locked: '—' };
 

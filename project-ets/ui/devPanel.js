@@ -5,14 +5,15 @@
  *  Selesaikan semua : tiket, semua ruang, & semua koleksi langsung tercatat → layar selesai
  *  Sisakan 1 koleksi: sama, kecuali satu koleksi → uji pemicu layar selesai yang sebenarnya
  *                     (periksa koleksi terakhir itu secara normal)
+ *  Pilih lagu       : putar lagu tertentu dari playlist musik latar (audio/music.js)
  *
  * Pemakaian:
- *   new DevPanel({ onCompleteAll: () => { ... }, onLeaveOne: () => { ... } });
+ *   new DevPanel({ onCompleteAll: () => { ... }, onLeaveOne: () => { ... }, music });
  *
  * Logika permainannya ada di main.js; panel ini hanya tombol.
  */
 export class DevPanel {
-  constructor({ onCompleteAll, onLeaveOne }) {
+  constructor({ onCompleteAll, onLeaveOne, music }) {
     this.el = document.createElement('div');
     this.el.className = 'dev-panel';
     this.el.hidden = true;
@@ -25,6 +26,7 @@ export class DevPanel {
       button('Selesaikan semua', onCompleteAll),
       button('Sisakan 1 koleksi', onLeaveOne),
     );
+    if (music) this.el.append(trackSelect(music));
     document.body.append(this.el);
 
     // Sama dengan PerfOverlay, jadi keduanya selalu tampil/hilang bersamaan
@@ -32,6 +34,25 @@ export class DevPanel {
       if (e.code === 'Backquote' && !e.repeat) this.el.hidden = !this.el.hidden;
     });
   }
+}
+
+// Dropdown lagu; ikut berganti saat lagu berikutnya diputar otomatis
+function trackSelect(music) {
+  const select = document.createElement('select');
+  select.className = 'dev-select';
+  select.setAttribute('aria-label', 'Pilih lagu');
+  select.append(new Option('♪ Pilih lagu…', ''));
+  music.tracks.forEach((t, i) => select.append(new Option(`${i + 1}. ${t.judul}`, i)));
+  select.addEventListener('change', () => {
+    if (select.value !== '') music.playTrack(Number(select.value));
+    select.blur(); // kembalikan keyboard ke permainan (WASD tidak mengganti pilihan)
+  });
+  const prev = music.onTrackChange;
+  music.onTrackChange = (track) => {
+    prev?.(track);
+    select.value = music.tracks.indexOf(track);
+  };
+  return select;
 }
 
 function button(label, onClick) {

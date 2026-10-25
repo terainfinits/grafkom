@@ -154,6 +154,7 @@ body {
 }
 .dev-panel[hidden] { display: none; }
 .dev-title { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #c39a4f; }
+.dev-select { max-width: 190px; padding: 4px 6px; background: #1b1f2a; border: 1px solid #3a4051; color: #e6e2d6; font-family: inherit; font-size: 12px; }
 
 /* ---------- Layar loading (Full-screen initial assets) ---------- */
 .loading {
@@ -225,6 +226,10 @@ body {
 .pause-rooms .is-visited::before { content: '✓ '; color: #9fe1a8; }
 .pause-rooms .is-unknown { color: #5f6577; }
 .pause-rooms .is-unknown::before { content: '○ '; }
+.pause-track { font-size: 13px; color: #e6e2d6; }
+.pause-music { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+.pause-volume { flex: 1; accent-color: #c39a4f; }
+.pause-credit { margin-top: 6px; font-size: 11px; color: #8992a6; }
 
 /* ---------- Panel inspect artefak (detailed inspect panel UI drawer) ---------- */
 .inspect-panel {
