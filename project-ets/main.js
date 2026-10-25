@@ -343,7 +343,7 @@ const inspect = new InspectMode(camera, canvas, {
 
 // Enters detailed inspection camera mode and positions focused inspection light source
 // ---------- Kuis tebak asal ----------
-const quiz = new MapQuiz();
+const quiz = new MapQuiz({ onAnswer: () => sfx.play('quiz-answer', { volume: 0.7 }) }); // bunyi apa pun hasilnya
 
 // Panel kuis menggantikan panel info selama menebak; kamera sudah di mode inspect, jadi
 // artefak bisa diputar sambil menebak. Waktu mengamati (progres koleksi) dijeda sampai
@@ -434,8 +434,8 @@ function loop() {
   }
 
   // Sorot artefak hanya saat berjalan bebas (bukan saat dialog, menu, atau inspect)
-  // Musik diredam selama memeriksa koleksi & kuis
-  music.ducked = inspect.isActive || quiz.isOpen;
+  // Musik diredam selama memeriksa koleksi, kuis, & layar selesai
+  music.ducked = inspect.isActive || quiz.isOpen || completion.isOpen; // layar selesai: jingle terdengar jelas
   music.update(dt);
 
   hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !quiz.isOpen && !inspect.isActive;
@@ -463,6 +463,7 @@ function loop() {
       dialog.hidePrompt();
       hover.clear();
       petals.burst(camera.position); // perayaan: kelopak berguguran di sekitar pemain
+      sfx.play('completion', { volume: 0.8 });
       completion.open({
         rooms: [progress.visited.size, progress.roomCount],
         artifacts: [progress.inspected.size, progress.artifactCount],

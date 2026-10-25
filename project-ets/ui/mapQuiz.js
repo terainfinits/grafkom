@@ -25,7 +25,7 @@ import { MAP_BOUNDS, LAND } from '../data/mapIndonesia.js';
  * mengubahnya ke piksel canvas: layar = (peta − pusat) × zoom + tengah canvas.
  *
  * Pemakaian:
- *   const quiz = new MapQuiz();
+ *   const quiz = new MapQuiz({ onAnswer: (score) => { ... } }); // onAnswer: saat tebakan dikunci (mis. bunyi)
  *   quiz.open(data, (score) => { ... });  // data: entri artefak (nama, asal, koordinat)
  *   quiz.close(); quiz.isOpen;            // Esc diatur di main.js
  */
@@ -54,7 +54,8 @@ const LABELS = [
 ];
 
 export class MapQuiz {
-  constructor() {
+  constructor({ onAnswer } = {}) {
+    this.onAnswer = onAnswer;
     this.isOpen = false;
 
     // Panel samping, bukan overlay layar penuh: sisi kiri layar tetap bisa diseret untuk memutar artefak
@@ -207,6 +208,7 @@ export class MapQuiz {
       this.answered = true;
       const km = haversineKm(this.guess, this.data.koordinat);
       this.score = Math.round(MAX_SCORE * Math.exp(-km / SCORE_KM));
+      this.onAnswer?.(this.score);
       this.hintEl.textContent = `Asal: ${this.data.asal}`;
       const line = el('div');
       line.innerHTML = `Jarak tebakan <strong></strong> · Skor <strong></strong> / ${MAX_SCORE.toLocaleString('id-ID')}`;
