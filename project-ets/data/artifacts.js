@@ -241,77 +241,77 @@ export const ARTIFACTS = [
     build: 'tehyan',
     display: 'pedestal',
     ruang: 'pertunjukan',
-    position: [15.1, 2.8],   // dekat dinding utara ruang pertunjukan
-    facing: Math.PI,          // menghadap −Z (ke tengah ruang)
+    position: [15.1, 2.8], // dekat dinding utara ruang pertunjukan
+    facing: Math.PI, // menghadap −Z (ke tengah ruang)
     nama: 'Tehyan',
-    asal: 'Betawi (Jakarta) — pengaruh budaya Tionghoa peranakan',
-    periode: '— (menunggu riset)',
-    bahan: 'Kayu, batok kelapa, kulit, dawai',
+    asal: 'Betawi (Jakarta), dengan pengaruh Tionghoa peranakan',
+    periode: 'Abad ke-18 M',
+    bahan: 'Kayu jati, batok kelapa, kulit, dawai',
     koordinat: [-6.2, 106.82],
     deskripsiSingkat: 'Alat musik gesek berdawai dua dengan resonator batok kelapa.',
     deskripsi:
-      'Tehyan adalah alat musik gesek berdawai dua dengan resonator dari batok kelapa yang ditutup kulit, ' +
-      'dimainkan dengan busur. Tehyan menjadi bagian dari ansambel gambang kromong Betawi yang ' +
-      'dipengaruhi budaya Tionghoa peranakan. (Teks sementara — menunggu riset.)',
-    sumber: [],
+      'Tehyan adalah alat musik gesek berdawai dua yang terbuat dari kayu dengan resonator dari batok kelapa berlapis kulit. Alat musik ini menghasilkan nada tinggi dan dimainkan menggunakan busur. Tehyan menjadi bagian dari ansambel gambang kromong masyarakat Betawi yang berkembang melalui perpaduan budaya Tionghoa peranakan dan lokal.',
+    sumber: [
+      'https://id.wikipedia.org/wiki/Tehyan'
+    ],
   },
   {
     id: 'tifa',
     build: 'tifa',
     display: 'pedestal',
     ruang: 'pertunjukan',
-    position: [15.1, -6.8],  // dekat dinding selatan ruang pertunjukan
-    facing: 0,                // menghadap +Z (ke tengah ruang)
+    position: [15.1, -6.8], // dekat dinding selatan ruang pertunjukan
+    facing: 0, // menghadap +Z (ke tengah ruang)
     nama: 'Tifa',
     asal: 'Maluku dan Papua',
-    periode: '— (menunggu riset)',
-    bahan: 'Kayu, kulit rusa, rotan',
+    periode: 'Tradisi turun-temurun; awal belum diketahui',
+    bahan: 'Kayu, kulit hewan, rotan',
     koordinat: [-3.7, 128.18],
-    deskripsiSingkat: 'Gendang kayu berkulit rusa dari Maluku dan Papua.',
+    deskripsiSingkat: 'Gendang tradisional dari Maluku dan Papua dengan membran kulit.',
     deskripsi:
-      'Tifa adalah alat musik pukul berupa gendang dari batang kayu yang dilubangi, dengan membran ' +
-      'kulit rusa yang ditegangkan oleh cincin rotan dan pasak penyetel. Tifa dimainkan dalam ' +
-      'upacara adat dan tarian masyarakat Maluku dan Papua. (Teks sementara — menunggu riset.)',
-    sumber: [],
+      'Tifa adalah alat musik pukul berbentuk gendang yang dibuat dari batang kayu berongga dengan salah satu ujungnya ditutup kulit hewan. Bentuk dan hiasannya berbeda menurut daerah dan masyarakat pembuatnya. Tifa dimainkan untuk mengiringi tarian, upacara adat, penyambutan tamu, dan pertunjukan musik tradisional, termasuk ansambel tifa totobuang di Maluku.',
+    sumber: [
+      'https://id.wikipedia.org/wiki/Tifa'
+    ],
   },
   {
     id: 'talempong',
     build: 'talempong',
-    display: 'floor',        // punya rancak (rak) sendiri, diletakkan langsung di lantai
-    view: { elevation: 42, distance: 1.1 }, // dilihat dari atas supaya 12 talempong terlihat
+    display: 'floor', // diletakkan di lantai dengan rancak tersendiri
+    view: { elevation: 42, distance: 1.1 },
     ruang: 'pertunjukan',
-    position: [12.4, 2.1],   // sisi barat laut ruang pertunjukan, dekat pintu masuk
-    facing: 2.55,             // serong menghadap ke tengah ruang
+    position: [12.4, 2.1], // sisi barat laut ruang pertunjukan
+    facing: 2.55, // serong menghadap ke tengah ruang
     nama: 'Talempong',
     asal: 'Minangkabau, Sumatera Barat',
-    periode: '— (menunggu riset)',
-    bahan: 'Perunggu, kayu, tali',
+    periode: 'Tradisi turun-temurun; awal belum diketahui',
+    bahan: 'Perunggu, kuningan, kayu',
     koordinat: [-0.95, 100.35],
-    deskripsiSingkat: 'Set gong kecil perunggu Minangkabau di atas rancak kayu.',
+    deskripsiSingkat: 'Gong kecil tradisional Minangkabau yang dimainkan dengan pemukul.',
     deskripsi:
-      'Talempong adalah alat musik pukul dari perunggu berbentuk gong kecil dengan tonjolan (pencu) di ' +
-      'bagian atas sebagai tempat dipukul. Talempong disusun di atas rancak, rak kayu bertali yang ' +
-      'membuatnya dapat bergetar bebas, dan dimainkan dengan sepasang pemukul. ' +
-      '(Teks sementara — menunggu riset.)',
-    sumber: [],
+      'Talempong adalah alat musik pukul tradisional Minangkabau berbentuk gong kecil dengan tonjolan di bagian atas sebagai tempat memukul. Talempong umumnya dibuat dari logam seperti perunggu atau kuningan dan dimainkan dengan pemukul kayu. Alat musik ini dapat dipegang atau disusun di atas rancak, serta digunakan untuk mengiringi tari, upacara adat, pesta pernikahan, dan penyambutan tamu.',
+    sumber: [
+      'https://id.wikipedia.org/wiki/Talempong'
+    ],
   },
   {
     id: 'serune-kalee',
     build: 'seruneKalee',
     display: 'pedestal',
     ruang: 'pertunjukan',
-    position: [12.4, -6.1],  // sisi barat daya ruang pertunjukan
-    facing: 0.57,             // serong menghadap ke tengah ruang
+    position: [12.4, -6.1], // sisi barat daya ruang pertunjukan
+    facing: 0.57, // serong menghadap ke tengah ruang
     nama: 'Serune Kalee',
     asal: 'Aceh',
-    periode: '— (menunggu riset)',
+    periode: 'Tradisi lama; awal belum diketahui',
     bahan: 'Kayu keras, kuningan',
     koordinat: [5.55, 95.32],
-    deskripsiSingkat: 'Alat musik tiup khas Aceh dari kayu keras berlapis cincin kuningan.',
+    deskripsiSingkat: 'Alat musik tiup Aceh dari kayu dengan lubang nada dan cincin kuningan.',
     deskripsi:
-      'Serune Kalee adalah alat musik tiup tradisional Aceh. Badannya dari kayu keras yang dibubut ' +
-      'dan beruas-ruas dengan cincin kuningan, memiliki lubang-lubang nada, dan berujung corong ' +
-      'yang melebar. (Teks sementara — menunggu riset.)',
-    sumber: [],
+      'Serune Kalee adalah alat musik tiup tradisional Aceh yang berbentuk memanjang dengan ujung menyerupai corong. Badannya dibuat dari kayu keras yang dibentuk melalui proses perendaman, pembubutan, dan pelubangan, kemudian dilengkapi lubang-lubang nada serta hiasan cincin kuningan. Serune Kalee dimainkan bersama rapai dan gendang untuk mengiringi tarian, hiburan, upacara, serta penyambutan tamu kehormatan.',
+    sumber: [
+      'https://budayaaceh.com/opk/serune-kale/96'
+    ],
   },
+
 ];
