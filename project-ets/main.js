@@ -450,8 +450,12 @@ function loop() {
     else dialog.hidePrompt();
   }
 
-  const entered = roomTracker.update(dt, camera.position);
-  if (entered) onRoomEntered(entered);
+  // Pelacak ruang hanya saat berjalan: di mode inspect kamera bisa mengorbit menembus dinding
+  // ke ruang sebelah — itu bukan "mengunjungi" ruang tersebut
+  if (!inspect.isActive) {
+    const entered = roomTracker.update(dt, camera.position);
+    if (entered) onRoomEntered(entered);
+  }
 
   // Layar selesai dibuka setelah pemain kembali berjalan bebas, dengan jeda singkat
   // supaya achievement koleksi/ruang terakhir sempat terbaca lebih dulu.
