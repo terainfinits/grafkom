@@ -15,13 +15,13 @@
  *
  * Pemakaian:
  *   const progress = new Progress({ roomCount: 8 });
- *   progress.onChange(({ active, activeChanged, justCompleted }) => { ... });
+ *   progress.onChange(({ active, activeChanged, justCompleted, justFoundAllSecondary }) => { ... });
  *   progress.start(); // mulai menghitung lama kunjungan (setelah layar loading hilang)
  *   progress.buyTicket();
  *   const firstTime = progress.visitRoom('wastra');
  */
 export class Progress {
-  constructor({ roomCount, artifactCount = 0, quizCount = 4, quizAvailable = false }) {
+  constructor({ roomCount, artifactCount = 0, quizCount = 4, quizAvailable = false, secondaryCount = 0 }) {
     this.roomCount = roomCount;
     this.artifactCount = artifactCount; // 0 = koleksi belum dipasang → quest terkunci
     this.quizCount = quizCount;
@@ -32,6 +32,12 @@ export class Progress {
     this.inspected = new Set();
     this.quizzesDone = new Set();
     this.quizScores = new Map(); // id artefak → skor kuis (ui/mapQuiz.js)
+
+    // Koleksi pendukung (lukisan): progres opsional, tidak ikut syarat selesai. Semua dilihat
+    // → achievement, diumumkan sekali lewat onChange (justFoundAllSecondary).
+    this.secondaryCount = secondaryCount;
+    this.secondarySeen = new Set();
+    this.secondaryDone = false;
 
     // Lama kunjungan: dihitung dari start() sampai selesai (waktu dibekukan saat allDone)
     this.startedAt = null;
@@ -82,13 +88,28 @@ export class Progress {
     return true;
   }
 
-  // Mode developer: tandai banyak ruang & koleksi sekaligus, lalu umumkan SEKALI
+  // Mode developer: tandai banyak ruang, koleksi, kuis, & lukisan sekaligus, lalu umumkan SEKALI
   // (memanggil visitRoom/inspectArtifact satu per satu akan memunculkan toast quest berkali-kali)
-  devComplete({ rooms, artifacts }) {
+  //   quizzes   : [[id, skor], ...] kuis yang dianggap sudah dijawab
+  //   secondary : id koleksi pendukung (lukisan) yang dianggap sudah dilihat
+  devComplete({ rooms = [], artifacts = [], quizzes = [], secondary = [] }) {
     this.hasTicket = true;
     for (const id of rooms) this.visited.add(id);
     for (const id of artifacts) this.inspected.add(id);
+    for (const [id, score] of quizzes) {
+      this.quizzesDone.add(id);
+      this.quizScores.set(id, score);
+    }
+    for (const id of secondary) this.secondarySeen.add(id);
     this._emit();
+  }
+
+  // Mengembalikan true kalau koleksi pendukung ini baru pertama kali dilihat
+  viewSecondary(id) {
+    if (this.secondarySeen.has(id)) return false;
+    this.secondarySeen.add(id);
+    this._emit();
+    return true;
   }
 
   // Kuis tebak asal: dicatat sekali per artefak (kuis tidak diulang setelah dijawab)
@@ -121,6 +142,11 @@ export class Progress {
         count: this.quizzesDone.size, total: this.quizCount,
         done: this.quizzesDone.size >= this.quizCount });
     }
+    if (this.secondaryCount > 0) {
+      list.push({ id: 'lukisan', label: 'Temukan semua lukisan', optional: true,
+        count: this.secondarySeen.size, total: this.secondaryCount,
+        done: this.secondarySeen.size >= this.secondaryCount });
+    }
     let activeFound = false;
     for (const q of list) {
       if (q.done) q.status = 'done';
@@ -142,6 +168,9 @@ export class Progress {
     // justCompleted hanya true SEKALI, tepat saat syarat selesai pertama kali terpenuhi
     const justCompleted = this.finishedAt === null && this.allDone;
     if (justCompleted) this.finishedAt = performance.now();
-    for (const fn of this._listeners) fn({ active, activeChanged, justCompleted });
+    const justFoundAllSecondary = !this.secondaryDone && this.secondaryCount > 0
+      && this.secondarySeen.size >= this.secondaryCount;
+    if (justFoundAllSecondary) this.secondaryDone = true;
+    for (const fn of this._listeners) fn({ active, activeChanged, justCompleted, justFoundAllSecondary });
   }
 }

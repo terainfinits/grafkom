@@ -15,6 +15,7 @@ import { createTifa } from './artifacts/tifa.js';
 import { createTalempong } from './artifacts/talempong.js';
 import { createSeruneKalee } from './artifacts/seruneKalee.js';
 import { createGltfModel } from './models.js';
+import { createPainting } from './paintings.js';
 
 /*
  * Pajangan koleksi: untuk setiap entri di data/artifacts.js dibuat tempat pajang,
@@ -27,6 +28,8 @@ import { createGltfModel } from './models.js';
  *   'floor'              : tanpa alas, benda berdiri di lantai dengan kakinya sendiri (kain di
  *                          gawangan); plakat nama di tiang kecil di depannya
  *   'plinth'             : panggung kayu rendah & lebar untuk benda besar (pinisi di lobi)
+ *   'frame'              : lukisan berbingkai digantung langsung di dinding (tanpa panel),
+ *                          label kecil di samping kanan seperti di galeri
  *
  * Pembuat model cukup membuat bendanya di sekitar titik (0, 0, 0); posisinya di atas
  * pajangan diatur otomatis dari kotak pembatasnya (Box3), dan ukuran pedestal/panel
@@ -56,7 +59,8 @@ const BUILDERS = {
   tifa: createTifa,
   talempong: createTalempong,
   seruneKalee: createSeruneKalee,
-  gltf: createGltfModel, // (data, models) — model dari file GLB
+  gltf: (data, assets) => createGltfModel(data, assets.models),          // model dari file GLB
+  painting: (data, assets) => createPainting(data, assets.textures),     // lukisan (scene/paintings.js)
 };
 
 // Sudut & jarak kamera saat inspect, per jenis pajangan
@@ -66,9 +70,10 @@ const VIEW = {
   wall: { elevation: 6, distance: 1.25 },
   floor: { elevation: 8, distance: 1.25 },
   plinth: { elevation: 18, distance: 0.9 },
+  frame: { elevation: 0, distance: 0.95 }, // lukisan: lurus dari depan
 };
 
-export function createExhibits(artifacts, { models = new Map() } = {}) {
+export function createExhibits(artifacts, { models = new Map(), textures = new Map() } = {}) {
   const group = new THREE.Group();
   group.name = 'koleksi';
   const colliders = [];
@@ -94,7 +99,7 @@ export function createExhibits(artifacts, { models = new Map() } = {}) {
     group.add(stand);
 
     // Ukur model dulu (dalam ruang lokalnya) untuk menentukan ukuran & posisi pajangan
-    const model = build(data, models); // pembuat prosedural mengabaikan argumen ini
+    const model = build(data, { models, textures }); // pembuat prosedural mengabaikan argumen ini
     const local = new THREE.Box3().setFromObject(model);
     const size = local.getSize(new THREE.Vector3());
     const center = local.getCenter(new THREE.Vector3());
@@ -102,11 +107,15 @@ export function createExhibits(artifacts, { models = new Map() } = {}) {
     const display = DISPLAYS[type](stand, mats, size);
     // Geser model: alasnya di permukaan pajangan, tengahnya di tengah pajangan
     model.position.set(-center.x, display.baseY - local.min.y, display.frontZ !== undefined ? display.frontZ - local.min.z : -center.z);
-    if (type === 'wall') model.position.y = display.centerY - center.y;
+    if (display.centerY !== undefined) model.position.y = display.centerY - center.y; // wall & frame
     model.userData.artifactId = data.id;
     stand.add(model);
 
-    const plaque = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.08), createPlaqueMaterial(data.nama));
+    // Lukisan: kartu label galeri (judul dibungkus beberapa baris + seniman & tahun);
+    // koleksi lain: plakat kuningan satu baris
+    const plaque = type === 'frame'
+      ? new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.15), createGalleryLabelMaterial(data))
+      : new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.08), createPlaqueMaterial(data.nama));
     plaque.position.copy(display.plaque);
     if (display.plaqueTilt) plaque.rotation.x = -display.plaqueTilt; // plakat miring seperti di mimbar baca
     stand.add(plaque);
@@ -222,6 +231,24 @@ DISPLAYS.floor = (stand, mats, size) => {
   };
 };
 
+DISPLAYS.frame = (stand, mats, size) => {
+  // Pusat lukisan setinggi ± mata pengunjung; benda menempel di dinding (frontZ = muka dinding)
+  const centerY = Math.max(1.7, size.y / 2 + 0.9);
+  // Collider tak terlihat: zona 0,35 m di depan lukisan supaya pemain tidak menembus kanvas
+  const footprint = new THREE.Mesh(new THREE.BoxGeometry(size.x, 0.1, 0.35), new THREE.MeshBasicMaterial({ visible: false }));
+  footprint.position.set(0, 0.05, 0.175);
+  stand.add(footprint);
+  return {
+    baseY: 0, centerY, frontZ: 0.005, footprint,
+    // Label di kanan bawah lukisan, seperti label karya di galeri. Minimal 1,25 m: di bawahnya
+    // ada lis atas lambrisering (± 1,1 m, menonjol 5 cm) yang akan menutupi label.
+    plaque: new THREE.Vector3(size.x / 2 + 0.22, Math.max(1.25, centerY - size.y / 2 + 0.04), 0.008),
+    // Lampu sorot dari atas-depan, menerangi seluruh kanvas
+    light: new THREE.Vector3(0, centerY + size.y / 2 + 0.5, 1.2),
+    lightIntensity: 5, lightRange: 5,
+  };
+};
+
 DISPLAYS.plinth = (stand, mats, size) => {
   // Panggung rendah, 25 cm lebih lebar dari benda di setiap sisi, supaya benda besar
   // tetap terlihat utuh dari jarak dekat (tidak perlu pedestal tinggi)
@@ -251,6 +278,62 @@ function addBox(parent, material, w, h, d, x, y, z) {
 }
 
 // Plakat nama kuningan di muka pajangan
+// Kartu label lukisan (krem, seperti di galeri): judul tebal dibungkus per kata sampai
+// 3 baris, lalu "Seniman, tahun" miring. Ukuran huruf dikecilkan bila judul terlalu panjang.
+function createGalleryLabelMaterial(data) {
+  const c = document.createElement('canvas');
+  c.width = 600;
+  c.height = 300;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#efe7d4';
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.strokeStyle = '#b8a37a';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(6, 6, c.width - 12, c.height - 12);
+
+  const pad = 36, maxW = c.width - 2 * pad;
+  let size = 44, lines;
+  do {
+    ctx.font = `700 ${size}px Georgia, serif`;
+    lines = wrapText(ctx, data.nama, maxW);
+    size -= 2;
+  } while (lines.length > 3 && size > 24);
+
+  ctx.fillStyle = '#2b2116';
+  ctx.textBaseline = 'top';
+  const lineH = size * 1.25;
+  let y = pad;
+  for (const line of lines.slice(0, 3)) {
+    ctx.fillText(line, pad, y);
+    y += lineH;
+  }
+  const byline = [data.seniman, data.periode].filter(Boolean).join(', ');
+  if (byline) {
+    ctx.font = 'italic 30px Georgia, serif';
+    ctx.fillStyle = '#5a4a36';
+    ctx.fillText(byline, pad, y + 10);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 });
+}
+
+function wrapText(ctx, text, maxW) {
+  const lines = [];
+  let line = '';
+  for (const word of text.split(' ')) {
+    const test = line ? `${line} ${word}` : word;
+    if (ctx.measureText(test).width > maxW && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
 function createPlaqueMaterial(text) {
   const c = document.createElement('canvas');
   c.width = 512;

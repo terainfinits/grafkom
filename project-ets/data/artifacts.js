@@ -27,6 +27,14 @@ Connected Files:
  *  modelYaw    : (opsional) rotasi tambahan (radian) kalau arah model aslinya tidak pas
  *  modelHide   : (opsional) nama material yang bagiannya dibuang dari model
  *  kreditModel : { judul, pembuat, lisensi, url } — wajib untuk model berlisensi CC BY
+ *
+ * Khusus lukisan (build: 'painting', display: 'frame', lihat scene/paintings.js):
+ *  gambar       : path file gambar; lebar : lebar kanvas (m), tinggi mengikuti rasio gambar
+ *  seniman      : nama pelukis (ditampilkan di panel)
+ *  kreditGambar : { judul, pembuat, lisensi, url } — asal file gambar
+ *
+ *  sekunder  : (opsional) true → koleksi pendukung: bisa diperiksa, tetapi tidak dihitung ke
+ *              progres koleksi & tanpa aturan mengamati 3 detik
  */
 
 // export agar bisa di-import file js lain; Array konstanta yang diekspor berisi objek-objek data koleksi artefak dan wastra pameran museum 
@@ -374,6 +382,399 @@ export const ARTIFACTS = [
       pembuat: 'pakeotak',
       lisensi: 'CC BY 4.0',
       url: 'https://sketchfab.com/3d-models/pinisi-3111ee505bd7422d9d30c9cf9da2a467',
+    },
+  },
+  // ---------- Koleksi pendukung: lukisan ----------
+  {
+    id: 'lukisan-diponegoro',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/diponegoro.jpg',
+    lebar: 2.0,
+    ruang: 'lobi',
+    position: [-5, 0.1], // dinding belakang lobi, kiri jendela taman (muka dinding z = 0,1)
+    facing: 0,
+    nama: 'Penangkapan Pangeran Diponegoro',
+    seniman: 'Raden Saleh',
+    asal: 'Jawa, Hindia Belanda',
+    periode: '1857',
+    bahan: 'Cat minyak di atas kanvas',
+    deskripsi:
+      'Lukisan karya Raden Saleh ini menggambarkan penangkapan Pangeran Diponegoro oleh pihak Belanda di Magelang pada 1830, yang mengakhiri Perang Jawa (1825–1830). Berbeda dengan versi pelukis Belanda Nicolaas Pieneman yang menampilkan Diponegoro tertunduk kalah, Raden Saleh melukisnya berdiri tegak dengan wajah tegas di tengah para pengikutnya. Lukisan ini dipersembahkan kepada Raja Willem III dan dikembalikan ke Indonesia pada 1978.',
+    sumber: [
+      'https://id.wikipedia.org/wiki/Penangkapan_Pangeran_Diponegoro',
+    ],
+    kreditGambar: {
+      judul: 'Raden Saleh - Diponegoro arrest',
+      pembuat: 'Wikimedia Commons',
+      lisensi: 'Domain publik',
+      url: 'https://commons.wikimedia.org/wiki/File:Raden_Saleh_-_Diponegoro_arrest.jpg',
+    },
+  },
+  {
+    id: 'lukisan-indonesia-vrij',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/indonesiaFree.jpg',
+    lebar: 0.85,
+    ruang: 'lobi',
+    position: [5, 0.1], // dinding belakang lobi, kanan jendela taman (pasangan Diponegoro)
+    facing: 0,
+    nama: 'Indonesië vrij (Indonesia Free)',
+    seniman: 'Mohammad Hatta',
+    asal: 'Belanda, ditulis oleh pelajar Indonesia',
+    periode: '1928',
+    deskripsi:
+      'Mohammad Hatta, pelajar Indonesia di Belanda, adalah ketua Perhimpoenan Indonesia, perhimpunan pelajar Indonesia yang berhaluan nasionalis. Pada 1927 ia dipenjara karena kegiatan politiknya di Belanda. Sebagai pembelaan, dari dalam selnya ia menulis Indonesië vrij (Indonesia Merdeka) yang mengecam penindasan kolonial dan memperjuangkan masa depan ketika rakyat Indonesia bebas dari penjajahan. Tulisan ini diterbitkan tak lama setelah ia dibebaskan.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Indonesi%C3%AB%20vrij%20%28Indonesia%20Free%29'],
+    kreditGambar: {
+      judul: 'Indonesië vrij (Indonesia Free)',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Hak cipta mungkin masih berlaku (cek di Rijksmuseum)',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Indonesi%C3%AB%20vrij%20%28Indonesia%20Free%29',
+    },
+  },
+  {
+    id: 'lukisan-reizigers-draagstoelen',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/gezichtIn.jpg',
+    lebar: 1.5,
+    ruang: 'selasar-barat',
+    position: [-10.0, -7], // dinding luar selasar barat, antara bukaan Ruang Wastra & aula
+    facing: Math.PI / 2,
+    nama: 'Gezicht in een stadje met reizigers in draagstoelen',
+    seniman: 'Anonim',
+    asal: 'Hindia Belanda',
+    periode: '1900–1915',
+    deskripsi:
+      'Jalan berderet toko di sebuah kota di Hindia Belanda, antara lain "Toko Tosari", dengan para pelancong yang duduk di tandu.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Gezicht%20in%20een%20stadje%20met%20reizigers%20in%20draagstoelen'],
+    kreditGambar: {
+      judul: 'Gezicht in een stadje met reizigers in draagstoelen',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Gezicht%20in%20een%20stadje%20met%20reizigers%20in%20draagstoelen',
+    },
+  },
+  {
+    id: 'lukisan-minangkabau-huis',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/minangkabau.jpg',
+    lebar: 1.5,
+    ruang: 'selasar-barat',
+    position: [-10.0, 1.8], // dinding luar selasar barat, dekat lobi
+    facing: Math.PI / 2,
+    nama: 'Minangkabau huis op Sumatra',
+    seniman: 'Anonim',
+    asal: 'Sumatra Barat',
+    periode: '± 1895–1915',
+    deskripsi:
+      'Rumah Minangkabau di Sumatra, Hindia Belanda, dengan para perempuan dan anak-anak di depannya.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Minangkabau%20huis%20op%20Sumatra'],
+    kreditGambar: {
+      judul: 'Minangkabau huis op Sumatra',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Minangkabau%20huis%20op%20Sumatra',
+    },
+  },
+  {
+    id: 'lukisan-benedenstad-batavia',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/benedenstad.jpg',
+    lebar: 1.3,
+    ruang: 'selasar-barat',
+    position: [-7.1, -6], // dinding sisi taman, di antara dua jendela
+    facing: -Math.PI / 2,
+    nama: 'Benedenstad Batavia',
+    seniman: 'Willem Witsen',
+    asal: 'Batavia (kini Jakarta)',
+    periode: '1870–1923',
+    deskripsi:
+      'Rumah-rumah tua di tepi air di kota bawah Batavia.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Benedenstad%20Batavia'],
+    kreditGambar: {
+      judul: 'Benedenstad Batavia',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Benedenstad%20Batavia',
+    },
+  },
+  {
+    id: 'lukisan-prambanan',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/tempel.jpg',
+    lebar: 1.6,
+    ruang: 'selasar-timur',
+    position: [10.0, -7], // dinding luar selasar timur, antara bukaan Ruang Pertunjukan & aula
+    facing: -Math.PI / 2,
+    nama: 'Tempel van Prambanan bij Jogyakarta',
+    seniman: 'Anonim',
+    asal: 'Yogyakarta',
+    periode: '± 1895–1915',
+    deskripsi:
+      'Candi Prambanan di dekat Yogyakarta, Hindia Belanda.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Tempel%20van%20Prambanan%20bij%20Jogyakarta'],
+    kreditGambar: {
+      judul: 'Tempel van Prambanan bij Jogyakarta',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Tempel%20van%20Prambanan%20bij%20Jogyakarta',
+    },
+  },
+  {
+    id: 'lukisan-landarbeiders-koffie',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/indonesische.jpg',
+    lebar: 1.6,
+    ruang: 'selasar-timur',
+    position: [10.0, 1.8], // dinding luar selasar timur, dekat lobi
+    facing: -Math.PI / 2,
+    nama: 'Indonesische landarbeiders planten koffieplanten op een veld',
+    seniman: 'Anonim',
+    asal: 'Hindia Belanda',
+    periode: '± 1890–1910',
+    deskripsi:
+      'Para buruh tani Indonesia menanam bibit kopi di sebuah ladang.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Indonesische%20landarbeiders%20planten%20koffieplanten%20op%20een%20veld'],
+    kreditGambar: {
+      judul: 'Indonesische landarbeiders planten koffieplanten op een veld',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Indonesische%20landarbeiders%20planten%20koffieplanten%20op%20een%20veld',
+    },
+  },
+  {
+    id: 'lukisan-vrouwen-offers',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/vrouwenBauer.jpg',
+    lebar: 0.8,
+    ruang: 'selasar-timur',
+    position: [7.1, -6], // dinding sisi taman, di antara dua jendela
+    facing: Math.PI / 2,
+    nama: 'Indonesische vrouwen met offers',
+    seniman: 'Marius Bauer',
+    asal: 'Indonesia',
+    periode: '1925',
+    bahan: 'Halaman buku sketsa',
+    deskripsi:
+      'Para perempuan Indonesia membawa sesaji dan mengenakan bunga di rambut, sementara beberapa sosok di latar depan dan belakang menonton. Kemungkinan mereka bagian dari sebuah upacara persembahan. Karya ini adalah halaman 108 dari buku sketsa berisi 74 lembar.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Indonesische%20vrouwen%20met%20offers'],
+    kreditGambar: {
+      judul: 'Indonesische vrouwen met offers',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Indonesische%20vrouwen%20met%20offers',
+    },
+  },
+  {
+    id: 'lukisan-hollandse-koopman',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/hollandse.jpg',
+    lebar: 1.6,
+    ruang: 'aula',
+    position: [-10.0, -15], // dinding barat aula, dekat pintu taman
+    facing: Math.PI / 2,
+    nama: 'Hollandse koopman met twee tot slaaf gemaakte mannen in heuvellandschap',
+    seniman: 'Anonim',
+    asal: 'Indonesia atau India (tidak pasti)',
+    periode: '1700–1725',
+    deskripsi:
+      'Seorang pria Belanda dan seorang perempuan Asia berjalan berdampingan, diikuti dua pria yang diperbudak dalam keadaan terbelenggu. Sang perempuan mengenakan sarung dan kebaya. Sang pria memakai jas merah selutut yang di Eropa disebut justaucorps, dengan saku yang letaknya sangat rendah khas mode awal abad ke-18, pedang pendek di pinggang, topi, tongkat rotan, dan sepatu bergesper perak, satu-satunya di rombongan itu yang bersepatu. Tidak jelas apakah kedua pria yang diperbudak berasal dari Afrika atau Asia. Rombongan ditutup tiga penjaga Asia berpakaian biru yang bersenjata pedang pendek dan tombak, dengan latar pegunungan tropis, mungkin di Indonesia atau India. Wajah sang pria dan perempuan pernah digores tanda silang dengan benda tajam. Lukisan ini masih berada dalam bingkai kayu aslinya.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Hollandse%20koopman%20met%20twee%20tot%20slaaf%20gemaakte%20mannen%20in%20heuvellandschap'],
+    kreditGambar: {
+      judul: 'Hollandse koopman met twee tot slaaf gemaakte mannen in heuvellandschap',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Hollandse%20koopman%20met%20twee%20tot%20slaaf%20gemaakte%20mannen%20in%20heuvellandschap',
+    },
+  },
+  {
+    id: 'lukisan-twee-afbeeldingen',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/twee.jpg',
+    lebar: 0.9,
+    ruang: 'aula',
+    position: [-10.0, -18], // dinding barat aula, tengah
+    facing: Math.PI / 2,
+    nama: 'Twee afbeeldingen van woningen in Indonesië',
+    seniman: 'Anonim',
+    asal: 'Indonesia',
+    periode: '1830–1880',
+    deskripsi:
+      'Dua gambar dalam satu lembar. Gambar atas menampilkan seorang pria memanggul senjata, dengan tiga bangunan berkubah di sebelah kirinya. Gambar bawah menampilkan dua sosok di dekat tembok rendah yang mengelilingi sebuah bangunan persegi panjang.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Twee%20afbeeldingen%20van%20woningen%20in%20Indonesi%C3%AB'],
+    kreditGambar: {
+      judul: 'Twee afbeeldingen van woningen in Indonesië',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Twee%20afbeeldingen%20van%20woningen%20in%20Indonesi%C3%AB',
+    },
+  },
+  {
+    id: 'lukisan-gayo-road',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/soldiersGayo.jpg',
+    lebar: 1.5,
+    ruang: 'aula',
+    position: [-10.0, -21], // dinding barat aula, dekat ruang pusaka
+    facing: Math.PI / 2,
+    nama: 'Soldiers on the Gayo Road',
+    seniman: 'Anonim',
+    asal: 'Aceh (dahulu bagian Sumatra Utara)',
+    periode: '1910–1913',
+    bahan: 'Foto dalam album',
+    deskripsi:
+      'Sekelompok tentara di Jalan Gayo. Foto kecil yang ditempel dalam album berisi 87 foto tentang pembangunan Jalan Gayo di Sumatra bagian utara, antara Bireuen dan Takengon, pada 1903–1914.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Soldiers%20on%20the%20Gayo%20Road'],
+    kreditGambar: {
+      judul: 'Soldiers on the Gayo Road',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Soldiers%20on%20the%20Gayo%20Road',
+    },
+  },
+  {
+    id: 'lukisan-conquest-palembang',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/conquestPalembang.jpg',
+    lebar: 2.2,
+    ruang: 'aula',
+    position: [-5, -23.9], // dinding belakang aula, kiri pintu ruang pusaka
+    facing: 0,
+    nama: 'Conquest of Palembang, Sumatra in Indonesia, by Lieutenant-General De Kock, June 24, 1821',
+    seniman: 'Louis Meijer',
+    asal: 'Palembang, Sumatra Selatan',
+    periode: '1857',
+    deskripsi:
+      'Inggris berusaha mempertahankan pengaruhnya di Sumatra dengan mendukung perlawanan Kesultanan Palembang terhadap Belanda. Pada 1821, ekspedisi militer di bawah pimpinan Jenderal H.M. de Kock (1779–1845) berhasil merebut keraton sang sultan. Sultan beserta keluarganya ditawan, harta mereka disita dan dibagi sebagai rampasan perang, dan beberapa tahun kemudian kesultanan itu dibubarkan. Louis Meijer (1809–1866) dipesan oleh keluarga De Kock untuk melukis peristiwa ini tiga puluh enam tahun kemudian, berdasarkan sketsa P. le Comte, perwira angkatan laut yang ikut dalam penaklukan Palembang.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Conquest%20of%20Palembang%2C%20Sumatra%20in%20Indonesia%2C%20by%20Lieutenant-General%20De%20Kock%2C%20June%2024%2C%201821'],
+    kreditGambar: {
+      judul: 'Conquest of Palembang, Sumatra in Indonesia, by Lieutenant-General De Kock, June 24, 1821',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Conquest%20of%20Palembang%2C%20Sumatra%20in%20Indonesia%2C%20by%20Lieutenant-General%20De%20Kock%2C%20June%2024%2C%201821',
+    },
+  },
+  {
+    id: 'lukisan-personificatie-voc',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/personificationVOC.jpg',
+    lebar: 1.0,
+    ruang: 'aula',
+    position: [5, -23.9], // dinding belakang aula, kanan pintu ruang pusaka
+    facing: 0,
+    nama: 'Personification of the VOC Receiving Gifts',
+    seniman: 'Jan Caspar Philips',
+    asal: 'Asia Tenggara (gambaran Belanda)',
+    periode: '1730',
+    deskripsi:
+      'Gambaran lanskap Asia dengan sosok VOC yang dipersonifikasikan di latar depan, bermahkota dan memegang tongkat kerajaan. Ia menerima persembahan dari penduduk setempat. Di kanan depan, dua putti (malaikat kecil) berada di dekat peta sebagian Asia Tenggara. Judulnya tertulis dalam bahasa Belanda di dalam bingkai.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Personification%20of%20the%20VOC%20Receiving%20Gifts'],
+    kreditGambar: {
+      judul: 'Personification of the VOC Receiving Gifts',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Personification%20of%20the%20VOC%20Receiving%20Gifts',
+    },
+  },
+  {
+    id: 'lukisan-vrijlating-sjahrir',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/vrijlating.jpg',
+    lebar: 1.5,
+    ruang: 'aula',
+    position: [10.0, -21], // dinding timur aula, dekat ruang pusaka
+    facing: -Math.PI / 2,
+    nama: 'Vrijlating Sutan Sjahrir',
+    seniman: 'Associated Press',
+    asal: 'Jakarta (Bandara Kemayoran)',
+    periode: '18 Januari 1949',
+    bahan: 'Foto pers',
+    deskripsi:
+      'Sutan Sjahrir, mantan perdana menteri Indonesia, dibebaskan dari pengasingannya di Sumatra dan tiba di Bandara Kemayoran untuk berunding dengan Drees. Ia dijemput oleh P. Koets, kepala kabinet Beel.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Vrijlating%20Sutan%20Sjahrir'],
+    kreditGambar: {
+      judul: 'Vrijlating Sutan Sjahrir',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Hak cipta mungkin masih berlaku (cek di Rijksmuseum)',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Vrijlating%20Sutan%20Sjahrir',
+    },
+  },
+  {
+    id: 'lukisan-postzegel',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/postzegel.jpg',
+    lebar: 1.0,
+    ruang: 'aula',
+    position: [10.0, -18], // dinding timur aula, tengah
+    facing: -Math.PI / 2,
+    nama: 'Postzegel Republik Indonesia',
+    seniman: 'Staatsdruckerei Wien',
+    asal: 'Republik Indonesia',
+    periode: '1949',
+    bahan: 'Perangko',
+    deskripsi:
+      'Perangko Republik Indonesia tahun 1949 yang dicetak oleh Staatsdruckerei, percetakan negara di Wina.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Postzegel%20Republik%20Indonesia'],
+    kreditGambar: {
+      judul: 'Postzegel Republik Indonesia',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Domain publik',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Postzegel%20Republik%20Indonesia',
+    },
+  },
+  {
+    id: 'lukisan-militairen',
+    build: 'painting',
+    display: 'frame',
+    sekunder: true,
+    gambar: 'assets/paintings/militairen.jpg',
+    lebar: 1.1,
+    ruang: 'aula',
+    position: [10.0, -15], // dinding timur aula, dekat pintu taman
+    facing: -Math.PI / 2,
+    nama: 'Militairen bewaken een weg te Indonesië',
+    seniman: 'Vincent Samuel Mentzel',
+    asal: 'Indonesia',
+    periode: '± 1982–1992',
+    bahan: 'Foto',
+    deskripsi:
+      'Para tentara menjaga sebuah jalan di Indonesia.',
+    sumber: ['https://www.rijksmuseum.nl/en/collection/search?query=Militairen%20bewaken%20een%20weg%20te%20Indonesi%C3%AB'],
+    kreditGambar: {
+      judul: 'Militairen bewaken een weg te Indonesië',
+      pembuat: 'Rijksmuseum',
+      lisensi: 'Hak cipta mungkin masih berlaku (cek di Rijksmuseum)',
+      url: 'https://www.rijksmuseum.nl/en/collection/search?query=Militairen%20bewaken%20een%20weg%20te%20Indonesi%C3%AB',
     },
   },
 ];

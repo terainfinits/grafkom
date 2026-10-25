@@ -43,6 +43,7 @@ import { RoomTracker } from './game/roomTracker.js';
 import { ARTIFACTS } from './data/artifacts.js';
 import { createExhibits } from './scene/exhibits.js';
 import { loadModels } from './scene/models.js';
+import { loadPaintingTextures } from './scene/paintings.js';
 import { Hover } from './game/hover.js';
 import { InspectMode, EXPLORE_S } from './game/inspect.js';
 import { InspectPanel } from './ui/inspectPanel.js';
@@ -104,8 +105,11 @@ scene.add(door.group);
 // ---------- Koleksi: pedestal + artefak (data di data/artifacts.js) ----------
 // Tidak ikut mergeStatic: model harus bisa di-raycast & disorot satu per satu.
 // File GLB (mis. pinisi) dimuat dulu — masih di balik layar loading.
-const models = await loadModels(ARTIFACTS);
-const exhibits = createExhibits(ARTIFACTS, { models });
+const [models, textures] = await Promise.all([loadModels(ARTIFACTS), loadPaintingTextures(ARTIFACTS)]);
+const exhibits = createExhibits(ARTIFACTS, { models, textures });
+// Koleksi utama = yang dihitung ke progres; koleksi pendukung (`sekunder: true`, mis. lukisan)
+// tetap bisa diperiksa tetapi tidak menjadi syarat selesai
+const mainItems = exhibits.items.filter((i) => !i.data.sekunder);
 scene.add(exhibits.group);
 
 // ---------- Area luar (langit, tanah, matahari) ----------
@@ -175,8 +179,9 @@ const roomTracker = new RoomTracker(ROOMS); // ruang = entri ROOMS yang punya `i
 // Kuis tebak asal (opsional): koleksi yang ditandai `kuis: true` di data/artifacts.js
 const QUIZ_COUNT = ARTIFACTS.filter((a) => a.kuis).length;
 const progress = new Progress({
-  roomCount: roomTracker.all.length, artifactCount: exhibits.items.length,
+  roomCount: roomTracker.all.length, artifactCount: mainItems.length,
   quizCount: QUIZ_COUNT, quizAvailable: QUIZ_COUNT > 0,
+  secondaryCount: exhibits.items.length - mainItems.length, // lukisan: progres opsional
 });
 const banner = new Banner();
 
@@ -185,10 +190,18 @@ const banner = new Banner();
 // di mode inspect / achievement masih tampil) — cukup ditandai, lalu dibuka di loop.
 let completionPending = false;
 let completionDelay = 0;
-progress.onChange(({ active, activeChanged, justCompleted }) => {
+progress.onChange(({ active, activeChanged, justCompleted, justFoundAllSecondary }) => {
   if (activeChanged && active) dialog.toast(`Quest baru: ${active.label}`, 4000);
   if (justCompleted) completionPending = true;
+  if (justFoundAllSecondary) onAllPaintingsFound();
 });
+
+// Semua lukisan (koleksi pendukung) sudah dilihat → achievement saja. Tidak memengaruhi
+// status selesai (yang ditentukan koleksi utama).
+function onAllPaintingsFound() {
+  // Ditunda: kartu "Lukisan ditemukan" untuk lukisan terakhir tampil lebih dulu (± 4 detik)
+  setTimeout(() => banner.achievement('Kurator Sejati', 'Semua lukisan sudah kamu temukan'), 4200);
+}
 
 function onRoomEntered(info) {
   if (progress.visitRoom(info.id)) {
@@ -364,9 +377,13 @@ function startInspect(item) {
   hover.clear();
   // Koleksi berkuis yang belum dijawab: panel kuis dulu, panel info sesudahnya
   const needsQuiz = item.data.kuis && !progress.quizzesDone.has(item.data.id);
-  inspect.timing = !needsQuiz;
+  inspect.timing = !needsQuiz && !item.data.sekunder; // koleksi pendukung: tanpa aturan 3 detik
   if (needsQuiz) startQuiz(item);
   else inspectPanel.show(item.data, progress.inspected.has(item.data.id));
+  // Koleksi pendukung langsung tercatat begitu diperiksa (tanpa aturan 3 detik)
+  if (item.data.sekunder && progress.viewSecondary(item.data.id)) {
+    banner.achievement('Lukisan ditemukan', `${item.data.nama} · ${progress.secondarySeen.size}/${progress.secondaryCount}`);
+  }
   // Lampu khusus inspect, di depan-atas artefak (ruang pusaka sengaja redup)
   inspectLight.position.copy(item.focus).addScaledVector(item.viewDir, 1).add(new THREE.Vector3(0, 1, 0));
   inspectLight.intensity = 4;
@@ -402,21 +419,37 @@ const perf = new PerfOverlay(renderer); // tombol ` untuk menampilkan angka perf
 // ---------- Mode developer (ikut tombol `) ----------
 // Lompat ke akhir permainan untuk menguji layar selesai. Pintu ikut dibuka supaya
 // pemain tetap bisa masuk walau tiket "dibeli" lewat jalan pintas.
-function devSkip(leaveOne) {
-  const left = leaveOne ? exhibits.items.at(-1) : null; // koleksi terakhir di data (pinisi, di lobi)
+//   'all'      : semua selesai — ruang, koleksi utama, kuis (skor penuh), & lukisan
+//   'main'     : semua ruang & koleksi utama kecuali satu (pinisi di lobi) → uji layar selesai
+//   'painting' : semua lukisan kecuali satu (Diponegoro di lobi) → uji achievement lukisan;
+//                koleksi utama tidak disentuh, jadi game belum selesai
+const secondaryItems = exhibits.items.filter((i) => i.data.sekunder);
+function devSkip(mode) {
+  const left = mode === 'main' ? mainItems.at(-1) : mode === 'painting' ? secondaryItems[0] : null;
   if (!progress.hasTicket) { door.open(); music.start(); }
-  progress.devComplete({
-    rooms: roomTracker.all.map((r) => r.id),
-    artifacts: exhibits.items.map((i) => i.data.id).filter((id) => id !== left?.data.id),
-  });
-  if (progress.finishedAt !== null && !completionPending && !completion.isOpen) {
-    dialog.toast('Developer mode: kunjungan sudah selesai. Pakai Mulai ulang untuk menguji lagi', 5000);
-  } else if (left) {
+  const wasFinished = progress.finishedAt !== null;
+  const ids = (items) => items.map((i) => i.data.id).filter((id) => id !== left?.data.id);
+  progress.devComplete(mode === 'painting'
+    ? { secondary: ids(secondaryItems) }
+    : {
+        rooms: roomTracker.all.map((r) => r.id),
+        artifacts: ids(mainItems),
+        quizzes: mode === 'all' ? ARTIFACTS.filter((a) => a.kuis).map((a) => [a.id, MAX_SCORE]) : [],
+        secondary: mode === 'all' ? ids(secondaryItems) : [],
+      });
+  if (left) {
     const room = roomTracker.all.find((r) => r.id === left.data.ruang);
     dialog.toast(`Developer mode: tinggal periksa ${left.data.nama}${room ? ` di ${room.title}` : ''}`, 5000);
+  } else if (wasFinished) {
+    dialog.toast('Developer mode: kunjungan sudah selesai. Pakai Mulai ulang untuk menguji lagi', 5000);
   }
 }
-new DevPanel({ onCompleteAll: () => devSkip(false), onLeaveOne: () => devSkip(true), music });
+new DevPanel({
+  onCompleteAll: () => devSkip('all'),
+  onLeaveOne: () => devSkip('main'),
+  onLeaveOnePainting: () => devSkip('painting'),
+  music,
+});
 
 function loop() {
   const dt = Math.min(clock.getDelta(), 0.1); // dibatasi supaya tidak "teleport" saat tab kembali aktif

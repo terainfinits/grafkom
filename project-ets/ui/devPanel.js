@@ -2,18 +2,20 @@
  * DevPanel — mode developer untuk menguji akhir permainan tanpa bermain dari awal.
  * Muncul/hilang bersama overlay performa (tombol ` / backtick), tepat di bawahnya.
  *
- *  Selesaikan semua : tiket, semua ruang, & semua koleksi langsung tercatat → layar selesai
- *  Sisakan 1 koleksi: sama, kecuali satu koleksi → uji pemicu layar selesai yang sebenarnya
- *                     (periksa koleksi terakhir itu secara normal)
+ *  Selesaikan semua : tiket, ruang, koleksi utama, kuis, & lukisan langsung tercatat
+ *                     → layar selesai + achievement lukisan (nanti juga easter egg)
+ *  Sisakan 1 koleksi: semua ruang & koleksi utama kecuali satu → uji pemicu layar selesai
+ *                     yang sebenarnya (periksa koleksi terakhir itu secara normal)
+ *  Sisakan 1 lukisan: semua lukisan kecuali satu → uji achievement lukisan (game belum selesai)
  *  Pilih lagu       : putar lagu tertentu dari playlist musik latar (audio/music.js)
  *
  * Pemakaian:
- *   new DevPanel({ onCompleteAll: () => { ... }, onLeaveOne: () => { ... }, music });
+ *   new DevPanel({ onCompleteAll, onLeaveOne, onLeaveOnePainting, music });
  *
  * Logika permainannya ada di main.js; panel ini hanya tombol.
  */
 export class DevPanel {
-  constructor({ onCompleteAll, onLeaveOne, music }) {
+  constructor({ onCompleteAll, onLeaveOne, onLeaveOnePainting, music }) {
     this.el = document.createElement('div');
     this.el.className = 'dev-panel';
     this.el.hidden = true;
@@ -25,6 +27,7 @@ export class DevPanel {
       title,
       button('Selesaikan semua', onCompleteAll),
       button('Sisakan 1 koleksi', onLeaveOne),
+      button('Sisakan 1 lukisan', onLeaveOnePainting),
     );
     if (music) this.el.append(trackSelect(music));
     document.body.append(this.el);

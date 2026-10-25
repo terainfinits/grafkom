@@ -25,14 +25,19 @@ export class InspectPanel {
     this.sourcesEl = this.el.querySelector('.inspect-sources');
     this.barEl = this.el.querySelector('.inspect-bar span');
     this.statusEl = this.el.querySelector('.inspect-status');
+    this.kickerEl = this.el.querySelector('.inspect-kicker');
+    this.progressEl = this.el.querySelector('.inspect-progress');
     const back = this.el.querySelector('.inspect-back');
     back.addEventListener('mousedown', (e) => e.preventDefault()); // jangan ambil fokus
     back.addEventListener('click', onBack);
   }
 
   show(data, alreadyExplored) {
+    // Koleksi pendukung (lukisan): tidak dihitung ke progres, jadi tanpa bilah "mengamati"
+    this.kickerEl.textContent = data.sekunder ? 'Koleksi pendukung' : 'Koleksi';
+    this.progressEl.hidden = !!data.sekunder;
     this.titleEl.textContent = data.nama;
-    this.metaEl.replaceChildren(...[['Asal', data.asal], ['Periode', data.periode], ['Bahan', data.bahan]]
+    this.metaEl.replaceChildren(...[['Seniman', data.seniman], ['Asal', data.asal], ['Periode', data.periode], ['Bahan', data.bahan]]
       .filter(([, v]) => v)
       .flatMap(([k, v]) => {
         const dt = document.createElement('dt');
@@ -54,16 +59,17 @@ export class InspectPanel {
         this.sourcesEl.append(a, ' ');
       });
     }
-    // Model dari pihak lain (mis. CC BY): nama pembuat & lisensi wajib dicantumkan
-    if (data.kreditModel) {
-      const { judul, pembuat, lisensi, url } = data.kreditModel;
+    // Model / gambar dari pihak lain: nama pembuat & lisensi dicantumkan (wajib untuk CC BY)
+    for (const [label, kredit] of [['Model 3D', data.kreditModel], ['Gambar', data.kreditGambar]]) {
+      if (!kredit) continue;
+      const { judul, pembuat, lisensi, url } = kredit;
       const a = document.createElement('a');
       a.href = url;
       a.target = '_blank';
       a.rel = 'noopener';
       a.textContent = `"${judul}"`;
       const line = document.createElement('div');
-      line.append('Model 3D: ', a, ` oleh ${pembuat} · ${lisensi}`);
+      line.append(`${label}: `, a, ` oleh ${pembuat} · ${lisensi}`);
       this.sourcesEl.append(line);
     }
     this.setProgress(alreadyExplored ? 1 : 0, alreadyExplored);

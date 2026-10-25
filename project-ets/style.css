@@ -249,6 +249,7 @@ body {
 .inspect-sources { font-size: 11px; color: #8992a6; }
 .inspect-sources a { color: #c39a4f; }
 .inspect-progress { margin-top: auto; font-size: 12px; }
+.inspect-progress[hidden] + .inspect-hint { margin-top: auto; } /* koleksi pendukung: petunjuk tetap di bawah */
 .inspect-bar { height: 4px; background: #3a4051; overflow: hidden; }
 .inspect-bar span { display: block; height: 100%; width: 0; background: #c39a4f; }
 /* Progress bar color change when artifact exploration is completed */
