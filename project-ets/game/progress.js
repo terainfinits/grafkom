@@ -15,7 +15,7 @@
  *
  * Pemakaian:
  *   const progress = new Progress({ roomCount: 8 });
- *   progress.onChange(({ active, activeChanged, justCompleted, justFoundAllSecondary }) => { ... });
+ *   progress.onChange(({ active, activeChanged, justCompleted, justFoundAllSecondary, justUnlockedSecret }) => { ... });
  *   progress.start(); // mulai menghitung lama kunjungan (setelah layar loading hilang)
  *   progress.buyTicket();
  *   const firstTime = progress.visitRoom('wastra');
@@ -38,6 +38,7 @@ export class Progress {
     this.secondaryCount = secondaryCount;
     this.secondarySeen = new Set();
     this.secondaryDone = false;
+    this.secretUnlocked = false; // easter egg (everythingDone), diumumkan sekali: justUnlockedSecret
 
     // Lama kunjungan: dihitung dari start() sampai selesai (waktu dibekukan saat allDone)
     this.startedAt = null;
@@ -49,6 +50,12 @@ export class Progress {
 
   start() {
     this.startedAt = performance.now();
+  }
+
+  // Semua quest — koleksi utama, kuis (opsional), & lukisan (opsional) — selesai → easter egg
+  get everythingDone() {
+    return this.allDone && this.secondaryDone
+      && (!this.quizAvailable || this.quizzesDone.size >= this.quizCount);
   }
 
   get allDone() {
@@ -171,6 +178,8 @@ export class Progress {
     const justFoundAllSecondary = !this.secondaryDone && this.secondaryCount > 0
       && this.secondarySeen.size >= this.secondaryCount;
     if (justFoundAllSecondary) this.secondaryDone = true;
-    for (const fn of this._listeners) fn({ active, activeChanged, justCompleted, justFoundAllSecondary });
+    const justUnlockedSecret = !this.secretUnlocked && this.everythingDone;
+    if (justUnlockedSecret) this.secretUnlocked = true;
+    for (const fn of this._listeners) fn({ active, activeChanged, justCompleted, justFoundAllSecondary, justUnlockedSecret });
   }
 }

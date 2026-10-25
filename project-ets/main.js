@@ -12,6 +12,7 @@ Connected Files:
 - ./scene/vfx/fireflies.js: Firefly particle VFX (THREE.Points) in the courtyard and front yard.
 - ./scene/vfx/ripples.js: Lotus pond water VFX (scrolling normal map + expanding ripple rings).
 - ./scene/vfx/petals.js: Falling flower petal VFX (InstancedMesh) shown when the completion screen opens.
+- ./scene/secretStone.js, ./ui/secretViewer.js: Easter egg — garden stone that lights up after every quest is done, showing the project assignment.
 - ./scene/lightPool.js: Dynamic point light management system cycling closest active light sources.
 - ./audio/music.js, ./data/music.js: Background music playlist (fade-in on door open, ducking during inspect/quiz).
 - ./audio/sfx.js, ./audio/footsteps.js: Sound effects (Web Audio): dialog blip, ticket coin, surface-aware footsteps.
@@ -52,6 +53,8 @@ import { mergeStatic } from './scene/optimize.js';
 import { createLightPool } from './scene/lightPool.js';
 import { createFireflies } from './scene/vfx/fireflies.js';
 import { createRipples } from './scene/vfx/ripples.js';
+import { createSecretStone } from './scene/secretStone.js';
+import { SecretViewer } from './ui/secretViewer.js';
 import { createPetals } from './scene/vfx/petals.js';
 
 // ---------- Renderer (WebGL Renderer initialization & Shadow Map configuration) ----------
@@ -129,6 +132,10 @@ scene.add(fireflies.group);
 const ripples = createRipples(courtyard.water);
 scene.add(ripples.group);
 
+// ---------- Easter egg: prasasti di taman (menyala setelah semua quest selesai) ----------
+const secretStone = createSecretStone();
+scene.add(secretStone.group);
+
 // ---------- VFX: kelopak bunga berguguran saat layar selesai ----------
 const petals = createPetals();
 scene.add(petals.group);
@@ -140,7 +147,7 @@ for (const g of [building.group, aula.group, courtyard.group, facade.group, gard
 
 // Semua mesh gedung, fasad, loket, taman, & pintu ikut memberi dan menerima bayangan matahari.
 // Atap ikut memberi bayangan, jadi cahaya matahari hanya masuk lewat pintu.
-for (const g of [building.group, aula.group, courtyard.group, facade.group, booth.group, garden.group, door.group, exhibits.group]) {
+for (const g of [building.group, aula.group, courtyard.group, facade.group, booth.group, garden.group, door.group, exhibits.group, secretStone.group]) {
   g.traverse((obj) => {
     if (obj.isMesh) obj.castShadow = obj.receiveShadow = true;
   });
@@ -158,7 +165,7 @@ const controls = new WalkControls(camera, canvas, {
     minZ: YARD.minZ + YARD_MARGIN,
     maxZ: YARD.maxZ - YARD_MARGIN,
   },
-  colliders: [...building.colliders, ...aula.colliders, ...courtyard.colliders, ...facade.colliders, ...booth.colliders, ...garden.colliders, ...door.colliders, ...exhibits.colliders], // dinding, saka, kios, papan, lampu, pintu, & pedestal tidak bisa ditembus
+  colliders: [...building.colliders, ...aula.colliders, ...courtyard.colliders, ...facade.colliders, ...booth.colliders, ...garden.colliders, ...door.colliders, ...exhibits.colliders, ...secretStone.colliders], // dinding, saka, kios, papan, lampu, pintu, & pedestal tidak bisa ditembus
 });
 
 // ---------- Dialog petugas loket ----------
@@ -190,11 +197,19 @@ const banner = new Banner();
 // di mode inspect / achievement masih tampil) — cukup ditandai, lalu dibuka di loop.
 let completionPending = false;
 let completionDelay = 0;
-progress.onChange(({ active, activeChanged, justCompleted, justFoundAllSecondary }) => {
+progress.onChange(({ active, activeChanged, justCompleted, justFoundAllSecondary, justUnlockedSecret }) => {
   if (activeChanged && active) dialog.toast(`Quest baru: ${active.label}`, 4000);
   if (justCompleted) completionPending = true;
   if (justFoundAllSecondary) onAllPaintingsFound();
+  if (justUnlockedSecret) onSecretUnlocked();
 });
+
+// Easter egg: semua quest selesai → prasasti di taman menyala & bisa diperiksa. Petunjuknya
+// ditunda supaya tidak bertumpuk dengan achievement / layar selesai yang muncul bersamaan.
+function onSecretUnlocked() {
+  secretStone.active = true;
+  setTimeout(() => dialog.toast('Ada sesuatu yang mulai bercahaya di taman…', 6000), 9000);
+}
 
 // Semua lukisan (koleksi pendukung) sudah dilihat → achievement saja. Tidak memengaruhi
 // status selesai (yang ditentukan koleksi utama).
@@ -289,8 +304,9 @@ function buyTicket() {
 // Interaction Hotkey 'E' listener
 window.addEventListener('keydown', (e) => {
   // e.defaultPrevented = tombol sudah dipakai dialog (mis. E untuk menutup), jangan dibuka lagi
-  if (e.code !== 'KeyE' || e.repeat || e.defaultPrevented || dialog.isOpen || pauseMenu.isOpen || completion.isOpen || quiz.isOpen || inspect.isActive) return;
+  if (e.code !== 'KeyE' || e.repeat || e.defaultPrevented || dialog.isOpen || pauseMenu.isOpen || completion.isOpen || secret.isOpen || quiz.isOpen || inspect.isActive) return;
   if (booth.isPlayerNear(camera.position)) talkToCashier();
+  else if (secretStone.active && secretStone.isPlayerNear(camera.position)) openSecret();
   else if (hover.current) startInspect(hover.current);
 });
 
@@ -308,6 +324,20 @@ const pauseMenu = new PauseMenu({
 });
 
 // ---------- Layar selesai ----------
+// ---------- Easter egg: layar "asal-usul" ----------
+const secret = new SecretViewer({ onClose: resumeControls });
+let secretSeen = false;
+function openSecret() {
+  pauseControls();
+  dialog.hidePrompt();
+  hover.clear();
+  secret.open();
+  if (!secretSeen) {
+    secretSeen = true;
+    banner.achievement('Pencari Asal-usul', 'Kamu menemukan alasan museum ini ada');
+  }
+}
+
 const completion = new CompletionScreen({
   onContinue: resumeControls, // museum tetap bisa dijelajahi setelah selesai
   onRestart: () => location.reload(), // sama seperti "Mulai ulang" di menu jeda
@@ -319,7 +349,9 @@ const completion = new CompletionScreen({
 window.addEventListener('keydown', (e) => {
   if (e.code !== 'Escape' || e.repeat || e.defaultPrevented || dialog.isOpen) return;
   e.preventDefault();
-  if (quiz.isOpen) {
+  if (secret.isOpen) {
+    secret.close();
+  } else if (quiz.isOpen) {
     quiz.close(); // batal: kamera kembali, kuis muncul lagi saat koleksi diperiksa lagi
     inspect.exit();
   } else if (inspect.isActive) {
@@ -396,7 +428,7 @@ canvas.addEventListener('pointerdown', (e) => { pointerDownAt = [e.clientX, e.cl
 canvas.addEventListener('pointerup', (e) => {
   const start = pointerDownAt;
   pointerDownAt = null;
-  if (!start || !hover.current || inspect.isActive || completion.isOpen || quiz.isOpen || !controls.enabled) return;
+  if (!start || !hover.current || inspect.isActive || completion.isOpen || secret.isOpen || quiz.isOpen || !controls.enabled) return;
   if (Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 5) startInspect(hover.current);
 });
 
@@ -457,6 +489,7 @@ function loop() {
   footsteps.update(dt, camera.position);
   booth.update(dt, camera.position);
   fireflies.update(dt);
+  secretStone.update(dt);
   ripples.update(dt);
   petals.update(dt);
   if (door.update(dt)) renderer.shadowMap.needsUpdate = true; // bayangan pintu ikut bergerak
@@ -471,12 +504,13 @@ function loop() {
   music.ducked = inspect.isActive || quiz.isOpen || completion.isOpen; // layar selesai: jingle terdengar jelas
   music.update(dt);
 
-  hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !quiz.isOpen && !inspect.isActive;
+  hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !secret.isOpen && !quiz.isOpen && !inspect.isActive;
   const hovered = hover.update();
 
   // Prompt "E": bicara dengan petugas, atau periksa artefak yang disorot
-  if (!dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !quiz.isOpen && !inspect.isActive) {
+  if (!dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !secret.isOpen && !quiz.isOpen && !inspect.isActive) {
     if (booth.isPlayerNear(camera.position)) dialog.showPrompt('Bicara dengan petugas loket');
+    else if (secretStone.active && secretStone.isPlayerNear(camera.position)) dialog.showPrompt('Periksa prasasti yang bercahaya');
     else if (hovered) dialog.showPrompt(hovered.data.kuis && !progress.quizzesDone.has(hovered.data.id)
       ? `Kuis: tebak asal ${hovered.data.nama} (atau klik)`
       : `Periksa ${hovered.data.nama} (atau klik)`);
@@ -492,7 +526,7 @@ function loop() {
 
   // Layar selesai dibuka setelah pemain kembali berjalan bebas, dengan jeda singkat
   // supaya achievement koleksi/ruang terakhir sempat terbaca lebih dulu.
-  if (completionPending && controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !quiz.isOpen && !inspect.isActive) {
+  if (completionPending && controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !secret.isOpen && !quiz.isOpen && !inspect.isActive) {
     completionDelay += dt;
     if (completionDelay >= COMPLETION_DELAY_S) {
       completionPending = false;
