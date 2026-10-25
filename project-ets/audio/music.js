@@ -24,7 +24,7 @@ import { TRACKS, MUSIC_DIR, MUSIC_CREDIT } from '../data/music.js';
 const DUCK = 0.3;          // gain saat diredam
 const FADE_IN_S = 3;       // lama fade-in saat pertama mulai
 const DUCK_S = 0.6;        // lama peralihan redam ↔ normal
-const DEFAULT_VOLUME = 0.1; // pelan: musik latar, bukan pusat perhatian
+const DEFAULT_VOLUME = 0.2; // pelan: musik latar, bukan pusat perhatian
 const STORAGE_KEY = 'museum-music';
 
 export class Music {
