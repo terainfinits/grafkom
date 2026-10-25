@@ -19,6 +19,7 @@ Connected Files:
  *              facing = arah hadap muka pajangan (radian, 0 = +Z, π/2 = +X)
  *  nama, asal, periode, bahan, deskripsiSingkat, deskripsi, sumber: isi panel info
  *  koordinat : [lintang, bujur] asal daerah (untuk kuis peta, opsional)
+ *  kuis      : (opsional) true → sebelum inspect pertama, muncul mini game tebak asal di peta
  *
  * Khusus model dari file GLB (build: 'gltf', lihat scene/models.js):
  *  model       : path file .glb
@@ -85,6 +86,7 @@ export const ARTIFACTS = [
   },
   {
     id: 'salawaku',
+    kuis: true, // mini game tebak asal sebelum inspect (ui/mapQuiz.js)
     build: 'salawaku',
     display: 'wall',
     ruang: 'pusaka',
@@ -185,6 +187,7 @@ export const ARTIFACTS = [
   },
   {
     id: 'sasirangan',
+    kuis: true, // mini game tebak asal sebelum inspect (ui/mapQuiz.js)
     build: 'sasirangan',
     display: 'floor',
     ruang: 'wastra',
@@ -226,6 +229,7 @@ export const ARTIFACTS = [
   // ---------- Ruang Pertunjukan (alat musik tradisional) ----------
   {
     id: 'sasando',
+    kuis: true, // mini game tebak asal sebelum inspect (ui/mapQuiz.js)
     build: 'sasando',
     display: 'pedestal',
     ruang: 'pertunjukan',

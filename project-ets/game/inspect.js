@@ -38,6 +38,7 @@ export class InspectMode {
     this.state = 'idle';
     this.item = null;
     this.viewTime = 0;
+    this.timing = true; // false = waktu mengamati tidak dihitung (diatur main.js, mis. selama kuis)
     this._explored = false;
     this._t = 0;
     this._from = { pos: new THREE.Vector3(), quat: new THREE.Quaternion() };
@@ -125,7 +126,7 @@ export class InspectMode {
     if (this.state === 'inspecting') {
       this._applyViewShift(1); // dipanggil tiap frame supaya tetap benar setelah jendela di-resize
       this.orbit.update();
-      this.viewTime += dt;
+      if (this.timing) this.viewTime += dt;
       if (!this._explored && this.viewTime >= EXPLORE_S) {
         this._explored = true;
         this.callbacks.onExplored?.(this.item);

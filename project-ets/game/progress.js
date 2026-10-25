@@ -31,6 +31,7 @@ export class Progress {
     this.visited = new Set();
     this.inspected = new Set();
     this.quizzesDone = new Set();
+    this.quizScores = new Map(); // id artefak → skor kuis (ui/mapQuiz.js)
 
     // Lama kunjungan: dihitung dari start() sampai selesai (waktu dibekukan saat allDone)
     this.startedAt = null;
@@ -88,6 +89,20 @@ export class Progress {
     for (const id of rooms) this.visited.add(id);
     for (const id of artifacts) this.inspected.add(id);
     this._emit();
+  }
+
+  // Kuis tebak asal: dicatat sekali per artefak (kuis tidak diulang setelah dijawab)
+  answerQuiz(id, score) {
+    if (this.quizzesDone.has(id)) return;
+    this.quizzesDone.add(id);
+    this.quizScores.set(id, score);
+    this._emit();
+  }
+
+  get quizScore() {
+    let total = 0;
+    for (const s of this.quizScores.values()) total += s;
+    return total;
   }
 
   get quests() {

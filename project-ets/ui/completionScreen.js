@@ -5,7 +5,8 @@
  *
  * Pemakaian:
  *   const done = new CompletionScreen({ onContinue: () => { ... }, onRestart: () => { ... } });
- *   done.open({ rooms: [8, 8], artifacts: [15, 15], elapsedMs: 754000 });
+ *   done.open({ rooms: [8, 8], artifacts: [15, 15], elapsedMs: 754000, quiz: [9100, 15000] });
+ *   (quiz opsional: [skor, skor maksimum], hanya ditampilkan kalau ada kuis yang dijawab)
  *   done.close(); done.isOpen;
  *
  * Tampilannya memakai gaya menu jeda (.pause-overlay / .pause-menu) ditambah sedikit
@@ -52,7 +53,7 @@ export class CompletionScreen {
     document.body.append(this.overlay);
   }
 
-  open({ rooms, artifacts, elapsedMs }) {
+  open({ rooms, artifacts, elapsedMs, quiz }) {
     if (this.isOpen) return;
     this.isOpen = true;
     const stats = [
@@ -60,6 +61,7 @@ export class CompletionScreen {
       ['Koleksi diperiksa', `${artifacts[0]}/${artifacts[1]}`],
       ['Lama kunjungan', formatDuration(elapsedMs)],
     ];
+    if (quiz) stats.push(['Skor kuis', `${quiz[0].toLocaleString('id-ID')}/${quiz[1].toLocaleString('id-ID')}`]);
     this.statsEl.replaceChildren(...stats.flatMap(([label, value]) => {
       const dt = el('dt');
       dt.textContent = label;

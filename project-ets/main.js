@@ -5,7 +5,7 @@ Connected Files:
 - ./scene/building.js, ./scene/aula.js, ./scene/courtyard.js, ./scene/facade.js, ./scene/ticketBooth.js, ./scene/entranceDoor.js, ./scene/exhibits.js, ./scene/outdoor.js, ./scene/garden.js: Modules creating physical 3D scene elements.
 - ./scene/layout.js: Holds spatial layout definitions (ROOMS data and FRONT_Z origin coordinate).
 - ./controls/walkControls.js: First-person navigation and collision detection system.
-- ./ui/dialog.js, ./ui/pauseMenu.js, ./ui/completionScreen.js, ./ui/perfOverlay.js, ./ui/devPanel.js, ./ui/banner.js, ./ui/inspectPanel.js: Visual UI components for dialogues, pause menu, completion screen, stats overlay, room banners, and inspection drawers.
+- ./ui/dialog.js, ./ui/pauseMenu.js, ./ui/completionScreen.js, ./ui/perfOverlay.js, ./ui/devPanel.js, ./ui/banner.js, ./ui/inspectPanel.js, ./ui/mapQuiz.js: Visual UI components for dialogues, pause menu, completion screen, stats overlay, room banners, and inspection drawers.
 - ./game/progress.js, ./game/roomTracker.js, ./game/hover.js, ./game/inspect.js: Game loop logic, quest progression, spatial room detection, raycast target highlighting, and artifact examination modes.
 - ./scene/models.js: Loads external GLB models (GLTFLoader + MeshoptDecoder) and normalizes their scale.
 - ./scene/optimize.js: Provides mesh merging helpers (`mergeStatic`) to reduce WebGL draw calls.
@@ -41,6 +41,7 @@ import { loadModels } from './scene/models.js';
 import { Hover } from './game/hover.js';
 import { InspectMode, EXPLORE_S } from './game/inspect.js';
 import { InspectPanel } from './ui/inspectPanel.js';
+import { MapQuiz, MAX_SCORE } from './ui/mapQuiz.js';
 import { mergeStatic } from './scene/optimize.js';
 import { createLightPool } from './scene/lightPool.js';
 import { createFireflies } from './scene/vfx/fireflies.js';
@@ -157,7 +158,12 @@ const CASHIER = 'Petugas Loket';
 
 // ---------- Progress, quest, & pelacak ruangan ----------
 const roomTracker = new RoomTracker(ROOMS); // ruang = entri ROOMS yang punya `info`
-const progress = new Progress({ roomCount: roomTracker.all.length, artifactCount: exhibits.items.length });
+// Kuis tebak asal (opsional): koleksi yang ditandai `kuis: true` di data/artifacts.js
+const QUIZ_COUNT = ARTIFACTS.filter((a) => a.kuis).length;
+const progress = new Progress({
+  roomCount: roomTracker.all.length, artifactCount: exhibits.items.length,
+  quizCount: QUIZ_COUNT, quizAvailable: QUIZ_COUNT > 0,
+});
 const banner = new Banner();
 
 // Setiap kali quest aktif berganti, beri tahu lewat toast singkat.
@@ -253,7 +259,7 @@ function buyTicket() {
 // Interaction Hotkey 'E' listener
 window.addEventListener('keydown', (e) => {
   // e.defaultPrevented = tombol sudah dipakai dialog (mis. E untuk menutup), jangan dibuka lagi
-  if (e.code !== 'KeyE' || e.repeat || e.defaultPrevented || dialog.isOpen || pauseMenu.isOpen || completion.isOpen || inspect.isActive) return;
+  if (e.code !== 'KeyE' || e.repeat || e.defaultPrevented || dialog.isOpen || pauseMenu.isOpen || completion.isOpen || quiz.isOpen || inspect.isActive) return;
   if (booth.isPlayerNear(camera.position)) talkToCashier();
   else if (hover.current) startInspect(hover.current);
 });
@@ -281,7 +287,10 @@ const completion = new CompletionScreen({
 window.addEventListener('keydown', (e) => {
   if (e.code !== 'Escape' || e.repeat || e.defaultPrevented || dialog.isOpen) return;
   e.preventDefault();
-  if (inspect.isActive) {
+  if (quiz.isOpen) {
+    quiz.close(); // batal: kamera kembali, kuis muncul lagi saat koleksi diperiksa lagi
+    inspect.exit();
+  } else if (inspect.isActive) {
     inspect.exit();
   } else if (completion.isOpen) {
     completion.close();
@@ -299,7 +308,7 @@ const hover = new Hover(camera, canvas, exhibits.items);
 const inspectPanel = new InspectPanel({ onBack: () => inspect.exit() });
 const inspect = new InspectMode(camera, canvas, {
   // Geser pusat pandangan sebesar setengah lebar panel (+ jaraknya ke tepi layar)
-  getViewShift: () => (inspectPanel.el.offsetWidth + 16) / 2,
+  getViewShift: () => ((quiz.isOpen ? quiz.el : inspectPanel.el).offsetWidth + 16) / 2,
   onExit: () => {
     inspectPanel.hide();
     inspectLight.intensity = 0;
@@ -314,12 +323,31 @@ const inspect = new InspectMode(camera, canvas, {
 });
 
 // Enters detailed inspection camera mode and positions focused inspection light source
+// ---------- Kuis tebak asal ----------
+const quiz = new MapQuiz();
+
+// Panel kuis menggantikan panel info selama menebak; kamera sudah di mode inspect, jadi
+// artefak bisa diputar sambil menebak. Waktu mengamati (progres koleksi) dijeda sampai
+// panel info dibuka sesudah menebak.
+function startQuiz(item) {
+  quiz.open(item.data, (score) => {
+    progress.answerQuiz(item.data.id, score);
+    banner.achievement('Kuis dijawab', `${item.data.nama} · skor ${score.toLocaleString('id-ID')}`);
+    inspectPanel.show(item.data, progress.inspected.has(item.data.id));
+    inspect.timing = true;
+  });
+}
+
 function startInspect(item) {
   pauseControls();
   dialog.hidePrompt();
   banner.hideRoom(); // banner ruang berada di tengah atas & bisa menutupi artefak
   hover.clear();
-  inspectPanel.show(item.data, progress.inspected.has(item.data.id));
+  // Koleksi berkuis yang belum dijawab: panel kuis dulu, panel info sesudahnya
+  const needsQuiz = item.data.kuis && !progress.quizzesDone.has(item.data.id);
+  inspect.timing = !needsQuiz;
+  if (needsQuiz) startQuiz(item);
+  else inspectPanel.show(item.data, progress.inspected.has(item.data.id));
   // Lampu khusus inspect, di depan-atas artefak (ruang pusaka sengaja redup)
   inspectLight.position.copy(item.focus).addScaledVector(item.viewDir, 1).add(new THREE.Vector3(0, 1, 0));
   inspectLight.intensity = 4;
@@ -332,7 +360,7 @@ canvas.addEventListener('pointerdown', (e) => { pointerDownAt = [e.clientX, e.cl
 canvas.addEventListener('pointerup', (e) => {
   const start = pointerDownAt;
   pointerDownAt = null;
-  if (!start || !hover.current || inspect.isActive || completion.isOpen || !controls.enabled) return;
+  if (!start || !hover.current || inspect.isActive || completion.isOpen || quiz.isOpen || !controls.enabled) return;
   if (Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 5) startInspect(hover.current);
 });
 
@@ -386,13 +414,15 @@ function loop() {
   }
 
   // Sorot artefak hanya saat berjalan bebas (bukan saat dialog, menu, atau inspect)
-  hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !inspect.isActive;
+  hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !quiz.isOpen && !inspect.isActive;
   const hovered = hover.update();
 
   // Prompt "E": bicara dengan petugas, atau periksa artefak yang disorot
-  if (!dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !inspect.isActive) {
+  if (!dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !quiz.isOpen && !inspect.isActive) {
     if (booth.isPlayerNear(camera.position)) dialog.showPrompt('Bicara dengan petugas loket');
-    else if (hovered) dialog.showPrompt(`Periksa ${hovered.data.nama} (atau klik)`);
+    else if (hovered) dialog.showPrompt(hovered.data.kuis && !progress.quizzesDone.has(hovered.data.id)
+      ? `Kuis: tebak asal ${hovered.data.nama} (atau klik)`
+      : `Periksa ${hovered.data.nama} (atau klik)`);
     else dialog.hidePrompt();
   }
 
@@ -401,7 +431,7 @@ function loop() {
 
   // Layar selesai dibuka setelah pemain kembali berjalan bebas, dengan jeda singkat
   // supaya achievement koleksi/ruang terakhir sempat terbaca lebih dulu.
-  if (completionPending && controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !inspect.isActive) {
+  if (completionPending && controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !quiz.isOpen && !inspect.isActive) {
     completionDelay += dt;
     if (completionDelay >= COMPLETION_DELAY_S) {
       completionPending = false;
@@ -413,6 +443,7 @@ function loop() {
         rooms: [progress.visited.size, progress.roomCount],
         artifacts: [progress.inspected.size, progress.artifactCount],
         elapsedMs: progress.elapsedMs,
+        quiz: progress.quizzesDone.size ? [progress.quizScore, progress.quizCount * MAX_SCORE] : null,
       });
     }
   }
