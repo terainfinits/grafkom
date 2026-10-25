@@ -15,6 +15,7 @@ import { createTifa } from './artifacts/tifa.js';
 import { createTalempong } from './artifacts/talempong.js';
 import { createSeruneKalee } from './artifacts/seruneKalee.js';
 import { createPetaIndonesia } from './artifacts/petaIndonesia.js';
+import { createGltfModel } from './models.js';
 
 /*
  * Pajangan koleksi: untuk setiap entri di data/artifacts.js dibuat tempat pajang,
@@ -26,10 +27,14 @@ import { createPetaIndonesia } from './artifacts/petaIndonesia.js';
  *   'wall'               : panel di dinding, untuk benda yang dipajang vertikal (busur & panah, salawaku)
  *   'floor'              : tanpa alas, benda berdiri di lantai dengan kakinya sendiri (kain di
  *                          gawangan); plakat nama di tiang kecil di depannya
+ *   'plinth'             : panggung kayu rendah & lebar untuk benda besar (pinisi di lobi)
  *
  * Pembuat model cukup membuat bendanya di sekitar titik (0, 0, 0); posisinya di atas
  * pajangan diatur otomatis dari kotak pembatasnya (Box3), dan ukuran pedestal/panel
  * menyesuaikan besar benda. Jadi artefak baru tidak perlu menghitung posisi sendiri.
+ *
+ * build: 'gltf' = model dari file GLB (data.model), sudah dimuat lebih dulu oleh
+ * loadModels() di scene/models.js lalu diteruskan ke sini lewat `models`.
  *
  * Grup ini SENGAJA tidak ikut mergeStatic (optimize.js), karena modelnya harus bisa
  * di-raycast (hover/klik) & disorot satu per satu.
@@ -53,6 +58,7 @@ const BUILDERS = {
   talempong: createTalempong,
   seruneKalee: createSeruneKalee,
   petaIndonesia: createPetaIndonesia,
+  gltf: createGltfModel, // (data, models) — model dari file GLB
 };
 
 // Sudut & jarak kamera saat inspect, per jenis pajangan
@@ -61,9 +67,10 @@ const VIEW = {
   stand: { elevation: 12, distance: 1.25 },
   wall: { elevation: 6, distance: 1.25 },
   floor: { elevation: 8, distance: 1.25 },
+  plinth: { elevation: 18, distance: 0.9 },
 };
 
-export function createExhibits(artifacts) {
+export function createExhibits(artifacts, { models = new Map() } = {}) {
   const group = new THREE.Group();
   group.name = 'koleksi';
   const colliders = [];
@@ -89,7 +96,7 @@ export function createExhibits(artifacts) {
     group.add(stand);
 
     // Ukur model dulu (dalam ruang lokalnya) untuk menentukan ukuran & posisi pajangan
-    const model = build();
+    const model = build(data, models); // pembuat prosedural mengabaikan argumen ini
     const local = new THREE.Box3().setFromObject(model);
     const size = local.getSize(new THREE.Vector3());
     const center = local.getCenter(new THREE.Vector3());
@@ -107,7 +114,8 @@ export function createExhibits(artifacts) {
     stand.add(plaque);
 
     // Lampu sorot kecil (ikut light pool, jadi hanya menyala saat pemain dekat)
-    const spot = new THREE.PointLight(0xffe2b8, 3, 4, 2);
+    // (benda besar di panggung butuh lampu lebih kuat & jangkauan lebih jauh)
+    const spot = new THREE.PointLight(0xffe2b8, display.lightIntensity ?? 3, display.lightRange ?? 4, 2);
     spot.position.copy(display.light);
     stand.add(spot);
 
@@ -211,6 +219,27 @@ DISPLAYS.floor = (stand, mats, size) => {
     baseY: 0, footprint,
     plaque: new THREE.Vector3(postX, postH + 0.03, postZ), plaqueTilt: 0.9,
     light: new THREE.Vector3(0, 3.0, 1.0),
+  };
+};
+
+DISPLAYS.plinth = (stand, mats, size) => {
+  // Panggung rendah, 25 cm lebih lebar dari benda di setiap sisi, supaya benda besar
+  // tetap terlihat utuh dari jarak dekat (tidak perlu pedestal tinggi)
+  const w = size.x + 0.5, d = size.z + 0.5, h = 0.3;
+  const footprint = addBox(stand, mats.wood, w, h, d, 0, h / 2, 0);
+  addBox(stand, mats.prada, w + 0.04, 0.03, d + 0.04, 0, h, 0);            // lis atas
+  addBox(stand, mats.prada, w + 0.04, 0.03, d + 0.04, 0, 0.015, 0);        // lis bawah
+  addBox(stand, mats.cloth, w - 0.1, 0.01, d - 0.1, 0, h + 0.02, 0);       // alas kain
+  // Benda besar bisa dikelilingi; tanpa lampu kedua ini sisi belakangnya (mis. layar
+  // pinisi) gelap karena lampu sorot utama hanya dari depan
+  const back = new THREE.PointLight(0xffe2b8, 6, 8, 2);
+  back.position.set(0, size.y + 1.2, -d / 2 - 1.2);
+  stand.add(back);
+  return {
+    baseY: h + 0.025, footprint,
+    plaque: new THREE.Vector3(0, h / 2, d / 2 + 0.002),
+    light: new THREE.Vector3(0, size.y + 1.2, d / 2 + 1.2),
+    lightIntensity: 10, lightRange: 8,
   };
 };
 

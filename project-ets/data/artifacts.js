@@ -19,6 +19,13 @@ Connected Files:
  *              facing = arah hadap muka pajangan (radian, 0 = +Z, π/2 = +X)
  *  nama, asal, periode, bahan, deskripsiSingkat, deskripsi, sumber: isi panel info
  *  koordinat : [lintang, bujur] asal daerah (untuk kuis peta, opsional)
+ *
+ * Khusus model dari file GLB (build: 'gltf', lihat scene/models.js):
+ *  model       : path file .glb
+ *  modelSize   : panjang sisi mendatar terpanjang dalam meter (skala dinormalisasi otomatis)
+ *  modelYaw    : (opsional) rotasi tambahan (radian) kalau arah model aslinya tidak pas
+ *  modelHide   : (opsional) nama material yang bagiannya dibuang dari model
+ *  kreditModel : { judul, pembuat, lisensi, url } — wajib untuk model berlisensi CC BY
  */
 
 // export agar bisa di-import file js lain; Array konstanta yang diekspor berisi objek-objek data koleksi artefak dan wastra pameran museum 
@@ -329,5 +336,34 @@ export const ARTIFACTS = [
     sumber: [
       '"INDONESIA" (https://skfb.ly/6AFNo) by Bijahika is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).'
     ]
+  },
+  {
+    id: 'pinisi',
+    build: 'gltf',
+    model: 'assets/models/pinisi.glb',
+    modelSize: 3.2, // panjang kapal (m); diperbesar/diperkecil cukup dari sini
+    modelHide: ['Water_Pool_Light'], // piringan "air" transparan bawaan model
+    display: 'plinth',
+    ruang: 'lobi',
+    position: [0, 2.6], // tengah lobi, agak ke belakang: langsung terlihat dari pintu masuk
+    facing: 0, // muka panggung menghadap pintu masuk (+Z)
+    nama: 'Kapal Pinisi',
+    asal: 'Sulawesi Selatan — masyarakat Konjo, Bugis, dan Mandar (Tana Beru, Bira, Bulukumba)',
+    periode: 'Layar pinisi dikenal sejak akhir abad ke-19; tradisi perahunya jauh lebih tua',
+    bahan: 'Kayu (ulin, bitti, jati), layar kain, tali',
+    koordinat: [-5.55, 120.2],
+    deskripsiSingkat: 'Kapal layar tradisional Sulawesi Selatan bertiang dua dengan tujuh helai layar.',
+    deskripsi:
+      'Pinisi adalah kapal layar kayu tradisional dari Sulawesi Selatan yang dikenal dengan dua tiang utama dan tujuh helai layar. Kapal ini dibangun tanpa gambar kerja oleh para pengrajin (panrita lopi) di Tana Beru, Bulukumba, dengan pengetahuan yang diwariskan turun-temurun dan disertai berbagai ritual. Sejak dahulu pinisi dipakai untuk berdagang antarpulau di Nusantara. UNESCO menetapkan seni pembuatan perahu pinisi sebagai Warisan Budaya Takbenda pada 2017.',
+    sumber: [
+      'https://id.wikipedia.org/wiki/Pinisi',
+      'https://ich.unesco.org/en/RL/pinisi-art-of-boatbuilding-in-south-sulawesi-01197',
+    ],
+    kreditModel: {
+      judul: 'pinisi',
+      pembuat: 'pakeotak',
+      lisensi: 'CC BY 4.0',
+      url: 'https://sketchfab.com/3d-models/pinisi-3111ee505bd7422d9d30c9cf9da2a467',
+    },
   },
 ];

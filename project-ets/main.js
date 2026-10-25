@@ -7,6 +7,7 @@ Connected Files:
 - ./controls/walkControls.js: First-person navigation and collision detection system.
 - ./ui/dialog.js, ./ui/pauseMenu.js, ./ui/completionScreen.js, ./ui/perfOverlay.js, ./ui/banner.js, ./ui/inspectPanel.js: Visual UI components for dialogues, pause menu, completion screen, stats overlay, room banners, and inspection drawers.
 - ./game/progress.js, ./game/roomTracker.js, ./game/hover.js, ./game/inspect.js: Game loop logic, quest progression, spatial room detection, raycast target highlighting, and artifact examination modes.
+- ./scene/models.js: Loads external GLB models (GLTFLoader + MeshoptDecoder) and normalizes their scale.
 - ./scene/optimize.js: Provides mesh merging helpers (`mergeStatic`) to reduce WebGL draw calls.
 - ./scene/lightPool.js: Dynamic point light management system cycling closest active light sources.
 - ./data/artifacts.js: Structured array containing museum exhibit metadata.
@@ -32,6 +33,7 @@ import { Progress } from './game/progress.js';
 import { RoomTracker } from './game/roomTracker.js';
 import { ARTIFACTS } from './data/artifacts.js';
 import { createExhibits } from './scene/exhibits.js';
+import { loadModels } from './scene/models.js';
 import { Hover } from './game/hover.js';
 import { InspectMode, EXPLORE_S } from './game/inspect.js';
 import { InspectPanel } from './ui/inspectPanel.js';
@@ -88,7 +90,9 @@ scene.add(door.group);
 
 // ---------- Koleksi: pedestal + artefak (data di data/artifacts.js) ----------
 // Tidak ikut mergeStatic: model harus bisa di-raycast & disorot satu per satu.
-const exhibits = createExhibits(ARTIFACTS);
+// File GLB (mis. pinisi) dimuat dulu — masih di balik layar loading.
+const models = await loadModels(ARTIFACTS);
+const exhibits = createExhibits(ARTIFACTS, { models });
 scene.add(exhibits.group);
 
 // ---------- Area luar (langit, tanah, matahari) ----------

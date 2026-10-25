@@ -54,6 +54,18 @@ export class InspectPanel {
         this.sourcesEl.append(a, ' ');
       });
     }
+    // Model dari pihak lain (mis. CC BY): nama pembuat & lisensi wajib dicantumkan
+    if (data.kreditModel) {
+      const { judul, pembuat, lisensi, url } = data.kreditModel;
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = `"${judul}"`;
+      const line = document.createElement('div');
+      line.append('Model 3D: ', a, ` oleh ${pembuat} · ${lisensi}`);
+      this.sourcesEl.append(line);
+    }
     this.setProgress(alreadyExplored ? 1 : 0, alreadyExplored);
     this.el.hidden = false;
   }

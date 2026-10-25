@@ -46,7 +46,7 @@ export const ROOMS = [
   { name: 'Lobby', x: [-7, 7], z: [0, 7.1], height: 5, floor: 'kawung', ceiling: 'kayu',
     lights: [[-3.5, 3.5], [3.5, 3.5]],
     info: { id: 'lobi', title: 'Lobi', subtitle: 'Gerbang penyambutan',
-      description: 'Titik awal kunjungan. Patung dan lukisan dekoratif di sini menjadi pengantar kekayaan budaya Nusantara.',
+      description: 'Titik awal kunjungan. Miniatur kapal pinisi menyambut pengunjung sebagai pengantar kekayaan budaya Nusantara yang dipersatukan laut.',
       achievement: 'Selamat Datang' } },
   { name: 'Selasar barat', x: [-10.1, -7], z: [-12, 7.1], height: 3.5, floor: 'wood', ceiling: 'gedek',
     lights: [[-8.55, 2], [-8.55, -7]],
