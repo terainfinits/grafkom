@@ -254,4 +254,23 @@ export const ARTIFACTS = [
       'dipengaruhi budaya Tionghoa peranakan. (Teks sementara — menunggu riset.)',
     sumber: [],
   },
+  {
+    id: 'tifa',
+    build: 'tifa',
+    display: 'pedestal',
+    ruang: 'pertunjukan',
+    position: [15.1, -6.8],  // dekat dinding selatan ruang pertunjukan
+    facing: 0,                // menghadap +Z (ke tengah ruang)
+    nama: 'Tifa',
+    asal: 'Maluku dan Papua',
+    periode: '— (menunggu riset)',
+    bahan: 'Kayu, kulit rusa, rotan',
+    koordinat: [-3.7, 128.18],
+    deskripsiSingkat: 'Gendang kayu berkulit rusa dari Maluku dan Papua.',
+    deskripsi:
+      'Tifa adalah alat musik pukul berupa gendang dari batang kayu yang dilubangi, dengan membran ' +
+      'kulit rusa yang ditegangkan oleh cincin rotan dan pasak penyetel. Tifa dimainkan dalam ' +
+      'upacara adat dan tarian masyarakat Maluku dan Papua. (Teks sementara — menunggu riset.)',
+    sumber: [],
+  },
 ];

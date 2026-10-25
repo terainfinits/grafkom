@@ -11,6 +11,7 @@ import { createSasirangan } from './artifacts/sasirangan.js';
 import { createSumba } from './artifacts/sumba.js';
 import { createSasando } from './artifacts/sasando.js';
 import { createTehyan } from './artifacts/tehyan.js';
+import { createTifa } from './artifacts/tifa.js';
 
 /*
  * Pajangan koleksi: untuk setiap entri di data/artifacts.js dibuat tempat pajang,
@@ -45,6 +46,7 @@ const BUILDERS = {
   sumba: createSumba,
   sasando: createSasando,
   tehyan: createTehyan,
+  tifa: createTifa,
 };
 
 // Sudut & jarak kamera saat inspect, per jenis pajangan
