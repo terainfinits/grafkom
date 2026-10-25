@@ -81,6 +81,15 @@ export class Progress {
     return true;
   }
 
+  // Mode developer: tandai banyak ruang & koleksi sekaligus, lalu umumkan SEKALI
+  // (memanggil visitRoom/inspectArtifact satu per satu akan memunculkan toast quest berkali-kali)
+  devComplete({ rooms, artifacts }) {
+    this.hasTicket = true;
+    for (const id of rooms) this.visited.add(id);
+    for (const id of artifacts) this.inspected.add(id);
+    this._emit();
+  }
+
   get quests() {
     const list = [
       { id: 'tiket', label: 'Beli tiket di loket', done: this.hasTicket },

@@ -5,7 +5,7 @@ Connected Files:
 - ./scene/building.js, ./scene/aula.js, ./scene/courtyard.js, ./scene/facade.js, ./scene/ticketBooth.js, ./scene/entranceDoor.js, ./scene/exhibits.js, ./scene/outdoor.js, ./scene/garden.js: Modules creating physical 3D scene elements.
 - ./scene/layout.js: Holds spatial layout definitions (ROOMS data and FRONT_Z origin coordinate).
 - ./controls/walkControls.js: First-person navigation and collision detection system.
-- ./ui/dialog.js, ./ui/pauseMenu.js, ./ui/completionScreen.js, ./ui/perfOverlay.js, ./ui/banner.js, ./ui/inspectPanel.js: Visual UI components for dialogues, pause menu, completion screen, stats overlay, room banners, and inspection drawers.
+- ./ui/dialog.js, ./ui/pauseMenu.js, ./ui/completionScreen.js, ./ui/perfOverlay.js, ./ui/devPanel.js, ./ui/banner.js, ./ui/inspectPanel.js: Visual UI components for dialogues, pause menu, completion screen, stats overlay, room banners, and inspection drawers.
 - ./game/progress.js, ./game/roomTracker.js, ./game/hover.js, ./game/inspect.js: Game loop logic, quest progression, spatial room detection, raycast target highlighting, and artifact examination modes.
 - ./scene/models.js: Loads external GLB models (GLTFLoader + MeshoptDecoder) and normalizes their scale.
 - ./scene/optimize.js: Provides mesh merging helpers (`mergeStatic`) to reduce WebGL draw calls.
@@ -28,6 +28,7 @@ import { Dialog } from './ui/dialog.js';
 import { PauseMenu } from './ui/pauseMenu.js';
 import { CompletionScreen } from './ui/completionScreen.js';
 import { PerfOverlay } from './ui/perfOverlay.js';
+import { DevPanel } from './ui/devPanel.js';
 import { Banner } from './ui/banner.js';
 import { Progress } from './game/progress.js';
 import { RoomTracker } from './game/roomTracker.js';
@@ -331,6 +332,25 @@ scene.add(inspectLight);
 const clock = new THREE.Clock();
 const COMPLETION_DELAY_S = 1.5; // jeda sebelum layar selesai muncul
 const perf = new PerfOverlay(renderer); // tombol ` untuk menampilkan angka performa
+
+// ---------- Mode developer (ikut tombol `) ----------
+// Lompat ke akhir permainan untuk menguji layar selesai. Pintu ikut dibuka supaya
+// pemain tetap bisa masuk walau tiket "dibeli" lewat jalan pintas.
+function devSkip(leaveOne) {
+  const left = leaveOne ? exhibits.items.at(-1) : null; // koleksi terakhir di data (pinisi, di lobi)
+  if (!progress.hasTicket) door.open();
+  progress.devComplete({
+    rooms: roomTracker.all.map((r) => r.id),
+    artifacts: exhibits.items.map((i) => i.data.id).filter((id) => id !== left?.data.id),
+  });
+  if (progress.finishedAt !== null && !completionPending && !completion.isOpen) {
+    dialog.toast('Developer mode: kunjungan sudah selesai. Pakai Mulai ulang untuk menguji lagi', 5000);
+  } else if (left) {
+    const room = roomTracker.all.find((r) => r.id === left.data.ruang);
+    dialog.toast(`Developer mode: tinggal periksa ${left.data.nama}${room ? ` di ${room.title}` : ''}`, 5000);
+  }
+}
+new DevPanel({ onCompleteAll: () => devSkip(false), onLeaveOne: () => devSkip(true) });
 
 function loop() {
   const dt = Math.min(clock.getDelta(), 0.1); // dibatasi supaya tidak "teleport" saat tab kembali aktif

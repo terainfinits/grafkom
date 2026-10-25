@@ -124,6 +124,15 @@ body {
   line-height: 1.5; white-space: pre; pointer-events: none;
 }
 
+/* ---------- Panel developer (muncul bersama overlay performa) ---------- */
+.dev-panel {
+  position: fixed; top: 178px; left: 12px; display: flex; flex-direction: column; gap: 6px;
+  padding: 8px 12px 10px; background: rgba(10, 12, 18, 0.8); border: 1px solid #3a4051;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.dev-panel[hidden] { display: none; }
+.dev-title { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #c39a4f; }
+
 /* ---------- Layar loading (Full-screen initial assets) ---------- */
 .loading {
   position: fixed; inset: 0; display: grid; place-content: center; gap: 10px; text-align: center;
