@@ -102,6 +102,20 @@ body {
   font-family: inherit; font-size: 11px; text-align: center;
 }
 
+/* ---------- Layar selesai (semua ruang & koleksi sudah diperiksa) ---------- */
+/* Memakai .pause-overlay / .pause-menu; di sini hanya tambahan khusus */
+.completion { text-align: center; }
+.completion-kicker { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #c39a4f; }
+.completion-title { margin: 6px 0 0; font-size: 22px; font-weight: 500; letter-spacing: 0.04em; color: #e8c97a; }
+.completion-stats {
+  display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; margin: 4px auto 0; max-width: 300px;
+  font-size: 13px; text-align: left;
+}
+.completion-stats dt { color: #a9b0c0; }
+.completion-stats dd { margin: 0; color: #e6e2d6; text-align: right; }
+.completion-text { margin: 16px 0 0; font-size: 13px; line-height: 1.7; color: #c8cbd4; }
+.completion .pause-actions { justify-content: center; }
+
 /* ---------- Overlay performa (tombol backtick `) ---------- */
 .perf-overlay {
   position: fixed; top: 12px; left: 12px; padding: 8px 12px;
