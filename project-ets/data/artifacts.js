@@ -295,4 +295,23 @@ export const ARTIFACTS = [
       '(Teks sementara — menunggu riset.)',
     sumber: [],
   },
+  {
+    id: 'serune-kalee',
+    build: 'seruneKalee',
+    display: 'pedestal',
+    ruang: 'pertunjukan',
+    position: [12.4, -6.1],  // sisi barat daya ruang pertunjukan
+    facing: 0.57,             // serong menghadap ke tengah ruang
+    nama: 'Serune Kalee',
+    asal: 'Aceh',
+    periode: '— (menunggu riset)',
+    bahan: 'Kayu keras, kuningan',
+    koordinat: [5.55, 95.32],
+    deskripsiSingkat: 'Alat musik tiup khas Aceh dari kayu keras berlapis cincin kuningan.',
+    deskripsi:
+      'Serune Kalee adalah alat musik tiup tradisional Aceh. Badannya dari kayu keras yang dibubut ' +
+      'dan beruas-ruas dengan cincin kuningan, memiliki lubang-lubang nada, dan berujung corong ' +
+      'yang melebar. (Teks sementara — menunggu riset.)',
+    sumber: [],
+  },
 ];
