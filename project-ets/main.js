@@ -9,6 +9,9 @@ Connected Files:
 - ./game/progress.js, ./game/roomTracker.js, ./game/hover.js, ./game/inspect.js: Game loop logic, quest progression, spatial room detection, raycast target highlighting, and artifact examination modes.
 - ./scene/models.js: Loads external GLB models (GLTFLoader + MeshoptDecoder) and normalizes their scale.
 - ./scene/optimize.js: Provides mesh merging helpers (`mergeStatic`) to reduce WebGL draw calls.
+- ./scene/vfx/fireflies.js: Firefly particle VFX (THREE.Points) in the courtyard and front yard.
+- ./scene/vfx/ripples.js: Lotus pond water VFX (scrolling normal map + expanding ripple rings).
+- ./scene/vfx/petals.js: Falling flower petal VFX (InstancedMesh) shown when the completion screen opens.
 - ./scene/lightPool.js: Dynamic point light management system cycling closest active light sources.
 - ./data/artifacts.js: Structured array containing museum exhibit metadata.
 */
@@ -40,6 +43,9 @@ import { InspectMode, EXPLORE_S } from './game/inspect.js';
 import { InspectPanel } from './ui/inspectPanel.js';
 import { mergeStatic } from './scene/optimize.js';
 import { createLightPool } from './scene/lightPool.js';
+import { createFireflies } from './scene/vfx/fireflies.js';
+import { createRipples } from './scene/vfx/ripples.js';
+import { createPetals } from './scene/vfx/petals.js';
 
 // ---------- Renderer (WebGL Renderer initialization & Shadow Map configuration) ----------
 const canvas = document.getElementById('scene');
@@ -103,6 +109,19 @@ scene.add(outdoor.group);
 // ---------- Taman depan (papan nama & lampu taman) ----------
 const garden = createGarden();
 scene.add(garden.group);
+
+// ---------- VFX: kunang-kunang di taman tengah & halaman depan ----------
+// Tidak ikut mergeStatic & bayangan (partikel bergerak, tidak memberi bayangan).
+const fireflies = createFireflies();
+scene.add(fireflies.group);
+
+// ---------- VFX: riak air kolam teratai di taman tengah ----------
+const ripples = createRipples(courtyard.water);
+scene.add(ripples.group);
+
+// ---------- VFX: kelopak bunga berguguran saat layar selesai ----------
+const petals = createPetals();
+scene.add(petals.group);
 
 // ---------- Optimasi: gabungkan mesh statis ----------
 // Ratusan kotak kecil (dinding, lis, hiasan, atap, tiang, ...) digabung menjadi satu mesh
@@ -356,6 +375,9 @@ function loop() {
   const dt = Math.min(clock.getDelta(), 0.1); // dibatasi supaya tidak "teleport" saat tab kembali aktif
   controls.update(dt);
   booth.update(dt, camera.position);
+  fireflies.update(dt);
+  ripples.update(dt);
+  petals.update(dt);
   if (door.update(dt)) renderer.shadowMap.needsUpdate = true; // bayangan pintu ikut bergerak
 
   inspect.update(dt);
@@ -386,6 +408,7 @@ function loop() {
       pauseControls();
       dialog.hidePrompt();
       hover.clear();
+      petals.burst(camera.position); // perayaan: kelopak berguguran di sekitar pemain
       completion.open({
         rooms: [progress.visited.size, progress.roomCount],
         artifacts: [progress.inspected.size, progress.artifactCount],

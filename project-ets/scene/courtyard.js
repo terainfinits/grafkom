@@ -30,7 +30,7 @@ export function createCourtyard() {
   const leaf = new THREE.MeshStandardMaterial({ color: 0x3f6b2e, roughness: 0.8, flatShading: true });
   const wood = new THREE.MeshStandardMaterial({ color: 0x6a4428, roughness: 0.65 });
 
-  addPond(group, colliders, stone);
+  const water = addPond(group, colliders, stone);
   addFrangipani(group, colliders, leaf);
   addBench(group, colliders, wood);
   for (const [x, z] of JARS) addJar(group, colliders, x, z, leaf);
@@ -39,7 +39,8 @@ export function createCourtyard() {
     colliders.push({ minX: x - 0.5, maxX: x + 0.5, minZ: z - 0.4, maxZ: z + 0.5, enabled: true });
   }
 
-  return { group, colliders };
+  // water: data permukaan kolam untuk VFX riak (scene/vfx/ripples.js)
+  return { group, colliders, water };
 }
 
 // ---------- Kolam teratai ----------
@@ -83,6 +84,14 @@ function addPond(group, colliders, stone) {
   });
 
   colliders.push({ minX: x0, maxX: x1, minZ: z0, maxZ: z1, enabled: true });
+
+  // Material tetap dipakai bersama setelah mergeStatic, jadi teksturnya masih bisa dianimasikan
+  return {
+    material: water.material,
+    center: [cx, cz],
+    size: [w - 2 * rimW, d - 2 * rimW],
+    y: water.position.y,
+  };
 }
 
 // ---------- Pohon kamboja ----------
