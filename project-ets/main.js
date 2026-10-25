@@ -5,7 +5,7 @@ Connected Files:
 - ./scene/building.js, ./scene/aula.js, ./scene/courtyard.js, ./scene/facade.js, ./scene/ticketBooth.js, ./scene/entranceDoor.js, ./scene/exhibits.js, ./scene/outdoor.js, ./scene/garden.js: Modules creating physical 3D scene elements.
 - ./scene/layout.js: Holds spatial layout definitions (ROOMS data and FRONT_Z origin coordinate).
 - ./controls/walkControls.js: First-person navigation and collision detection system.
-- ./ui/dialog.js, ./ui/pauseMenu.js, ./ui/perfOverlay.js, ./ui/banner.js, ./ui/inspectPanel.js: Visual UI components for dialogues, pause menu, stats overlay, room banners, and inspection drawers.
+- ./ui/dialog.js, ./ui/pauseMenu.js, ./ui/completionScreen.js, ./ui/perfOverlay.js, ./ui/banner.js, ./ui/inspectPanel.js: Visual UI components for dialogues, pause menu, completion screen, stats overlay, room banners, and inspection drawers.
 - ./game/progress.js, ./game/roomTracker.js, ./game/hover.js, ./game/inspect.js: Game loop logic, quest progression, spatial room detection, raycast target highlighting, and artifact examination modes.
 - ./scene/optimize.js: Provides mesh merging helpers (`mergeStatic`) to reduce WebGL draw calls.
 - ./scene/lightPool.js: Dynamic point light management system cycling closest active light sources.
@@ -25,6 +25,7 @@ import { createAula } from './scene/aula.js';
 import { createCourtyard } from './scene/courtyard.js';
 import { Dialog } from './ui/dialog.js';
 import { PauseMenu } from './ui/pauseMenu.js';
+import { CompletionScreen } from './ui/completionScreen.js';
 import { PerfOverlay } from './ui/perfOverlay.js';
 import { Banner } from './ui/banner.js';
 import { Progress } from './game/progress.js';
@@ -135,9 +136,14 @@ const roomTracker = new RoomTracker(ROOMS); // ruang = entri ROOMS yang punya `i
 const progress = new Progress({ roomCount: roomTracker.all.length, artifactCount: exhibits.items.length });
 const banner = new Banner();
 
-// Setiap kali quest aktif berganti, beri tahu lewat toast singkat
-progress.onChange(({ active, activeChanged }) => {
+// Setiap kali quest aktif berganti, beri tahu lewat toast singkat.
+// Saat semua syarat terpenuhi, layar selesai tidak langsung dibuka (pemain mungkin masih
+// di mode inspect / achievement masih tampil) — cukup ditandai, lalu dibuka di loop.
+let completionPending = false;
+let completionDelay = 0;
+progress.onChange(({ active, activeChanged, justCompleted }) => {
   if (activeChanged && active) dialog.toast(`Quest baru: ${active.label}`, 4000);
+  if (justCompleted) completionPending = true;
 });
 
 function onRoomEntered(info) {
@@ -145,8 +151,9 @@ function onRoomEntered(info) {
     // Pertama kali: banner penjelasan + achievement (hanya sekali per ruang)
     banner.showRoom(info);
     banner.achievement(info.achievement, `Ruang ditemukan ${progress.visited.size}/${progress.roomCount}`);
-    if (progress.visited.size === progress.roomCount) {
-      dialog.toast('Semua ruang sudah dijelajahi — koleksi segera hadir', 5000);
+    // Hanya kalau koleksi belum lengkap; kalau sudah lengkap, layar selesai yang muncul
+    if (progress.visited.size === progress.roomCount && !progress.allDone) {
+      dialog.toast('Semua ruang sudah dijelajahi — tinggal periksa koleksi yang tersisa', 5000);
     }
   } else {
     banner.showLabel(info.title);
@@ -222,7 +229,7 @@ function buyTicket() {
 // Interaction Hotkey 'E' listener
 window.addEventListener('keydown', (e) => {
   // e.defaultPrevented = tombol sudah dipakai dialog (mis. E untuk menutup), jangan dibuka lagi
-  if (e.code !== 'KeyE' || e.repeat || e.defaultPrevented || dialog.isOpen || pauseMenu.isOpen || inspect.isActive) return;
+  if (e.code !== 'KeyE' || e.repeat || e.defaultPrevented || dialog.isOpen || pauseMenu.isOpen || completion.isOpen || inspect.isActive) return;
   if (booth.isPlayerNear(camera.position)) talkToCashier();
   else if (hover.current) startInspect(hover.current);
 });
@@ -238,13 +245,22 @@ const pauseMenu = new PauseMenu({
   onRestart: () => location.reload(),
 });
 
+// ---------- Layar selesai ----------
+const completion = new CompletionScreen({
+  onContinue: resumeControls, // museum tetap bisa dijelajahi setelah selesai
+  onRestart: () => location.reload(), // sama seperti "Mulai ulang" di menu jeda
+});
+
 // Prioritas Esc: dialog terbuka → dialog yang menutup (ditangani Dialog, ditandai defaultPrevented);
-// mode inspect → kembali berjalan; menu terbuka → lanjut; selain itu → buka menu jeda.
+// mode inspect → kembali berjalan; layar selesai → lanjut menjelajah; menu terbuka → lanjut;
+// selain itu → buka menu jeda.
 window.addEventListener('keydown', (e) => {
   if (e.code !== 'Escape' || e.repeat || e.defaultPrevented || dialog.isOpen) return;
   e.preventDefault();
   if (inspect.isActive) {
     inspect.exit();
+  } else if (completion.isOpen) {
+    completion.close();
   } else if (pauseMenu.isOpen) {
     pauseMenu.close();
   } else {
@@ -292,7 +308,7 @@ canvas.addEventListener('pointerdown', (e) => { pointerDownAt = [e.clientX, e.cl
 canvas.addEventListener('pointerup', (e) => {
   const start = pointerDownAt;
   pointerDownAt = null;
-  if (!start || !hover.current || inspect.isActive || !controls.enabled) return;
+  if (!start || !hover.current || inspect.isActive || completion.isOpen || !controls.enabled) return;
   if (Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 5) startInspect(hover.current);
 });
 
@@ -309,6 +325,7 @@ scene.add(inspectLight);
 
 // ---------- Loop (Main Application Engine Loop) ----------
 const clock = new THREE.Clock();
+const COMPLETION_DELAY_S = 1.5; // jeda sebelum layar selesai muncul
 const perf = new PerfOverlay(renderer); // tombol ` untuk menampilkan angka performa
 
 function loop() {
@@ -323,11 +340,11 @@ function loop() {
   }
 
   // Sorot artefak hanya saat berjalan bebas (bukan saat dialog, menu, atau inspect)
-  hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !inspect.isActive;
+  hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !inspect.isActive;
   const hovered = hover.update();
 
   // Prompt "E": bicara dengan petugas, atau periksa artefak yang disorot
-  if (!dialog.isOpen && !pauseMenu.isOpen && !inspect.isActive) {
+  if (!dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !inspect.isActive) {
     if (booth.isPlayerNear(camera.position)) dialog.showPrompt('Bicara dengan petugas loket');
     else if (hovered) dialog.showPrompt(`Periksa ${hovered.data.nama} (atau klik)`);
     else dialog.hidePrompt();
@@ -335,6 +352,23 @@ function loop() {
 
   const entered = roomTracker.update(dt, camera.position);
   if (entered) onRoomEntered(entered);
+
+  // Layar selesai dibuka setelah pemain kembali berjalan bebas, dengan jeda singkat
+  // supaya achievement koleksi/ruang terakhir sempat terbaca lebih dulu.
+  if (completionPending && controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !inspect.isActive) {
+    completionDelay += dt;
+    if (completionDelay >= COMPLETION_DELAY_S) {
+      completionPending = false;
+      pauseControls();
+      dialog.hidePrompt();
+      hover.clear();
+      completion.open({
+        rooms: [progress.visited.size, progress.roomCount],
+        artifacts: [progress.inspected.size, progress.artifactCount],
+        elapsedMs: progress.elapsedMs,
+      });
+    }
+  }
 
   lightPool.update(camera.position);
   renderer.render(scene, camera);
@@ -362,4 +396,5 @@ controls.enabled = true;
 const loading = document.getElementById('loading');
 loading.classList.add('is-done');
 loading.addEventListener('transitionend', () => loading.remove());
+progress.start(); // lama kunjungan dihitung sejak museum siap dijelajahi
 dialog.toast(`Quest: ${progress.activeQuest.label}`, 5000); // quest pertama: beli tiket

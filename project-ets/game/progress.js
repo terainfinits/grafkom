@@ -7,11 +7,16 @@
  *   done    — selesai
  *   active  — quest pertama yang belum selesai (yang sedang dikejar)
  *   pending — belum selesai, menunggu giliran
- *   locked  — fiturnya belum ada (koleksi & kuis), ditampilkan terkunci
+ *   locked  — fiturnya belum ada (koleksi), ditampilkan terkunci
+ *
+ * Kunjungan dianggap SELESAI (allDone) bila semua ruang sudah dikunjungi dan semua koleksi
+ * sudah diperiksa. Kuis bersifat opsional: tidak ikut syarat selesai, dan selama fiturnya
+ * belum ada (quizAvailable = false) tidak dimunculkan di daftar quest sama sekali.
  *
  * Pemakaian:
  *   const progress = new Progress({ roomCount: 8 });
- *   progress.onChange(({ active, activeChanged }) => { ... });
+ *   progress.onChange(({ active, activeChanged, justCompleted }) => { ... });
+ *   progress.start(); // mulai menghitung lama kunjungan (setelah layar loading hilang)
  *   progress.buyTicket();
  *   const firstTime = progress.visitRoom('wastra');
  */
@@ -27,8 +32,27 @@ export class Progress {
     this.inspected = new Set();
     this.quizzesDone = new Set();
 
+    // Lama kunjungan: dihitung dari start() sampai selesai (waktu dibekukan saat allDone)
+    this.startedAt = null;
+    this.finishedAt = null;
+
     this._listeners = [];
     this._activeId = this.activeQuest?.id ?? null;
+  }
+
+  start() {
+    this.startedAt = performance.now();
+  }
+
+  get allDone() {
+    return this.visited.size >= this.roomCount
+      && this.artifactCount > 0 && this.inspected.size >= this.artifactCount;
+  }
+
+  // Lama kunjungan dalam milidetik (berhenti bertambah setelah selesai)
+  get elapsedMs() {
+    if (this.startedAt === null) return 0;
+    return (this.finishedAt ?? performance.now()) - this.startedAt;
   }
 
   onChange(fn) {
@@ -66,10 +90,13 @@ export class Progress {
       { id: 'koleksi', label: 'Periksa koleksi', available: this.artifactCount > 0,
         count: this.inspected.size, total: this.artifactCount,
         done: this.artifactCount > 0 && this.inspected.size >= this.artifactCount },
-      { id: 'kuis', label: 'Ikuti kuis tebak asal koleksi', available: this.quizAvailable,
-        count: this.quizzesDone.size, total: this.quizCount,
-        done: this.quizAvailable && this.quizzesDone.size >= this.quizCount },
     ];
+    // Kuis opsional: baru ditampilkan kalau fiturnya sudah ada
+    if (this.quizAvailable) {
+      list.push({ id: 'kuis', label: 'Ikuti kuis tebak asal koleksi', optional: true,
+        count: this.quizzesDone.size, total: this.quizCount,
+        done: this.quizzesDone.size >= this.quizCount });
+    }
     let activeFound = false;
     for (const q of list) {
       if (q.done) q.status = 'done';
@@ -88,6 +115,9 @@ export class Progress {
     const active = this.activeQuest;
     const activeChanged = (active?.id ?? null) !== this._activeId;
     this._activeId = active?.id ?? null;
-    for (const fn of this._listeners) fn({ active, activeChanged });
+    // justCompleted hanya true SEKALI, tepat saat syarat selesai pertama kali terpenuhi
+    const justCompleted = this.finishedAt === null && this.allDone;
+    if (justCompleted) this.finishedAt = performance.now();
+    for (const fn of this._listeners) fn({ active, activeChanged, justCompleted });
   }
 }

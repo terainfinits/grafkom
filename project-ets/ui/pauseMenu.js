@@ -102,7 +102,8 @@ export class PauseMenu {
       const mark = el('span', 'q-mark');
       mark.textContent = marks[q.status];
       const label = el('span');
-      label.textContent = q.status === 'locked' ? `${q.label} (segera hadir)` : q.label;
+      label.textContent = q.status === 'locked' ? `${q.label} (segera hadir)`
+        : q.optional ? `${q.label} (opsional)` : q.label;
       li.append(mark, label);
       if (q.total && q.status !== 'locked') {
         const count = el('span', 'q-count');
