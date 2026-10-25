@@ -14,6 +14,7 @@ Connected Files:
  *  build     : nama pembuat model (lihat BUILDERS di scene/exhibits.js)
  *  ruang     : id ruang dari layout.js (info.id) — hanya untuk catatan/kuis
  *  display   : 'pedestal' (default), 'stand' (dudukan rendah, benda tegak), atau 'wall' (panel dinding)
+ *  view      : (opsional) { elevation: derajat, distance: kelipatan } untuk mengganti sudut kamera inspect bawaan
  *  position  : [x, z] titik tengah pajangan (untuk 'wall': titik di permukaan dinding);
  *              facing = arah hadap muka pajangan (radian, 0 = +Z, π/2 = +X)
  *  nama, asal, periode, bahan, deskripsiSingkat, deskripsi, sumber: isi panel info
@@ -271,6 +272,27 @@ export const ARTIFACTS = [
       'Tifa adalah alat musik pukul berupa gendang dari batang kayu yang dilubangi, dengan membran ' +
       'kulit rusa yang ditegangkan oleh cincin rotan dan pasak penyetel. Tifa dimainkan dalam ' +
       'upacara adat dan tarian masyarakat Maluku dan Papua. (Teks sementara — menunggu riset.)',
+    sumber: [],
+  },
+  {
+    id: 'talempong',
+    build: 'talempong',
+    display: 'floor',        // punya rancak (rak) sendiri, diletakkan langsung di lantai
+    view: { elevation: 42, distance: 1.1 }, // dilihat dari atas supaya 12 talempong terlihat
+    ruang: 'pertunjukan',
+    position: [12.4, 2.1],   // sisi barat laut ruang pertunjukan, dekat pintu masuk
+    facing: 2.55,             // serong menghadap ke tengah ruang
+    nama: 'Talempong',
+    asal: 'Minangkabau, Sumatera Barat',
+    periode: '— (menunggu riset)',
+    bahan: 'Perunggu, kayu, tali',
+    koordinat: [-0.95, 100.35],
+    deskripsiSingkat: 'Set gong kecil perunggu Minangkabau di atas rancak kayu.',
+    deskripsi:
+      'Talempong adalah alat musik pukul dari perunggu berbentuk gong kecil dengan tonjolan (pencu) di ' +
+      'bagian atas sebagai tempat dipukul. Talempong disusun di atas rancak, rak kayu bertali yang ' +
+      'membuatnya dapat bergetar bebas, dan dimainkan dengan sepasang pemukul. ' +
+      '(Teks sementara — menunggu riset.)',
     sumber: [],
   },
 ];

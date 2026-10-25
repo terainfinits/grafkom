@@ -12,6 +12,7 @@ import { createSumba } from './artifacts/sumba.js';
 import { createSasando } from './artifacts/sasando.js';
 import { createTehyan } from './artifacts/tehyan.js';
 import { createTifa } from './artifacts/tifa.js';
+import { createTalempong } from './artifacts/talempong.js';
 
 /*
  * Pajangan koleksi: untuk setiap entri di data/artifacts.js dibuat tempat pajang,
@@ -47,6 +48,7 @@ const BUILDERS = {
   sasando: createSasando,
   tehyan: createTehyan,
   tifa: createTifa,
+  talempong: createTalempong,
 };
 
 // Sudut & jarak kamera saat inspect, per jenis pajangan
@@ -126,7 +128,9 @@ export function createExhibits(artifacts) {
     hitbox.position.copy(focus);
     model.attach(hitbox); // attach: posisi dunia dipertahankan, jadi anak dari model
 
-    items.push({ data, model, focus, radius, viewDir, view: VIEW[type] });
+    // data.view (opsional) menggantikan sudut & jarak bawaan jenis pajangan, mis. benda rendah
+    // di lantai yang lebih enak dilihat dari atas
+    items.push({ data, model, focus, radius, viewDir, view: { ...VIEW[type], ...data.view } });
   }
 
   return { group, colliders, items };
