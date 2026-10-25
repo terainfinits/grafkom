@@ -154,7 +154,7 @@ const controls = new WalkControls(camera, canvas, {
 
 // ---------- Dialog petugas loket ----------
 const dialog = new Dialog();
-const CASHIER = 'Petugas Loket';
+const CASHIER = 'Mas Bima · Petugas Loket';
 
 // ---------- Progress, quest, & pelacak ruangan ----------
 const roomTracker = new RoomTracker(ROOMS); // ruang = entri ROOMS yang punya `info`
@@ -192,11 +192,12 @@ function onRoomEntered(info) {
 
 // Halaman panduan — dipakai saat pertama kali & saat pemain minta diulang
 const GUIDE_PAGES = [
-  { text: 'Selamat datang di <strong>Museum Interaktif 3D</strong>! Sebelum masuk, saya jelaskan dulu cara berkeliling, ya.' },
-  { text: 'Tekan <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> untuk berjalan, tahan <kbd>Shift</kbd> untuk berlari, dan <kbd>Spasi</kbd> untuk melompat.' },
-  { text: 'Untuk melihat sekeliling, <strong>tahan klik kiri</strong> lalu geser mouse.' },
-  { text: 'Di dalam ada banyak artifact yang bisa kamu dekati dan periksa. Coba jelajahi semuanya, ya!' },
-  { text: 'Kalau lupa kontrolnya, tekan <kbd>Esc</kbd> kapan saja untuk membuka <strong>menu jeda</strong>.' },
+  { text: 'Selamat sore, selamat datang di <strong>Museum Interaktif 3D</strong>! Saya Bima, petugas loket hari ini. Sebelum masuk, saya jelaskan sebentar, ya.' },
+  { text: 'Untuk berkeliling: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> berjalan, tahan <kbd>Shift</kbd> berlari, <kbd>Spasi</kbd> melompat. <strong>Tahan klik kiri</strong> lalu geser mouse untuk melihat sekeliling.' },
+  { text: 'Ada <strong>delapan ruang</strong> yang bisa ditemukan, mulai dari kain tradisional, alat musik, sampai senjata pusaka. Ruang Pusaka ada di bagian paling dalam, di balik Aula.' },
+  { text: 'Koleksi yang bisa diperiksa akan <strong>bercahaya</strong> saat kursormu mengarah ke sana. Tekan <kbd>E</kbd> atau klik, lalu amati beberapa detik sampai koleksinya tercatat.' },
+  { text: 'Beberapa koleksi punya <strong>kuis tebak asal</strong>: tebak daerah asalnya di peta sambil mengamati bendanya. Tidak wajib, tapi skornya lumayan untuk dipamerkan.' },
+  { text: 'Kunjunganmu selesai setelah <strong>semua ruang dijelajahi</strong> dan <strong>semua koleksi diperiksa</strong>. Mau lihat progres atau lupa kontrolnya? Tekan <kbd>Esc</kbd> kapan saja.' },
 ];
 
 function pauseControls() {
@@ -219,7 +220,7 @@ function talkToCashier() {
       pages: [
         ...GUIDE_PAGES,
         {
-          text: 'Tiket masuk museum <strong>Rp10.000</strong>. Mau beli sekarang?',
+          text: 'Tiket masuknya <strong>Rp10.000</strong> per orang. Mau beli sekarang?',
           actions: [
             { label: 'Beli tiket', onClick: buyTicket },
             { label: 'Nanti dulu', onClick: () => dialog.close() },
@@ -232,7 +233,7 @@ function talkToCashier() {
     dialog.open({
       name: CASHIER,
       pages: [{
-        text: 'Kamu sudah punya tiket. Silakan masuk lewat pintu di bawah papan <strong>Pintu Masuk</strong>, ya!',
+        text: 'Tiketmu sudah ada. Silakan masuk lewat pintu di bawah papan <strong>Pintu Masuk</strong>, ya. Selamat menikmati!',
         actions: [
           { label: 'Tutup', onClick: () => dialog.close() },
           { label: 'Ulangi panduan', onClick: () => dialog.open({ name: CASHIER, pages: GUIDE_PAGES, onClose: resumeControls }) },
@@ -248,7 +249,7 @@ function buyTicket() {
   door.open();
   dialog.open({
     name: CASHIER,
-    pages: [{ text: 'Terima kasih! Ini tiketnya. Pintunya sudah saya buka, selamat menjelajah!' }],
+    pages: [{ text: 'Terima kasih! Ini tiketnya. Pintunya sudah saya bukakan. Selamat menjelajah, semoga betah!' }],
     onClose: () => {
       resumeControls();
       progress.buyTicket(); // quest berikutnya ("Masuki museum") diumumkan lewat toast
