@@ -332,6 +332,7 @@ function openSecret() {
   dialog.hidePrompt();
   hover.clear();
   secret.open();
+  sfx.play('easter-egg', { volume: 0.8 });
   if (!secretSeen) {
     secretSeen = true;
     banner.achievement('Pencari Asal-usul', 'Kamu menemukan alasan museum ini ada');
@@ -500,8 +501,8 @@ function loop() {
   }
 
   // Sorot artefak hanya saat berjalan bebas (bukan saat dialog, menu, atau inspect)
-  // Musik diredam selama memeriksa koleksi, kuis, & layar selesai
-  music.ducked = inspect.isActive || quiz.isOpen || completion.isOpen; // layar selesai: jingle terdengar jelas
+  // Musik diredam selama memeriksa koleksi, kuis, layar selesai, & layar easter egg
+  music.ducked = inspect.isActive || quiz.isOpen || completion.isOpen || secret.isOpen; // layar selesai & easter egg: bunyinya terdengar jelas
   music.update(dt);
 
   hover.enabled = controls.enabled && !dialog.isOpen && !pauseMenu.isOpen && !completion.isOpen && !secret.isOpen && !quiz.isOpen && !inspect.isActive;

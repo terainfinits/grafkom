@@ -26,6 +26,7 @@ const SOUNDS = {
   'step-lantai': 4,
   'quiz-answer': 0,
   completion: 0,
+  'easter-egg': 0,
 };
 const MASTER = 0.8;
 const STORAGE_KEY = 'museum-sfx';

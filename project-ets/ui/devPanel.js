@@ -3,7 +3,7 @@
  * Muncul/hilang bersama overlay performa (tombol ` / backtick), tepat di bawahnya.
  *
  *  Selesaikan semua : tiket, ruang, koleksi utama, kuis, & lukisan langsung tercatat
- *                     → layar selesai + achievement lukisan (nanti juga easter egg)
+ *                     → layar selesai + achievement lukisan + prasasti easter egg di taman menyala
  *  Sisakan 1 koleksi: semua ruang & koleksi utama kecuali satu → uji pemicu layar selesai
  *                     yang sebenarnya (periksa koleksi terakhir itu secara normal)
  *  Sisakan 1 lukisan: semua lukisan kecuali satu → uji achievement lukisan (game belum selesai)
