@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
@@ -11,7 +12,9 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
  *
  * Alurnya:
  *  1. loadModels  — memuat setiap file `model` di data artefak SATU kali (GLTFLoader).
- *     File sudah dikompres meshopt (gltf-transform), jadi perlu MeshoptDecoder.
+ *     File dikompres dengan gltf-transform: meshopt (pinisi) atau Draco (peta Indonesia),
+ *     jadi loader dibekali MeshoptDecoder & DRACOLoader. Decoder Draco (WASM) diambil dari
+ *     CDN Three.js versi yang sama dengan importmap.
  *  2. prepare     — model dari Sketchfab/SketchUp biasanya tersusun dari ratusan mesh kecil
  *     (pinisi: 834 mesh = 834 draw call). Mesh digabung per material, sama seperti
  *     mergeStatic di optimize.js, sehingga tinggal belasan draw call.
@@ -20,8 +23,12 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
  *     Mesh hasil gabungan diberi nama sesuai materialnya, jadi bisa dibuang lewat `modelHide`.
  */
 
+const draco = new DRACOLoader();
+draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/libs/draco/gltf/');
+
 const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder);
+loader.setDRACOLoader(draco);
 
 export async function loadModels(artifacts) {
   const paths = [...new Set(artifacts.filter((a) => a.model).map((a) => a.model))];
@@ -70,6 +77,11 @@ function prepare(scene) {
     }
     if (!g.attributes.normal) g.computeVertexNormals();
     g.applyMatrix4(obj.matrixWorld);
+
+    // Ekspor Blender → Sketchfab kadang membawa ior = 1000 (KHR_materials_ior; wajarnya ± 1,5).
+    // Three.js membatasinya ke 2,333, tapi pantulannya tetap ± 4× terlalu kuat → warna
+    // tertutup kilau putih. Dikembalikan ke nilai umum benda padat.
+    if (obj.material.ior > 2) obj.material.ior = 1.5;
 
     const key = obj.material;
     if (!buckets.has(key)) buckets.set(key, []);

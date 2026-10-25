@@ -14,7 +14,6 @@ import { createTehyan } from './artifacts/tehyan.js';
 import { createTifa } from './artifacts/tifa.js';
 import { createTalempong } from './artifacts/talempong.js';
 import { createSeruneKalee } from './artifacts/seruneKalee.js';
-import { createPetaIndonesia } from './artifacts/petaIndonesia.js';
 import { createGltfModel } from './models.js';
 
 /*
@@ -57,7 +56,6 @@ const BUILDERS = {
   tifa: createTifa,
   talempong: createTalempong,
   seruneKalee: createSeruneKalee,
-  petaIndonesia: createPetaIndonesia,
   gltf: createGltfModel, // (data, models) — model dari file GLB
 };
 
@@ -216,7 +214,9 @@ DISPLAYS.floor = (stand, mats, size) => {
   footprint.position.set((x0 + x1) / 2, 0.05, (z0 + z1) / 2);
   stand.add(footprint);
   return {
-    baseY: 0, footprint,
+    // 1 cm di atas y = 0: lantai interior terpasang di y = 0,003 (building.js). Benda beralas
+    // datar (wadah peta) yang tepat di y = 0 hampir sebidang dengan lantai → z-fighting.
+    baseY: 0.01, footprint,
     plaque: new THREE.Vector3(postX, postH + 0.03, postZ), plaqueTilt: 0.9,
     light: new THREE.Vector3(0, 3.0, 1.0),
   };
