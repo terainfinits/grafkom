@@ -313,5 +313,21 @@ export const ARTIFACTS = [
       'https://budayaaceh.com/opk/serune-kale/96'
     ],
   },
-
+  {
+    id: 'peta-indonesia',
+    build: 'petaIndonesia', // Kunci yang akan dipanggil oleh exhibits.js
+    ruang: 'aula',          // Diletakkan di ruang aula awal
+    display: 'floor',       // Diletakkan di lantai, tanpa pedestal
+    position: [0.0, -18.0],   // Posisi diganti di tengah aula
+    facing: 0,
+    nama: 'Peta Kepulauan Indonesia',
+    asal: 'Nusantara',
+    periode: 'Era Modern',
+    bahan: 'Aset 3D Digital',
+    deskripsi: 'Sebuah representasi topografi kepulauan Indonesia dalam gaya low-poly. Menyimbolkan kesatuan nusantara dari Sabang hingga Merauke sebagai pembuka perjalanan menelusuri kekayaan budaya pameran ini.',
+    // INI ADALAH BAGIAN WAJIB UNTUK MEMATUHI LISENSI CC ATTRIBUTION
+    sumber: [
+      '"INDONESIA" (https://skfb.ly/6AFNo) by Bijahika is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).'
+    ]
+  },
 ];

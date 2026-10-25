@@ -1,3 +1,12 @@
+/*
+File Purpose: Merakit struktur arsitektur Joglo interior aula utama museum (4 tiang soko guru bermotif prada, alas umpak batu, plafon tumpang sari 5 tingkat, panel ukiran padma, dan lentera gantung pusat).
+
+Connected Files:
+- ./layout.js: Mengambil data dimensi dan koordinat batas ruang 'Aula utama' (ROOMS).
+- ./data/artifacts.js: Menyediakan titik koordinat [0.0, 0.0] di antara 4 soko guru untuk artefak utama (Peta Indonesia).
+- ./exhibits.js: Menempatkan objek 3D artefak pameran di dalam area lantai aula.
+- ../main.js: Mengimpor createAula untuk memasukkan grup 3D dan array colliders ke dalam scene serta sistem WalkControls.
+*/
 import * as THREE from 'three';
 import { ROOMS } from './layout.js';
 

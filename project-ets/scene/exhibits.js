@@ -14,6 +14,7 @@ import { createTehyan } from './artifacts/tehyan.js';
 import { createTifa } from './artifacts/tifa.js';
 import { createTalempong } from './artifacts/talempong.js';
 import { createSeruneKalee } from './artifacts/seruneKalee.js';
+import { createPetaIndonesia } from './artifacts/petaIndonesia.js';
 
 /*
  * Pajangan koleksi: untuk setiap entri di data/artifacts.js dibuat tempat pajang,
@@ -51,6 +52,7 @@ const BUILDERS = {
   tifa: createTifa,
   talempong: createTalempong,
   seruneKalee: createSeruneKalee,
+  petaIndonesia: createPetaIndonesia,
 };
 
 // Sudut & jarak kamera saat inspect, per jenis pajangan
