@@ -9,6 +9,7 @@
  *     onResume: () => { ... },
  *     onRestart: () => { ... },
  *     music,              // (opsional) audio/music.js → bagian Musik: lagu, volume, mute
+ *     sfx,                // (opsional) audio/sfx.js → tombol efek suara nyala/mati
  *   });
  *   menu.open(); menu.close(); menu.isOpen;
  *
@@ -27,7 +28,7 @@ const CONTROLS = [
 ];
 
 export class PauseMenu {
-  constructor({ getStatus, onResume, onRestart, music }) {
+  constructor({ getStatus, onResume, onRestart, music, sfx }) {
     this.getStatus = getStatus;
     this.onResume = onResume;
     this.onRestart = onRestart;
@@ -67,7 +68,7 @@ export class PauseMenu {
     this.roomsEl = el('div', 'pause-rooms');
 
     // ---------- Musik ----------
-    const musicParts = music ? this._buildMusic(music) : [];
+    const musicParts = music ? this._buildMusic(music, sfx) : [];
 
     // ---------- Tombol ----------
     const actions = el('div', 'pause-actions');
@@ -97,7 +98,7 @@ export class PauseMenu {
     this.onResume?.();
   }
 
-  _buildMusic(music) {
+  _buildMusic(music, sfx) {
     this.music = music;
     const heading = el('div', 'pause-heading');
     heading.textContent = 'Musik';
@@ -117,6 +118,16 @@ export class PauseMenu {
       this._renderMusic();
     });
     row.append(this.muteBtn, this.volumeEl);
+    // Efek suara (langkah, blip, koin) bisa dimatikan terpisah dari musik
+    if (sfx) {
+      this.sfx = sfx;
+      this.sfxBtn = button('', 'dialog-btn');
+      this.sfxBtn.addEventListener('click', () => {
+        sfx.muted = !sfx.muted;
+        this._renderMusic();
+      });
+      row.append(this.sfxBtn);
+    }
     // Lagu bisa berganti saat menu sedang terbuka → perbarui labelnya
     const prev = music.onTrackChange;
     music.onTrackChange = (track) => {
@@ -134,6 +145,7 @@ export class PauseMenu {
     this.trackEl.textContent = track ? `♪ ${track.judul}` : 'Mulai diputar saat pintu museum terbuka';
     this.muteBtn.textContent = this.music.muted ? 'Nyalakan' : 'Bisukan';
     this.volumeEl.value = Math.round(this.music.volume * 100);
+    if (this.sfxBtn) this.sfxBtn.textContent = this.sfx.muted ? 'Efek: mati' : 'Efek: nyala';
   }
 
   _renderStatus() {

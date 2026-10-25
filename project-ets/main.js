@@ -14,6 +14,7 @@ Connected Files:
 - ./scene/vfx/petals.js: Falling flower petal VFX (InstancedMesh) shown when the completion screen opens.
 - ./scene/lightPool.js: Dynamic point light management system cycling closest active light sources.
 - ./audio/music.js, ./data/music.js: Background music playlist (fade-in on door open, ducking during inspect/quiz).
+- ./audio/sfx.js, ./audio/footsteps.js: Sound effects (Web Audio): dialog blip, ticket coin, surface-aware footsteps.
 - ./data/artifacts.js: Structured array containing museum exhibit metadata.
 */
 
@@ -34,6 +35,8 @@ import { CompletionScreen } from './ui/completionScreen.js';
 import { PerfOverlay } from './ui/perfOverlay.js';
 import { DevPanel } from './ui/devPanel.js';
 import { Music } from './audio/music.js';
+import { Sfx } from './audio/sfx.js';
+import { Footsteps } from './audio/footsteps.js';
 import { Banner } from './ui/banner.js';
 import { Progress } from './game/progress.js';
 import { RoomTracker } from './game/roomTracker.js';
@@ -159,6 +162,12 @@ const dialog = new Dialog();
 
 // ---------- Musik latar (mulai saat pintu terbuka) ----------
 const music = new Music();
+
+// ---------- Efek suara: dimuat di balik layar loading ----------
+const sfx = new Sfx();
+await sfx.load();
+dialog.onPage = () => sfx.play('blip', { volume: 0.5, rate: 0.95 + Math.random() * 0.1 });
+const footsteps = new Footsteps(sfx, controls);
 const CASHIER = 'Mas Bima · Petugas Loket';
 
 // ---------- Progress, quest, & pelacak ruangan ----------
@@ -251,6 +260,7 @@ function talkToCashier() {
 
 // Executes ticket purchase action, opens entrance door, and updates quest progression state
 function buyTicket() {
+  sfx.play('coin', { volume: 0.7 });
   door.open();
   music.start(); // musik masuk pelan bersamaan dengan pintu terbuka
   dialog.open({
@@ -274,6 +284,7 @@ window.addEventListener('keydown', (e) => {
 // ---------- Menu jeda (Esc) / Pause Menu system & 'Escape' hotkey binding ----------
 const pauseMenu = new PauseMenu({
   music,
+  sfx,
   getStatus: () => ({
     quests: progress.quests,
     rooms: roomTracker.all.map((r) => ({ title: r.title, visited: progress.visited.has(r.id) })),
@@ -410,6 +421,7 @@ new DevPanel({ onCompleteAll: () => devSkip(false), onLeaveOne: () => devSkip(tr
 function loop() {
   const dt = Math.min(clock.getDelta(), 0.1); // dibatasi supaya tidak "teleport" saat tab kembali aktif
   controls.update(dt);
+  footsteps.update(dt, camera.position);
   booth.update(dt, camera.position);
   fireflies.update(dt);
   ripples.update(dt);

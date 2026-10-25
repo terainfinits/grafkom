@@ -13,6 +13,8 @@
  *   });
  *
  * Keyboard saat dialog terbuka: Enter / Spasi / E = tombol pertama, Esc = tutup.
+ *
+ * dialog.onPage = () => { ... } dipanggil setiap halaman tampil (main.js: bunyi blip).
  */
 export class Dialog {
   constructor() {
@@ -93,6 +95,7 @@ export class Dialog {
   }
 
   _render() {
+    this.onPage?.();
     const page = this.pages[this.index];
     const isLast = this.index === this.pages.length - 1;
     this.textEl.innerHTML = page.text;
