@@ -191,3 +191,7 @@ npx serve .
 - **Peta Indonesia 3D Model**: Dibuat oleh *Bijahika* di Sketchfab ([Lisensi CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)).
 - **Lukisan Bersejarah**: Berasal dari domain publik dan repositori terbuka Wikimedia Commons & Rijksmuseum.
 - **Informasi & Sejarah Budaya**: Dirangkum dari referensi edukasi Wikipedia Indonesia, Kemendikbudristek, dan dokumentasi Warisan Budaya Takbenda UNESCO.
+
+## Screenshot
+
+![ets](../assets/ss_ets.png)
