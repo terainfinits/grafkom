@@ -18,7 +18,7 @@ Praktikum Grafika Komputer: membuat aset 3D **Sci-Fi Crate (kotak sci-fi)** meng
 
 ## Hasil Akhir
 
-![Hasil akhir](.\screenshots\final.png)
+![Hasil akhir](./screenshots/final.png)
 
 Sci-fi crate dengan badan panel berwarna oranye kemerahan, bingkai gelap, garis tepi bercahaya (cyan/emission), dan handle hitam di bagian atas.
 
@@ -42,7 +42,7 @@ Sci-fi crate dengan badan panel berwarna oranye kemerahan, bingkai gelap, garis 
 
 Mulai dari scene kosong dengan **Cube** default (`Add > Mesh > Cube`). Masuk ke **Edit Mode** (`Tab`) dan gunakan mode seleksi *Face*.
 
-![Initial](.\screenshots\initial.png)
+![Initial](./screenshots/initial.png)
 
 ### 2. Mengatur Primitif (Primitive)
 
@@ -56,7 +56,7 @@ Kubus diubah menjadi bentuk balok dengan mengatur skala hingga dimensi akhir pad
 
 > Tips: setelah di-scale, tekan `Ctrl + A` → **Scale** (Apply) agar skala objek kembali 1.000.
 
-![Primitive](.\screenshots\primitive.png)
+![Primitive](./screenshots/primitive.png)
 
 ### 3. Inset & Extrude
 
@@ -67,7 +67,7 @@ Membuat detail panel dan cekungan pada sisi kotak:
 3. **Extrude** – tekan `E` dengan nilai negatif (ke dalam) untuk membuat panel cekung.
 4. Ulangi untuk sisi atas dan sisi samping.
 
-![Inset dan Extrude](.\screenshots\inset-extrude.png)
+![Inset dan Extrude](./screenshots/inset-extrude.png)
 
 ### 4. Loop Cut
 
@@ -77,13 +77,13 @@ Menambahkan potongan sisi (edge loop) untuk membagi permukaan menjadi beberapa p
 2. Scroll mouse untuk menambah jumlah potongan.
 3. Klik untuk konfirmasi, klik kanan untuk membatalkan pergeseran.
 
-![Loop Cut](.\screenshots\loop_cut.png)
+![Loop Cut](./screenshots/loop_cut.png)
 
 ### 5. Modifier
 
 Kembali ke **Object Mode** dan tambahkan modifier pada tab **Modifiers** (ikon kunci inggris) untuk menghaluskan sudut dan tepi model sehingga terlihat lebih realistis.
 
-![Modifier](.\screenshots\modifier.png)
+![Modifier](./screenshots/modifier.png)
 
 ### 6. Material dan Hasil Akhir
 
@@ -92,7 +92,7 @@ Kembali ke **Object Mode** dan tambahkan modifier pada tab **Modifiers** (ikon k
 - Garis tepi diberi material **Emission** berwarna cyan sehingga tampak bercahaya.
 - Handle ditambahkan di bagian atas sebagai detail akhir.
 
-![Final](.\screenshots\final.png)
+![Final](./screenshots/final.png)
 
 ---
 
